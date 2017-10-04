@@ -12,7 +12,7 @@ namespace Dapper.GraphQL
     /// </summary>
     public class SqlQueryBuilder
     {
-        private readonly Regex AliasPattern = new Regex(@"^\s*(\[?[\w#_$]+\]?\.)?\[?([\w#_$]+)\]?\s+(as\s+)?\[?(?<alias>[\w#_$]+)\]?", RegexOptions.IgnoreCase | RegexOptions.Compiled);
+        private readonly Regex AliasPattern = new Regex(@"^\s*(\[?[\w#_$]+\]?\.)?\s*(\[?[\w#_$]+\]?\.)?\[?([\w#_$]+)\]?\s+(as\s+)?\[?(?<alias>[\w#_$]+)\]?", RegexOptions.IgnoreCase | RegexOptions.Compiled);
 
         public DynamicParameters Parameters { get; set; }
         private StringBuilder _from { get; set; }
@@ -216,12 +216,12 @@ FROM
             return AndWhere(where);
         }
 
-        private bool CacheAlias(string fromOrJoin, bool ignoreDuplicates)
+        private bool CacheAlias(string expr, bool ignoreDuplicates)
         {
-            var alias = ParseAlias(fromOrJoin);
+            var alias = ParseAlias(expr);
             if (alias == null)
             {
-                throw new InvalidOperationException("No alias found in expression '{expr}'.");
+                throw new InvalidOperationException($"No alias found in expression '{expr}'.");
             }
             if (Aliases.Contains(alias))
             {
@@ -231,7 +231,7 @@ FROM
                 }
                 else
                 {
-                    throw new InvalidOperationException($"Alias '{alias}' in expression '{fromOrJoin}' has already been included in the sql query.");
+                    throw new InvalidOperationException($"Alias '{alias}' in expression '{expr}' has already been included in the sql query.");
                 }
             }
             Aliases.Add(alias);
