@@ -43,6 +43,17 @@ namespace Dapper.GraphQL
         }
 
         /// <summary>
+        /// Adds a GraphQL schema to the container.
+        /// </summary>
+        /// <typeparam name="TGraphSchema">The schema type to be mapped.</typeparam>
+        /// <returns>The GraphQLOptions object.</returns>
+        public DapperGraphQLOptions AddSchema<TGraphSchema>() where TGraphSchema : class, ISchema
+        {
+            serviceCollection.AddSingleton<TGraphSchema>();
+            return this;
+        }
+
+        /// <summary>
         /// Adds a GraphQL type to the container.
         /// </summary>
         /// <typeparam name="TGraphType">The model type to be mapped.</typeparam>
