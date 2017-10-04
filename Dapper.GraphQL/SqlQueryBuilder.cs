@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Data.Common;
+using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 
 namespace Dapper.GraphQL
 {
@@ -10,6 +12,8 @@ namespace Dapper.GraphQL
     /// </summary>
     public class SqlQueryBuilder
     {
+        private readonly Regex AliasPattern = new Regex(@"^\s*(\[?[\w#_$]+\]?\.)?\[?([\w#_$]+)\]?\s+(as\s+)?\[?(?<alias>[\w#_$]+)\]?", RegexOptions.IgnoreCase | RegexOptions.Compiled);
+
         public DynamicParameters Parameters { get; set; }
         private StringBuilder _from { get; set; }
         private StringBuilder _orderBy { get; set; }
@@ -17,16 +21,18 @@ namespace Dapper.GraphQL
         private List<string> _splitOn { get; set; }
         private List<Type> _types { get; set; }
         private StringBuilder _where { get; set; }
+        private HashSet<string> Aliases { get; set; }
 
         public SqlQueryBuilder()
         {
+            Aliases = new HashSet<string>();
+            Parameters = new DynamicParameters();
+            _splitOn = new List<string>();
             _types = new List<Type>();
             _select = new StringBuilder();
             _from = new StringBuilder();
             _where = new StringBuilder();
             _orderBy = new StringBuilder();
-            _splitOn = new List<string>();
-            Parameters = new DynamicParameters();
         }
 
         public SqlQueryBuilder AndWhere(params string[] where)
@@ -55,30 +61,58 @@ namespace Dapper.GraphQL
                 map: map,
                 splitOn: string.Join(",", this._splitOn)
             );
-            return results;
+            return results.Where(e => e != null);
         }
 
-        public SqlQueryBuilder From(params string[] from)
+        public SqlQueryBuilder From(string from, bool ignoreDuplicates = false)
         {
-            if (from.Length > 0)
+            return From(new[] { from }, ignoreDuplicates);
+        }
+
+        public SqlQueryBuilder From(IEnumerable<string> from, bool ignoreDuplicates = false)
+        {
+            if (from != null && from.Any())
             {
-                if (_from.Length > 0)
+                if (_from.Length == 0)
                 {
-                    _from.Append($",\n    {string.Join(",\n    ", from)}");
+                    var expr = from.FirstOrDefault();
+                    if (CacheAlias(expr, ignoreDuplicates))
+                    {
+                        _from.Append(expr);
+                    }
+                    from = from.Skip(1);
                 }
-                else _from.Append(string.Join(",\n    ", from));
+
+                foreach (var expr in from)
+                {
+                    if (CacheAlias(expr, ignoreDuplicates))
+                    {
+                        _from.Append($",\n    {expr}");
+                    }
+                }
             }
 
             return this;
         }
 
-        public SqlQueryBuilder InnerJoin(params string[] join)
+        public SqlQueryBuilder InnerJoin(string join, bool ignoreDuplicates = false)
         {
-            if (join.Length > 0)
+            return InnerJoin(new[] { join }, ignoreDuplicates);
+        }
+
+        public SqlQueryBuilder InnerJoin(IEnumerable<string> join, bool ignoreDuplicates = false)
+        {
+            if (join != null && join.Any())
             {
                 if (_from.Length > 0)
                 {
-                    _from.Append($" INNER JOIN\n    {string.Join(" INNER JOIN\n    ", join)}");
+                    foreach (var expr in join)
+                    {
+                        if (CacheAlias(expr, ignoreDuplicates))
+                        {
+                            _from.Append($" INNER JOIN\n    {expr}");
+                        }
+                    }
                 }
                 else throw new NotSupportedException("Cannot join before adding a source.");
             }
@@ -86,13 +120,24 @@ namespace Dapper.GraphQL
             return this;
         }
 
-        public SqlQueryBuilder LeftOuterJoin(params string[] join)
+        public SqlQueryBuilder LeftOuterJoin(string join, bool ignoreDuplicates = false)
         {
-            if (join.Length > 0)
+            return LeftOuterJoin(new[] { join }, ignoreDuplicates);
+        }
+
+        public SqlQueryBuilder LeftOuterJoin(IEnumerable<string> join, bool ignoreDuplicates = false)
+        {
+            if (join != null && join.Any())
             {
                 if (_from.Length > 0)
                 {
-                    _from.Append($" LEFT OUTER JOIN\n    {string.Join(" LEFT OUTER JOIN\n    ", join)}");
+                    foreach (var expr in join)
+                    {
+                        if (CacheAlias(expr, ignoreDuplicates))
+                        {
+                            _from.Append($" LEFT OUTER JOIN\n    {expr}");
+                        }
+                    }
                 }
                 else throw new NotSupportedException("Cannot join before adding a source.");
             }
@@ -169,6 +214,38 @@ FROM
         public SqlQueryBuilder Where(params string[] where)
         {
             return AndWhere(where);
+        }
+
+        private bool CacheAlias(string fromOrJoin, bool ignoreDuplicates)
+        {
+            var alias = ParseAlias(fromOrJoin);
+            if (alias == null)
+            {
+                throw new InvalidOperationException("No alias found in expression '{expr}'.");
+            }
+            if (Aliases.Contains(alias))
+            {
+                if (ignoreDuplicates)
+                {
+                    return false;
+                }
+                else
+                {
+                    throw new InvalidOperationException($"Alias '{alias}' in expression '{fromOrJoin}' has already been included in the sql query.");
+                }
+            }
+            Aliases.Add(alias);
+            return true;
+        }
+
+        private string ParseAlias(string fromOrJoin)
+        {
+            var match = AliasPattern.Match(fromOrJoin);
+            if (match.Success)
+            {
+                return match.Groups["alias"].Value;
+            }
+            return null;
         }
     }
 }

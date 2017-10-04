@@ -6,11 +6,11 @@ namespace Dapper.GraphQL
     /// <summary>
     /// Options used to configure the dependency injection container for GraphQL and Dapper.
     /// </summary>
-    public class GraphQLDapperOptions
+    public class DapperGraphQLOptions
     {
         private readonly IServiceCollection serviceCollection;
 
-        public GraphQLDapperOptions(IServiceCollection serviceCollection)
+        public DapperGraphQLOptions(IServiceCollection serviceCollection)
         {
             this.serviceCollection = serviceCollection;
         }
@@ -21,7 +21,7 @@ namespace Dapper.GraphQL
         /// <typeparam name="TModelType">The model type to be mapped.</typeparam>
         /// <typeparam name="TEntityMapper">The mapper class.</typeparam>
         /// <returns>The GraphQLOptions object.</returns>
-        public GraphQLDapperOptions AddEntityMapper<TModelType, TEntityMapper>()
+        public DapperGraphQLOptions AddEntityMapper<TModelType, TEntityMapper>()
             where TModelType : class
             where TEntityMapper : class, IEntityMapper<TModelType>
         {
@@ -35,7 +35,7 @@ namespace Dapper.GraphQL
         /// <typeparam name="TModelType">The model type to be queried.</typeparam>
         /// <typeparam name="TQueryBuilder">The query builder class.</typeparam>
         /// <returns>The GraphQLOptions object.</returns>
-        public GraphQLDapperOptions AddQueryBuilder<TModelType, TQueryBuilder>()
+        public DapperGraphQLOptions AddQueryBuilder<TModelType, TQueryBuilder>()
             where TQueryBuilder : class, IQueryBuilder<TModelType>
         {
             serviceCollection.AddSingleton<IQueryBuilder<TModelType>, TQueryBuilder>();
@@ -47,7 +47,7 @@ namespace Dapper.GraphQL
         /// </summary>
         /// <typeparam name="TGraphType">The model type to be mapped.</typeparam>
         /// <returns>The GraphQLOptions object.</returns>
-        public GraphQLDapperOptions AddType<TGraphType>() where TGraphType : class, IGraphType
+        public DapperGraphQLOptions AddType<TGraphType>() where TGraphType : class, IGraphType
         {
             serviceCollection.AddSingleton<TGraphType>();
             return this;
