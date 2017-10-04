@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Data.Common;
 using System.Linq;
 using System.Text;
@@ -107,7 +108,7 @@ namespace Dapper.GraphQL
         /// <param name="connection">The database connection.</param>
         /// <param name="map">The dapper mapping function.</param>
         /// <returns>A list of entities returned by the query.</returns>
-        public IEnumerable<TEntityType> Execute<TEntityType>(DbConnection connection, Func<object[], TEntityType> map)
+        public IEnumerable<TEntityType> Execute<TEntityType>(IDbConnection connection, Func<object[], TEntityType> map)
         {
             // FIXME: log instead
             Console.WriteLine(this.ToString());
@@ -130,7 +131,7 @@ namespace Dapper.GraphQL
         /// <param name="connection">The database connection.</param>
         /// <param name="selector">An expression that returns the primary key of the entity.</param>
         /// <returns>A list of entities returned by the query.</returns>
-        public IEnumerable<TEntityType> Execute<TEntityType>(DbConnection connection, Func<TEntityType, object> getPrimaryKey)
+        public IEnumerable<TEntityType> Execute<TEntityType>(IDbConnection connection, Func<TEntityType, object> getPrimaryKey)
             where TEntityType : class
         {
             if (ServiceProvider == null)
@@ -540,6 +541,15 @@ namespace Dapper.GraphQL
         /// <returns>The rendered SQL statement.</returns>
         public override string ToString()
         {
+            if (_select.Length == 0)
+            {
+                throw new InvalidOperationException("No SELECT clause was specified.");
+            }
+            if (_from.Length == 0)
+            {
+                throw new InvalidOperationException("No FROM clause was specified.");
+            }
+
             return $@"SELECT
     {_select}
 FROM

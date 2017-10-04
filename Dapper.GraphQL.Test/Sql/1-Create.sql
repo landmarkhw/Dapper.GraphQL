@@ -1,0 +1,19 @@
+﻿CREATE TABLE Person (
+	Id INTEGER PRIMARY KEY,
+	FirstName TEXT,
+	LastName TEXT
+);
+
+CREATE TABLE Email (
+	Id INTEGER PRIMARY KEY,
+	[Address] TEXT,
+	PersonId INTEGER,
+	FOREIGN KEY(PersonId) REFERENCES Person(Id)
+);
+
+CREATE TABLE Phone (
+	Id INTEGER PRIMARY KEY,
+	Number TEXT,
+	PersonId INTEGER,
+	FOREIGN KEY(PersonId) REFERENCES Person(Id)
+);

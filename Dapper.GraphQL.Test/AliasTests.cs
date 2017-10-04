@@ -4,12 +4,12 @@ using Xunit;
 
 namespace Dapper.GraphQL.Test
 {
-    public class SqlQueryBuilderTests
+    public class AliasTests
     {
         private readonly MethodInfo parseAliasMethod;
         private readonly SqlQueryBuilder sqlQueryBuilder;
 
-        public SqlQueryBuilderTests()
+        public AliasTests()
         {
             sqlQueryBuilder = new SqlQueryBuilder();
             parseAliasMethod = typeof(SqlQueryBuilder).GetMethod("ParseAlias", BindingFlags.NonPublic | BindingFlags.Instance);
