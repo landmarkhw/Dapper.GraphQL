@@ -14,6 +14,7 @@ CREATE TABLE Email (
 CREATE TABLE Phone (
 	Id INTEGER PRIMARY KEY,
 	Number TEXT,
+	[Type] INTEGER,
 	PersonId INTEGER,
 	FOREIGN KEY(PersonId) REFERENCES Person(Id)
 );

@@ -6,10 +6,11 @@ namespace Dapper.GraphQL.Test.Models
 {
     public enum PhoneType
     {
-        Home,
-        Work,
-        Mobile,
-        Other
+        Unknown = 0,
+        Home = 1,
+        Work = 2,
+        Mobile = 3,
+        Other = 4
     }
 
     public class Phone

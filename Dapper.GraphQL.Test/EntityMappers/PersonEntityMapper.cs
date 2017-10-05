@@ -1,6 +1,7 @@
 ﻿using Dapper.GraphQL.Test.Models;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 
 namespace Dapper.GraphQL.Test.EntityMappers
@@ -20,12 +21,16 @@ namespace Dapper.GraphQL.Test.EntityMappers
                     person = ResolveEntity(p);
                     continue;
                 }
-                if (obj is Email email)
+                if (obj is Email email &&
+                    // Eliminate duplicates
+                    !person.Emails.Any(e => e.Address == email.Address))
                 {
                     person.Emails.Add(email);
                     continue;
                 }
-                if (obj is Phone phone)
+                if (obj is Phone phone &&
+                    // Eliminate duplicates
+                    !person.Phones.Any(ph => ph.Number == phone.Number))
                 {
                     person.Phones.Add(phone);
                     continue;
