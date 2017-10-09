@@ -50,7 +50,7 @@ namespace Dapper.GraphQL.Test
         {
             // To ensure formatting doesn't affect our results, we first convert to JSON tokens
             // and only compare the structure of the resulting objects.
-            return JToken.DeepEquals(JObject.Parse(expectedJson), JObject.Parse(actualJson)));
+            return JToken.DeepEquals(JObject.Parse(expectedJson), JObject.Parse(actualJson));
         }
 
         public async Task<string> QueryGraphQLAsync(string query)
