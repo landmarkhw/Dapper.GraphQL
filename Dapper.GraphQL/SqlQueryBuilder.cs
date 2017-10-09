@@ -13,6 +13,8 @@ namespace Dapper.GraphQL
     /// </summary>
     public class SqlQueryBuilder
     {
+        // FIXME: consider making SqlQueryBuilder immutable.
+
         private readonly Regex AliasPattern = new Regex(@"^\s*(\[?[\w#_$]+\]?\.)?\s*(\[?[\w#_$]+\]?\.)?\[?([\w#_$]+)\]?\s+(as\s+)?\[?(?<alias>[\w#_$]+)\]?", RegexOptions.IgnoreCase | RegexOptions.Compiled);
 
         /// <summary>
