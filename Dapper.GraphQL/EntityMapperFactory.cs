@@ -28,7 +28,7 @@ namespace Dapper.GraphQL
             if (resolve == null)
             {
                 // A non-resolver, always resolves to the next object provided.
-                resolve = (current, next) => next;
+                resolve = (previous, current) => current;
             }
 
             // Build an entity mapper for the given type
@@ -72,13 +72,13 @@ namespace Dapper.GraphQL
             where TEntityType : class
         {
             var resolve = new Func<TEntityType, TEntityType, TEntityType>(
-                (current, next) =>
+                (previous, current) =>
                 {
-                    TEntityType result = next;
-                    if (current != null)
+                    TEntityType result = current;
+                    if (previous != null)
                     {
                         // Compare against values on the objects (usually a primary key)
-                        result = object.Equals(selector(current), selector(next)) ? current : next;
+                        result = object.Equals(selector(previous), selector(current)) ? previous : current;
                     }
                     return result;
                 }
