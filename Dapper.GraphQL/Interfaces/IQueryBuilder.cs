@@ -15,6 +15,6 @@ namespace Dapper.GraphQL
         /// <param name="context">The GraphQL selection set for the area being built.</param>
         /// <param name="alias">The alias of the entity within the query to use.</param>
         /// <returns>A query for the given type.</returns>
-        SqlQueryBuilder Build(SqlQueryBuilder query, IHaveSelectionSet context, string alias);
+        SqlBuilder Build(SqlBuilder query, IHaveSelectionSet context, string alias);
     }
 }

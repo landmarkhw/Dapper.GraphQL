@@ -21,7 +21,7 @@ namespace Dapper.GraphQL.Test.GraphQL
                 resolve: context =>
                 {
                     var alias = "person";
-                    var query = new SqlQueryBuilder().From($"Person {alias}");
+                    var query = new SqlBuilder().From($"Person {alias}");
                     query = personQueryBuilder.Build(query, context.FieldAst, alias);
 
                     // Create a mapper that understands how to uniquely identify the 'Person' class.

@@ -7,12 +7,12 @@ namespace Dapper.GraphQL.Test
     public class AliasTests
     {
         private readonly MethodInfo parseAliasMethod;
-        private readonly SqlQueryBuilder sqlQueryBuilder;
+        private readonly SqlBuilder sqlQueryBuilder;
 
         public AliasTests()
         {
-            sqlQueryBuilder = new SqlQueryBuilder();
-            parseAliasMethod = typeof(SqlQueryBuilder).GetMethod("ParseAlias", BindingFlags.NonPublic | BindingFlags.Instance);
+            sqlQueryBuilder = new SqlBuilder();
+            parseAliasMethod = typeof(SqlBuilder).GetMethod("ParseAlias", BindingFlags.NonPublic | BindingFlags.Instance);
         }
 
         [Theory(DisplayName = "Alias parsing should fail")]
@@ -48,7 +48,7 @@ namespace Dapper.GraphQL.Test
         [Fact(DisplayName = "Duplicate aliases should throw an InvalidOperationException")]
         public void DuplicateAliasesShouldThrow()
         {
-            var query = new SqlQueryBuilder();
+            var query = new SqlBuilder();
             query.From("test.Table table");
             Assert.Throws<InvalidOperationException>(() => query.From("test.Table table"));
         }

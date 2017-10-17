@@ -9,7 +9,7 @@ namespace Dapper.GraphQL.Test.QueryBuilders
     public class EmailQueryBuilder :
         IQueryBuilder<Email>
     {
-        public SqlQueryBuilder Build(SqlQueryBuilder query, IHaveSelectionSet context, string alias)
+        public SqlBuilder Build(SqlBuilder query, IHaveSelectionSet context, string alias)
         {
             query.Select($"{alias}.Id");
             query.SplitOn<Email>("Id");

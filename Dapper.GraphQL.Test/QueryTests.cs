@@ -27,7 +27,7 @@ namespace Dapper.GraphQL.Test
         [Fact(DisplayName = "FROM without SELECT should throw")]
         public void FromWithoutSelectShouldThrow()
         {
-            Assert.Throws<InvalidOperationException>(() => new SqlQueryBuilder()
+            Assert.Throws<InvalidOperationException>(() => new SqlBuilder()
                 .From("Person person")
                 .ToString()
             );
@@ -36,7 +36,7 @@ namespace Dapper.GraphQL.Test
         [Fact(DisplayName = "SELECT without FROM should throw")]
         public void SelectWithoutFromShouldThrow()
         {
-            Assert.Throws<InvalidOperationException>(() => new SqlQueryBuilder()
+            Assert.Throws<InvalidOperationException>(() => new SqlBuilder()
                 .From("Person person")
                 .ToString()
             );
@@ -47,7 +47,7 @@ namespace Dapper.GraphQL.Test
         {
             Assert.Throws<SqliteException>(() =>
             {
-                var query = new SqlQueryBuilder()
+                var query = new SqlBuilder()
                     .From("Person person")
                     .Select("person.Id", "notAnAlias.Id")
                     .SplitOn<Person>("Id");
