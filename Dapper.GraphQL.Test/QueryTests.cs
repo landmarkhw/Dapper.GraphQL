@@ -15,19 +15,50 @@ using Xunit;
 
 namespace Dapper.GraphQL.Test
 {
-    public class QueryTests
+    public class QueryTests : IClassFixture<TestFixture>
     {
-        public QueryTests()
+        private readonly TestFixture fixture;
+
+        public QueryTests(TestFixture fixture)
         {
+            this.fixture = fixture;
         }
 
         [Fact(DisplayName = "FROM without SELECT should throw")]
         public void FromWithoutSelectShouldThrow()
         {
             Assert.Throws<InvalidOperationException>(() => new SqlQueryBuilder()
-                .From("Customer customer")
+                .From("Person person")
                 .ToString()
             );
+        }
+
+        [Fact(DisplayName = "SELECT without FROM should throw")]
+        public void SelectWithoutFromShouldThrow()
+        {
+            Assert.Throws<InvalidOperationException>(() => new SqlQueryBuilder()
+                .From("Person person")
+                .ToString()
+            );
+        }
+
+        [Fact(DisplayName = "SELECT without matching alias should throw")]
+        public void SelectWithoutMatchingAliasShouldThrow()
+        {
+            Assert.Throws<SqliteException>(() =>
+            {
+                var query = new SqlQueryBuilder()
+                    .From("Person person")
+                    .Select("person.Id", "notAnAlias.Id")
+                    .SplitOn<Person>("Id");
+
+                using (var dbConnection = fixture.DbConnection)
+                {
+                    var customer = query
+                        .Execute(dbConnection, c => c)
+                        .FirstOrDefault();
+                }
+            });
         }
     }
 }
