@@ -11,6 +11,12 @@ namespace Dapper.GraphQL
         private static Dictionary<Type, PropertyInfo[]> PropertyCache = new Dictionary<Type, PropertyInfo[]>();
         private static Dictionary<Type, TypeInfo> TypeInfoCache = new Dictionary<Type, TypeInfo>();
 
+        /// <summary>
+        /// Gets a list of flat properties that have been set on the object.
+        /// </summary>
+        /// <typeparam name="TType">The type to get properties from.</typeparam>
+        /// <param name="obj">The object to get properties from.</param>
+        /// <returns>A list of key-value pairs of property names and values.</returns>
         public static IEnumerable<KeyValuePair<string, object>> GetSetFlatProperties<TType>(TType obj)
         {
             var type = obj.GetType();

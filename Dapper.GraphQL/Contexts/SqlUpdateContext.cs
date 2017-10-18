@@ -23,7 +23,7 @@ namespace Dapper.GraphQL
         {
             if (parameters != null && !(parameters is IEnumerable<KeyValuePair<string, object>>))
             {
-                parameters = ParameterHelper.GetSetProperties(parameters);
+                parameters = ParameterHelper.GetSetFlatProperties(parameters);
             }
             this.Parameters = new DynamicParameters(parameters);
             this.SqlBuilder = new Dapper.SqlBuilder();
