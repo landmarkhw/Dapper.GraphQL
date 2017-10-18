@@ -23,40 +23,50 @@ namespace Dapper.GraphQL
             PropertyInfo[] properties;
             if (!PropertyCache.ContainsKey(type))
             {
-                // Get a list of properties that are "flat" on this object, i.e. singular values
-                properties = type
-                    .GetProperties()
-                    .Where(p =>
+                lock (PropertyCache)
+                {
+                    if (!PropertyCache.ContainsKey(type))
                     {
-                        var typeInfo = GetTypeInfo(p.PropertyType);
-
-                        // Explicitly permit primitive, value, and serializable types
-                        if (typeInfo.IsSerializable || typeInfo.IsPrimitive || typeInfo.IsValueType)
-                        {
-                            return true;
-                        }
-
-                        // Filter out list-types
-                        if (typeof(IEnumerable).IsAssignableFrom(p.PropertyType))
-                        {
-                            return false;
-                        }
-                        if (p.PropertyType.IsConstructedGenericType)
-                        {
-                            var typeDef = p.PropertyType.GetGenericTypeDefinition();
-                            if (typeof(IEnumerable<>).IsAssignableFrom(typeDef) ||
-                                typeof(ICollection<>).IsAssignableFrom(typeDef) ||
-                                typeof(IList<>).IsAssignableFrom(typeDef))
+                        // Get a list of properties that are "flat" on this object, i.e. singular values
+                        properties = type
+                            .GetProperties()
+                            .Where(p =>
                             {
-                                return false;
-                            }
-                        }
-                        return true;
-                    })
-                    .ToArray();
+                                var typeInfo = GetTypeInfo(p.PropertyType);
 
-                // Cache those properties
-                PropertyCache[type] = properties;
+                                // Explicitly permit primitive, value, and serializable types
+                                if (typeInfo.IsSerializable || typeInfo.IsPrimitive || typeInfo.IsValueType)
+                                {
+                                    return true;
+                                }
+
+                                // Filter out list-types
+                                if (typeof(IEnumerable).IsAssignableFrom(p.PropertyType))
+                                {
+                                    return false;
+                                }
+                                if (p.PropertyType.IsConstructedGenericType)
+                                {
+                                    var typeDef = p.PropertyType.GetGenericTypeDefinition();
+                                    if (typeof(IEnumerable<>).IsAssignableFrom(typeDef) ||
+                                        typeof(ICollection<>).IsAssignableFrom(typeDef) ||
+                                        typeof(IList<>).IsAssignableFrom(typeDef))
+                                    {
+                                        return false;
+                                    }
+                                }
+                                return true;
+                            })
+                            .ToArray();
+
+                        // Cache those properties
+                        PropertyCache[type] = properties;
+                    }
+                    else
+                    {
+                        properties = PropertyCache[type];
+                    }
+                }
             }
             else
             {
@@ -94,7 +104,13 @@ namespace Dapper.GraphQL
         {
             if (!TypeInfoCache.ContainsKey(type))
             {
-                TypeInfoCache[type] = type.GetTypeInfo();
+                lock (TypeInfoCache)
+                {
+                    if (!TypeInfoCache.ContainsKey(type))
+                    {
+                        TypeInfoCache[type] = type.GetTypeInfo();
+                    }
+                }
             }
             return TypeInfoCache[type];
         }

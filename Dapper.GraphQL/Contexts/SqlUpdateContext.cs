@@ -15,7 +15,6 @@ namespace Dapper.GraphQL
         private Dapper.SqlBuilder SqlBuilder { get; set; }
         public string Table { get; private set; }
         private Dapper.SqlBuilder.Template Template { get; set; }
-        private IServiceProvider ServiceProvider { get; set; }
 
         public SqlUpdateContext(
             string table,
@@ -78,9 +77,10 @@ namespace Dapper.GraphQL
         /// Executes the update statement with Dapper, using the provided database connection.
         /// </summary>
         /// <param name="connection">The database connection.</param>
-        public void Execute(IDbConnection connection)
+        public int Execute(IDbConnection connection)
         {
             var result = connection.Execute(BuildSql(), Parameters);
+            return result;
         }
 
         /// <summary>
@@ -123,7 +123,7 @@ namespace Dapper.GraphQL
         /// <summary>
         /// Builds the UPDATE statement.
         /// </summary>
-        /// <returns></returns>
+        /// <returns>A SQL UPDATE statement.</returns>
         private string BuildSql()
         {
             var sb = new StringBuilder();

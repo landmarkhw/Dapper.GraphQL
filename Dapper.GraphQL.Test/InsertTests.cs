@@ -25,36 +25,51 @@ namespace Dapper.GraphQL.Test
             this.fixture = fixture;
         }
 
-        [Fact(DisplayName = "INSERT person succeeds", Skip = "Not implemented yet")]
+        [Fact(DisplayName = "INSERT person succeeds", Skip = "Not quite setup to run properly")]
         public void InsertPerson()
         {
-            //var person = new Person
-            //{
-            //    FirstName = "Steven",
-            //    LastName = "Rollman",
-            //};
+            var person = new Person
+            {
+                FirstName = "Steven",
+                LastName = "Rollman",
+            };
 
-            //var personId = SqlBuilder
-            //    .Insert(person)
-            //    .Execute(dbConnection);
+            var personId = SqlBuilder
+                .Insert(person)
+                .ExecuteWithSqliteIdentity(fixture.DbConnection);
 
-            //var email = new Email
-            //{
-            //    Address = "srollman@landmarkhw.com",
-            //    PersonId = personId,
-            //};
+            var email = new Email
+            {
+                Address = "srollman@landmarkhw.com",
+                PersonId = personId,
+            };
 
-            //var phone = new Phone
-            //{
-            //    Number = "8011115555",
-            //    Type = PhoneType.Mobile,
-            //    PersonId = personId,
-            //};
+            var phone = new Phone
+            {
+                Number = "8011115555",
+                Type = PhoneType.Mobile,
+                PersonId = personId,
+            };
 
-            //SqlBuilder
-            //    .Insert(email)
-            //    .Insert(phone)
-            //    .Execute(dbConnection);
+            var insertedCount = SqlBuilder
+                .Insert(email)
+                .Insert(phone)
+                .Execute(fixture.DbConnection);
+
+            Assert.Equal(2, insertedCount);
+
+            var personMapper = fixture.ServiceProvider.GetRequiredService<IEntityMapperFactory>().Build<Person>(p => p.Id);
+            var query = SqlBuilder
+                .From<Person>()
+                .Select("Id", "FirstName", "LastName")
+                .Where("Id = @id", new { id = personId })
+                .Execute(fixture.DbConnection, personMapper)
+                .FirstOrDefault();
+
+            Assert.NotNull(person);
+            Assert.Equal(personId, person.Id);
+            Assert.Equal("Steven", person.FirstName);
+            Assert.Equal("Rollman", person.LastName);
         }
     }
 }
