@@ -1,16 +1,8 @@
-using Dapper.GraphQL.Test.EntityMappers;
 using Dapper.GraphQL.Test.Models;
-using Dapper.GraphQL.Test.QueryBuilders;
-using DbUp;
-using DbUp.SQLite.Helpers;
 using Microsoft.Data.Sqlite;
 using Microsoft.Extensions.DependencyInjection;
-using Newtonsoft.Json.Linq;
 using System;
-using System.Data.Common;
-using System.Linq;
-using System.Reflection;
-using System.Threading.Tasks;
+using System.Collections.Generic;
 using Xunit;
 
 namespace Dapper.GraphQL.Test
@@ -18,10 +10,17 @@ namespace Dapper.GraphQL.Test
     public class QueryTests : IClassFixture<TestFixture>
     {
         private readonly TestFixture fixture;
+        private readonly Func<IEnumerable<object>, Person> personMapper;
 
         public QueryTests(TestFixture fixture)
         {
             this.fixture = fixture;
+
+            // Build a mapper that compares primary keys when building 'Person' objects
+            this.personMapper = fixture
+                .ServiceProvider
+                .GetRequiredService<IEntityMapperFactory>()
+                .Build<Person>(person => person.Id);
         }
 
         [Fact(DisplayName = "SELECT without matching alias should throw")]
@@ -33,12 +32,6 @@ namespace Dapper.GraphQL.Test
                     .From("Person person")
                     .Select("person.Id", "notAnAlias.Id")
                     .SplitOn<Person>("Id");
-
-                // Get a mapper that compares primary keys
-                var personMapper = fixture
-                    .ServiceProvider
-                    .GetRequiredService<IEntityMapperFactory>()
-                    .Build<Person>(person => person.Id);
 
                 using (var dbConnection = fixture.DbConnection)
                 {
