@@ -5,7 +5,8 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Dapper" Version="1.50.2" />
+    <PackageReference Include="Dapper" Version="1.50.2" />    
+    <PackageReference Include="Dapper.SqlBuilder" Version="1.50.0" />
     <PackageReference Include="GraphQL" Version="0.17.3" />
     <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="1.1.1" />
   </ItemGroup>

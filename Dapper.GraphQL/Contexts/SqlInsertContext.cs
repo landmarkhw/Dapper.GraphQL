@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace Dapper.GraphQL.Contexts
+namespace Dapper.GraphQL
 {
     public class SqlInsertContext
     {

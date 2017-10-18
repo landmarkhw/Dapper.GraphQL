@@ -4,6 +4,7 @@ using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Data;
 using System.Data.Common;
+using System.Linq;
 
 namespace Dapper.GraphQL.Test.GraphQL
 {
@@ -15,17 +16,17 @@ namespace Dapper.GraphQL.Test.GraphQL
             IQueryBuilder<Person> personQueryBuilder,
             IServiceProvider serviceProvider)
         {
+            // Create a mapper that understands how to uniquely identify the 'Person' class.
+            var personMapper = entityMapperFactory.Build<Person>(person => person.Id);
+
             Field<ListGraphType<PersonType>>(
                 "people",
                 description: "A list of people.",
                 resolve: context =>
                 {
                     var alias = "person";
-                    var query = new SqlBuilder().From($"Person {alias}");
+                    var query = SqlBuilder.From($"Person {alias}");
                     query = personQueryBuilder.Build(query, context.FieldAst, alias);
-
-                    // Create a mapper that understands how to uniquely identify the 'Person' class.
-                    var personMapper = entityMapperFactory.Build<Person>(person => person.Id);
 
                     using (var connection = serviceProvider.GetRequiredService<IDbConnection>())
                     {
@@ -33,7 +34,31 @@ namespace Dapper.GraphQL.Test.GraphQL
                         return results;
                     }
                 }
-          );
+            );
+
+            Field<PersonType>(
+                "person",
+                description: "Gets a person by ID.",
+                arguments: new QueryArguments(
+                    new QueryArgument<IntGraphType> { Name = "id", Description = "The ID of the person." }
+                ),
+                resolve: context =>
+                {
+                    var id = context.Arguments["id"];
+                    var alias = "person";
+                    var query = SqlBuilder
+                        .From($"Person {alias}")
+                        .Where($"{alias}.Id = @id", new { id });
+
+                    query = personQueryBuilder.Build(query, context.FieldAst, alias);
+
+                    using (var connection = serviceProvider.GetRequiredService<IDbConnection>())
+                    {
+                        var results = query.Execute(connection, personMapper);
+                        return results.FirstOrDefault();
+                    }
+                }
+            );
         }
     }
 }

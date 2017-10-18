@@ -1,5 +1,4 @@
-﻿using Dapper.GraphQL.Contexts;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.Common;
@@ -14,14 +13,19 @@ namespace Dapper.GraphQL
     /// </summary>
     public static class SqlBuilder
     {
-        public static SqlQueryContext From(string from, bool ignoreDuplicates = false)
+        public static SqlQueryContext From(string from, dynamic parameters = null)
         {
-            return new SqlQueryContext().From(from, ignoreDuplicates);
+            return new SqlQueryContext(from, parameters);
         }
 
-        public static SqlQueryContext From(IEnumerable<string> from, bool ignoreDuplicates = false)
+        public static SqlInsertContext Insert(string table)
         {
-            return new SqlQueryContext().From(from, ignoreDuplicates);
+            return new SqlInsertContext();
+        }
+
+        public static SqlUpdateContext Update(string table)
+        {
+            return new SqlUpdateContext(table);
         }
     }
 }

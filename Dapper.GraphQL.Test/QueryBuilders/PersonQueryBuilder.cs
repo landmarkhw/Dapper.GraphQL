@@ -20,7 +20,7 @@ namespace Dapper.GraphQL.Test.QueryBuilders
             this.phoneQueryBuilder = phoneQueryBuilder;
         }
 
-        public SqlBuilder Build(SqlBuilder query, IHaveSelectionSet context, string alias)
+        public SqlQueryContext Build(SqlQueryContext query, IHaveSelectionSet context, string alias)
         {
             query.Select($"{alias}.Id");
             query.SplitOn<Person>("Id");
@@ -36,7 +36,7 @@ namespace Dapper.GraphQL.Test.QueryBuilders
                     case "emails":
                         {
                             var emailAlias = $"{alias}Email";
-                            query.LeftOuterJoin($"Email {emailAlias} ON {alias}.Id = {emailAlias}.PersonId");
+                            query.LeftJoin($"Email {emailAlias} ON {alias}.Id = {emailAlias}.PersonId");
                             query = emailQueryBuilder.Build(query, kvp.Value, emailAlias);
                         }
                         break;
@@ -44,7 +44,7 @@ namespace Dapper.GraphQL.Test.QueryBuilders
                     case "phones":
                         {
                             var phoneAlias = $"{alias}Phone";
-                            query.LeftOuterJoin($"Phone {phoneAlias} ON {alias}.Id = {phoneAlias}.PersonId");
+                            query.LeftJoin($"Phone {phoneAlias} ON {alias}.Id = {phoneAlias}.PersonId");
                             query = phoneQueryBuilder.Build(query, kvp.Value, phoneAlias);
                         }
                         break;

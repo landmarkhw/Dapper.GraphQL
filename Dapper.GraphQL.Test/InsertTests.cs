@@ -25,53 +25,51 @@ namespace Dapper.GraphQL.Test
             this.fixture = fixture;
         }
 
-        [Fact]
+        [Fact(DisplayName = "INSERT person succeeds")]
         public void InsertPerson()
         {
-            var person = new Person
-            {
-                FirstName = "Steven",
-                LastName = "Rollman",
-            };
+            //var person = new Person
+            //{
+            //    FirstName = "Steven",
+            //    LastName = "Rollman",
+            //};
 
-            var statement = new SqlBuilder();
-            var personId = statement
-                .Insert(person)
-                .Execute(dbConnection);
+            //var personId = SqlBuilder
+            //    .Insert(person)
+            //    .Execute(dbConnection);
 
-            var email = new Email
-            {
-                Address = "srollman@landmarkhw.com",
-                PersonId = personId,
-            };
+            //var email = new Email
+            //{
+            //    Address = "srollman@landmarkhw.com",
+            //    PersonId = personId,
+            //};
 
-            var phone = new Phone
-            {
-                Number = "8011115555",
-                Type = PhoneType.Mobile,
-                PersonId = personId,
-            };
+            //var phone = new Phone
+            //{
+            //    Number = "8011115555",
+            //    Type = PhoneType.Mobile,
+            //    PersonId = personId,
+            //};
 
-            new SqlBuilder()
-                .Insert(email)
-                .Insert(phone)
-                .Execute(dbConnection);
+            //SqlBuilder
+            //    .Insert(email)
+            //    .Insert(phone)
+            //    .Execute(dbConnection);
         }
 
-        [Fact]
+        [Fact(DisplayName = "UPDATE person succeeds")]
         public void UpdatePerson()
         {
-            var person = new Person
-            {
-                FirstName = "Douglas"
-            };
+            //var person = new Person
+            //{
+            //    FirstName = "Douglas"
+            //};
 
-            var statement = new SqlBuilder();
-            statement
-                .Update(person)
-                .Where("Id = @id")
-                .WithParameter("id", 1)
-                .Execute(dbConnection);
+            //SqlBuilder
+            //    .Update(person)
+            //    .Where("Id = @id")
+            //    .WithParameter("id", 1)
+            //    .Execute(dbConnection);
         }
     }
 }

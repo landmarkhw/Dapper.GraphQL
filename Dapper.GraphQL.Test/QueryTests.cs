@@ -24,39 +24,25 @@ namespace Dapper.GraphQL.Test
             this.fixture = fixture;
         }
 
-        [Fact(DisplayName = "FROM without SELECT should throw")]
-        public void FromWithoutSelectShouldThrow()
-        {
-            Assert.Throws<InvalidOperationException>(() => new SqlBuilder()
-                .From("Person person")
-                .ToString()
-            );
-        }
-
-        [Fact(DisplayName = "SELECT without FROM should throw")]
-        public void SelectWithoutFromShouldThrow()
-        {
-            Assert.Throws<InvalidOperationException>(() => new SqlBuilder()
-                .From("Person person")
-                .ToString()
-            );
-        }
-
         [Fact(DisplayName = "SELECT without matching alias should throw")]
         public void SelectWithoutMatchingAliasShouldThrow()
         {
-            Assert.Throws<SqliteException>(() =>
+            Assert.ThrowsAsync<SqliteException>(async () =>
             {
-                var query = new SqlBuilder()
+                var query = SqlBuilder
                     .From("Person person")
                     .Select("person.Id", "notAnAlias.Id")
                     .SplitOn<Person>("Id");
 
+                // Get a mapper that compares primary keys
+                var personMapper = fixture
+                    .ServiceProvider
+                    .GetRequiredService<IEntityMapperFactory>()
+                    .Build<Person>(person => person.Id);
+
                 using (var dbConnection = fixture.DbConnection)
                 {
-                    var customer = query
-                        .Execute(dbConnection, c => c)
-                        .FirstOrDefault();
+                    query.Execute<Person>(dbConnection, personMapper);
                 }
             });
         }

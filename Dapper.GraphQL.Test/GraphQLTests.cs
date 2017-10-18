@@ -115,5 +115,29 @@ query {
 
             Assert.True(fixture.JsonEquals(expectedJson, json));
         }
+
+        [Fact(DisplayName = "Simple person query should succeed")]
+        public async Task SimplePersonQuery()
+        {
+            var json = await fixture.QueryGraphQLAsync(@"
+query {
+    person (id: 1) {
+        firstName
+        lastName
+    }
+}");
+
+            var expectedJson = @"
+{
+    data: {
+        person: {
+            firstName: 'Doug',
+            lastName: 'Day'
+        }
+    }
+}";
+
+            Assert.True(fixture.JsonEquals(expectedJson, json));
+        }
     }
 }

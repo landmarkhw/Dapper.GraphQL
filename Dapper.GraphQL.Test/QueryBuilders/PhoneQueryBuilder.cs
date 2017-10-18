@@ -9,7 +9,7 @@ namespace Dapper.GraphQL.Test.QueryBuilders
     public class PhoneQueryBuilder :
         IQueryBuilder<Phone>
     {
-        public SqlBuilder Build(SqlBuilder query, IHaveSelectionSet context, string alias)
+        public SqlQueryContext Build(SqlQueryContext query, IHaveSelectionSet context, string alias)
         {
             query.Select($"{alias}.Id");
             query.SplitOn<Phone>("Id");

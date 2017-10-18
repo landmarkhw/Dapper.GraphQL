@@ -4,39 +4,29 @@ using System.Data;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
+using System.Threading.Tasks;
 
-namespace Dapper.GraphQL.Contexts
+namespace Dapper.GraphQL
 {
     public class SqlQueryContext
     {
-        // FIXME: consider making SqlQueryBuilder immutable.
+        private List<string> _splitOn;
+        private List<Type> _types;
 
-        private readonly Regex AliasPattern = new Regex(@"^\s*(\[?[\w#_$]+\]?\.)?\s*(\[?[\w#_$]+\]?\.)?\[?([\w#_$]+)\]?\s+(as\s+)?\[?(?<alias>[\w#_$]+)\]?", RegexOptions.IgnoreCase | RegexOptions.Compiled);
-
-        /// <summary>
-        /// A list of parameters provided to the query.
-        /// </summary>
         public DynamicParameters Parameters { get; set; }
+        private Dapper.SqlBuilder SqlBuilder { get; set; }
+        private Dapper.SqlBuilder.Template QueryTemplate { get; set; }
 
-        private StringBuilder _from { get; set; }
-        private StringBuilder _orderBy { get; set; }
-        private StringBuilder _select { get; set; }
-        private List<string> _splitOn { get; set; }
-        private List<Type> _types { get; set; }
-        private StringBuilder _where { get; set; }
-        private HashSet<string> Aliases { get; set; }
-        private IServiceProvider ServiceProvider { get; set; }
-
-        public SqlQueryContext()
+        public SqlQueryContext(string from, dynamic parameters = null)
         {
-            Aliases = new HashSet<string>();
-            Parameters = new DynamicParameters();
             _splitOn = new List<string>();
             _types = new List<Type>();
-            _select = new StringBuilder();
-            _from = new StringBuilder();
-            _where = new StringBuilder();
-            _orderBy = new StringBuilder();
+            Parameters = new DynamicParameters(parameters);
+            SqlBuilder = new Dapper.SqlBuilder();
+            QueryTemplate = SqlBuilder.AddTemplate($@"SELECT
+/**select**/
+FROM {from}/**innerjoin**//**leftjoin**//**rightjoin**//**join**/
+/**where**//**orderBy**/");
         }
 
         /// <summary>
@@ -67,17 +57,10 @@ namespace Dapper.GraphQL.Contexts
         /// </example>
         /// <param name="where">An array of WHERE clauses.</param>
         /// <returns>The query builder.</returns>
-        public SqlQueryContext AndWhere(params string[] where)
+        public SqlQueryContext AndWhere(string where, dynamic parameters = null)
         {
-            if (where.Length > 0)
-            {
-                if (_where.Length > 0)
-                {
-                    _where.Append($" AND\n    {string.Join(" AND\n    ", where)}");
-                }
-                else _where.Append($"\nWHERE\n    {string.Join(" AND\n    ", where)}");
-            }
-
+            Parameters.AddDynamicParams(parameters);
+            SqlBuilder.Where(where);
             return this;
         }
 
@@ -108,9 +91,6 @@ namespace Dapper.GraphQL.Contexts
         /// <returns>A list of entities returned by the query.</returns>
         public IEnumerable<TEntityType> Execute<TEntityType>(IDbConnection connection, Func<object[], TEntityType> map)
         {
-            // FIXME: log instead
-            Console.WriteLine(this.ToString());
-
             var results = connection.Query<TEntityType>(
                 sql: this.ToString(),
                 types: this._types.ToArray(),
@@ -122,97 +102,6 @@ namespace Dapper.GraphQL.Contexts
         }
 
         /// <summary>
-        /// Executes the query with Dapper, using the provided database connection and map function.
-        /// </summary>
-        ///
-        /// <typeparam name="TEntityType">The entity type to be mapped.</typeparam>
-        /// <param name="connection">The database connection.</param>
-        /// <param name="selector">An expression that returns the primary key of the entity.</param>
-        /// <returns>A list of entities returned by the query.</returns>
-        public IEnumerable<TEntityType> Execute<TEntityType>(IDbConnection connection, Func<TEntityType, object> getPrimaryKey)
-            where TEntityType : class
-        {
-            if (ServiceProvider == null)
-            {
-                throw new InvalidOperationException("Cannot use this version of 'Execute' without providing a Dependency Injection container using 'WithContainer'.");
-            }
-
-            // Get the entity mapper factory
-            var mapperFactory = ServiceProvider.GetService(typeof(IEntityMapperFactory)) as IEntityMapperFactory;
-
-            // Build a mapper for this entity
-            var entityMapper = mapperFactory.Build<TEntityType>(getPrimaryKey);
-
-            var results = connection.Query<TEntityType>(
-                sql: this.ToString(),
-                types: this._types.ToArray(),
-                param: this.Parameters,
-                map: entityMapper,
-                splitOn: string.Join(",", this._splitOn)
-            );
-            return results.Where(e => e != null);
-        }
-
-        /// <summary>
-        /// Adds a FROM statement to the query.
-        /// </summary>
-        /// <remarks>
-        /// Do not include the 'FROM' keyword, as it is added automatically.
-        /// </remarks>
-        /// <example>
-        ///     var queryBuilder = new SqlQueryBuilder();
-        ///     queryBuilder.From("Table table");
-        /// </example>
-        /// <param name="from">A 'FROM' statement.</param>
-        /// <returns>The query builder.</returns>
-        public SqlQueryContext From(string from, bool ignoreDuplicates = false)
-        {
-            return From(new[] { from }, ignoreDuplicates);
-        }
-
-        /// <summary>
-        /// Adds a FROM statement to the query.
-        /// </summary>
-        /// <remarks>
-        /// Do not include the 'FROM' keyword, as it is added automatically.
-        /// </remarks>
-        /// <example>
-        ///     var queryBuilder = new SqlQueryBuilder();
-        ///     queryBuilder.From(new[]
-        ///     {
-        ///         "FirstTable first",
-        ///         "SecondTable second",
-        ///     });
-        /// </example>
-        /// <param name="from">An array of 'FROM' statements.</param>
-        /// <returns>The query builder.</returns>
-        public SqlQueryContext From(IEnumerable<string> from, bool ignoreDuplicates = false)
-        {
-            if (from != null && from.Any())
-            {
-                if (_from.Length == 0)
-                {
-                    var expr = from.FirstOrDefault();
-                    if (CacheAlias(expr, ignoreDuplicates))
-                    {
-                        _from.Append(expr);
-                    }
-                    from = from.Skip(1);
-                }
-
-                foreach (var expr in from)
-                {
-                    if (CacheAlias(expr, ignoreDuplicates))
-                    {
-                        _from.Append($",\n    {expr}");
-                    }
-                }
-            }
-
-            return this;
-        }
-
-        /// <summary>
         /// Performs an INNER JOIN.
         /// </summary>
         /// <remarks>
@@ -243,63 +132,12 @@ namespace Dapper.GraphQL.Contexts
         ///     // WHERE customer.id == @id
         /// </example>
         /// <param name="join">The INNER JOIN clause.</param>
-        /// <param name="ignoreDuplicates">True if duplicate aliases should be ignored, false otherwise.  Defaults to false.</param>
+        /// <param name="parameters">Parameters included in the statement.</param>
         /// <returns>The query builder.</returns>
-        public SqlQueryContext InnerJoin(string join, bool ignoreDuplicates = false)
+        public SqlQueryContext InnerJoin(string join, dynamic parameters = null)
         {
-            return InnerJoin(new[] { join }, ignoreDuplicates);
-        }
-
-        /// <summary>
-        /// Performs an INNER JOIN.
-        /// </summary>
-        /// <remarks>
-        /// Do not include the 'INNER JOIN' keywords, as they are added automatically.
-        /// </remarks>
-        /// <example>
-        ///     var queryBuilder = new SqlQueryBuilder();
-        ///     queryBuilder.From("Customer customer");
-        ///     queryBuilder.InnerJoin("Account account ON customer.Id = account.CustomerId");
-        ///     queryBuilder.Select(
-        ///         "customer.id",
-        ///         "account.id",
-        ///     );
-        ///     queryBuilder.SplitOn<Customer>("id");
-        ///     queryBuilder.SplitOn<Account>("id");
-        ///     queryBuilder.Where("customer.id == @id");
-        ///     queryBuilder.Parameters.Add("id", 1);
-        ///     var customer = queryBuilder
-        ///         // Execute using the database connection, and providing the primary key
-        ///         // used to split the primary entity.
-        ///         .Execute(dbConnection, customer => customer.Id);
-        ///         .FirstOrDefault();
-        ///
-        ///     // SELECT customer.id, account.id
-        ///     // FROM
-        ///     //     Customer customer INNER JOIN
-        ///     //     Account account ON customer.Id = account.CustomerId
-        ///     // WHERE customer.id == @id
-        /// </example>
-        /// <param name="join">A list of INNER JOIN clauses.</param>
-        /// <param name="ignoreDuplicates">True if duplicate aliases should be ignored, false otherwise.  Defaults to false.</param>
-        /// <returns>The query builder.</returns>
-        public SqlQueryContext InnerJoin(IEnumerable<string> join, bool ignoreDuplicates = false)
-        {
-            if (join != null && join.Any())
-            {
-                if (_from.Length > 0)
-                {
-                    foreach (var expr in join)
-                    {
-                        if (CacheAlias(expr, ignoreDuplicates))
-                        {
-                            _from.Append($" INNER JOIN\n    {expr}");
-                        }
-                    }
-                }
-                else throw new NotSupportedException("Cannot join before adding a source.");
-            }
-
+            Parameters.AddDynamicParams(parameters);
+            SqlBuilder.InnerJoin(join);
             return this;
         }
 
@@ -333,64 +171,13 @@ namespace Dapper.GraphQL.Contexts
         ///     //     Account account ON customer.Id = account.CustomerId
         ///     // WHERE customer.id == @id
         /// </example>
-        /// <param name="join">The INNER JOIN clause.</param>
-        /// <param name="ignoreDuplicates">True if duplicate aliases should be ignored, false otherwise.  Defaults to false.</param>
+        /// <param name="join">The LEFT JOIN clause.</param>
+        /// <param name="parameters">Parameters included in the statement.</param>
         /// <returns>The query builder.</returns>
-        public SqlQueryContext LeftOuterJoin(string join, bool ignoreDuplicates = false)
+        public SqlQueryContext LeftJoin(string join, dynamic parameters = null)
         {
-            return LeftOuterJoin(new[] { join }, ignoreDuplicates);
-        }
-
-        /// <summary>
-        /// Performs a LEFT OUTER JOIN.
-        /// </summary>
-        /// <remarks>
-        /// Do not include the 'LEFT OUTER JOIN' keywords, as they are added automatically.
-        /// </remarks>
-        /// <example>
-        ///     var queryBuilder = new SqlQueryBuilder();
-        ///     queryBuilder.From("Customer customer");
-        ///     queryBuilder.LeftOuterJoin("Account account ON customer.Id = account.CustomerId");
-        ///     queryBuilder.Select(
-        ///         "customer.id",
-        ///         "account.id",
-        ///     );
-        ///     queryBuilder.SplitOn<Customer>("id");
-        ///     queryBuilder.SplitOn<Account>("id");
-        ///     queryBuilder.Where("customer.id == @id");
-        ///     queryBuilder.Parameters.Add("id", 1);
-        ///     var customer = queryBuilder
-        ///         // Execute using the database connection, and providing the primary key
-        ///         // used to split the primary entity.
-        ///         .Execute(dbConnection, customer => customer.Id);
-        ///         .FirstOrDefault();
-        ///
-        ///     // SELECT customer.id, account.id
-        ///     // FROM
-        ///     //     Customer customer LEFT OUTER JOIN
-        ///     //     Account account ON customer.Id = account.CustomerId
-        ///     // WHERE customer.id == @id
-        /// </example>
-        /// <param name="join">A list of INNER JOIN clauses.</param>
-        /// <param name="ignoreDuplicates">True if duplicate aliases should be ignored, false otherwise.  Defaults to false.</param>
-        /// <returns>The query builder.</returns>
-        public SqlQueryContext LeftOuterJoin(IEnumerable<string> join, bool ignoreDuplicates = false)
-        {
-            if (join != null && join.Any())
-            {
-                if (_from.Length > 0)
-                {
-                    foreach (var expr in join)
-                    {
-                        if (CacheAlias(expr, ignoreDuplicates))
-                        {
-                            _from.Append($" LEFT OUTER JOIN\n    {expr}");
-                        }
-                    }
-                }
-                else throw new NotSupportedException("Cannot join before adding a source.");
-            }
-
+            Parameters.AddDynamicParams(parameters);
+            SqlBuilder.LeftJoin(join);
             return this;
         }
 
@@ -423,19 +210,12 @@ namespace Dapper.GraphQL.Contexts
         ///     // ORDER BY customer.name
         /// </example>
         /// <param name="orderBy">One or more GROUP BY clauses.</param>
-        /// <param name="ignoreDuplicates">True if duplicate aliases should be ignored, false otherwise.  Defaults to false.</param>
+        /// <param name="parameters">Parameters included in the statement.</param>
         /// <returns>The query builder.</returns>
-        public SqlQueryContext OrderBy(params string[] orderBy)
+        public SqlQueryContext OrderBy(string orderBy, dynamic parameters = null)
         {
-            if (orderBy.Length > 0)
-            {
-                if (_orderBy.Length > 0)
-                {
-                    _orderBy.Append($",\n    {string.Join(",\n    ", orderBy)}");
-                }
-                else _orderBy.Append($"\nORDER BY\n    {string.Join(",\n    ", orderBy)}");
-            }
-
+            Parameters.AddDynamicParams(parameters);
+            SqlBuilder.OrderBy(orderBy);
             return this;
         }
 
@@ -446,18 +226,12 @@ namespace Dapper.GraphQL.Contexts
         /// Do not include the 'WHERE' keyword, as it is added automatically.
         /// </remarks>
         /// <param name="where">An array of WHERE clauses.</param>
+        /// <param name="parameters">Parameters included in the statement.</param>
         /// <returns>The query builder.</returns>
-        public SqlQueryContext OrWhere(params string[] where)
+        public SqlQueryContext OrWhere(string where, dynamic parameters = null)
         {
-            if (where.Length > 0)
-            {
-                if (_where.Length > 0)
-                {
-                    _where.Append($" OR\n    {string.Join(" OR\n    ", where)}");
-                }
-                else _where.Append($"\nWHERE\n    {string.Join(" OR\n    ", where)}");
-            }
-
+            Parameters.AddDynamicParams(parameters);
+            SqlBuilder.OrWhere(where);
             return this;
         }
 
@@ -487,19 +261,13 @@ namespace Dapper.GraphQL.Contexts
         ///     // FROM Customer customer
         ///     // WHERE customer.id == @id
         /// </example>
-        /// <param name="where">An array of WHERE clauses.</param>
+        /// <param name="select">The column to select.</param>
+        /// <param name="parameters">Parameters included in the statement.</param>
         /// <returns>The query builder.</returns>
-        public SqlQueryContext Select(params string[] select)
+        public SqlQueryContext Select(string select, dynamic parameters = null)
         {
-            if (select.Length > 0)
-            {
-                if (_select.Length > 0)
-                {
-                    _select.Append($",\n    {string.Join(",\n    ", select)}");
-                }
-                else _select.Append(string.Join(",\n    ", select));
-            }
-
+            Parameters.AddDynamicParams(parameters);
+            SqlBuilder.Select(select);
             return this;
         }
 
@@ -539,93 +307,17 @@ namespace Dapper.GraphQL.Contexts
         /// <returns>The rendered SQL statement.</returns>
         public override string ToString()
         {
-            if (_select.Length == 0)
-            {
-                throw new InvalidOperationException("No SELECT clause was specified.");
-            }
-            if (_from.Length == 0)
-            {
-                throw new InvalidOperationException("No FROM clause was specified.");
-            }
-
-            return $@"SELECT
-    {_select}
-FROM
-    {_from}{_where}{_orderBy}";
+            return QueryTemplate.RawSql;
         }
 
         /// <summary>
         /// An alias for AndWhere().
         /// </summary>
-        public SqlQueryContext Where(params string[] where)
+        /// <param name="where">The WHERE clause.</param>
+        /// <param name="parameters">Parameters included in the statement.</param>
+        public SqlQueryContext Where(string where, dynamic parameters = null)
         {
-            return AndWhere(where);
-        }
-
-        /// <summary>
-        /// Supplies a Dependency Injection container to the query, to be used during execution or mapping.
-        /// </summary>
-        /// <param name="serviceProvider">The Dependency Injection container to be provided.</param>
-        /// <returns>The query builder.</returns>
-        public SqlQueryContext WithContainer(IServiceProvider serviceProvider)
-        {
-            ServiceProvider = serviceProvider;
-            return this;
-        }
-
-        /// <summary>
-        /// Adds a parameter value to the query.
-        /// </summary>
-        /// <param name="name">The name of the parameter.</param>
-        /// <param name="value">The value of the parameter.</param>
-        /// <returns>The query builder.</returns>
-        public SqlQueryContext WithParameter<TValue>(string name, TValue value)
-        {
-            Parameters.Add(name, value);
-            return this;
-        }
-
-        /// <summary>
-        /// Caches an alias with a SQL expression, to ensure it is tracked and unduplicated.
-        /// </summary>
-        /// <param name="expr">The FROM or JOIN expression whose alias should be tracked.</param>
-        /// <param name="ignoreDuplicates">True if duplicates should be ignored, false otherwise.</param>
-        /// <returns>True if the alias hasn't been seen yet and was added to the cache, false if the alias has already been seen.</returns>
-        private bool CacheAlias(string expr, bool ignoreDuplicates)
-        {
-            var alias = ParseAlias(expr);
-            if (alias == null)
-            {
-                throw new InvalidOperationException($"No alias found in expression '{expr}'.");
-            }
-            if (Aliases.Contains(alias))
-            {
-                if (ignoreDuplicates)
-                {
-                    return false;
-                }
-                else
-                {
-                    throw new InvalidOperationException($"Alias '{alias}' in expression '{expr}' has already been included in the sql query.");
-                }
-            }
-            Aliases.Add(alias);
-            return true;
-        }
-
-        /// <summary>
-        /// Parses the alias in a FROM or JOIN expression.
-        /// </summary>
-        /// <param name="fromOrJoin">The FROM or JOIN expression to be parsed.</param>
-        /// <returns>The name of the alias, if successful.  Returns null if no alias could be found or if formatted improperly.</returns>
-        private string ParseAlias(string fromOrJoin)
-        {
-            var match = AliasPattern.Match(fromOrJoin);
-            if (match.Success)
-            {
-                return match.Groups["alias"].Value;
-            }
-            return null;
+            return AndWhere(where, parameters);
         }
     }
 }
