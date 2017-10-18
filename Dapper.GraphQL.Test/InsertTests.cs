@@ -25,7 +25,7 @@ namespace Dapper.GraphQL.Test
             this.fixture = fixture;
         }
 
-        [Fact(DisplayName = "INSERT person succeeds")]
+        [Fact(DisplayName = "INSERT person succeeds", Skip = "Not implemented yet")]
         public void InsertPerson()
         {
             //var person = new Person
@@ -57,7 +57,7 @@ namespace Dapper.GraphQL.Test
             //    .Execute(dbConnection);
         }
 
-        [Fact(DisplayName = "UPDATE person succeeds")]
+        [Fact(DisplayName = "UPDATE person succeeds", Skip = "Not implemented yet")]
         public void UpdatePerson()
         {
             //var person = new Person
