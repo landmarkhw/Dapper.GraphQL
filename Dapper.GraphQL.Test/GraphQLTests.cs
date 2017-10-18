@@ -89,6 +89,53 @@ query {
             Assert.True(fixture.JsonEquals(expectedJson, json));
         }
 
+        [Fact(DisplayName = "Full person query should succeed")]
+        public async Task FullPersonQuery()
+        {
+            var json = await fixture.QueryGraphQLAsync(@"
+query {
+    person (id: 1) {
+        id
+        firstName
+        lastName
+        emails {
+            id
+            address
+        }
+        phones {
+            id
+            number
+            type
+        }
+    }
+}");
+
+            var expectedJson = @"
+{
+    data: {
+        person: {
+            id: 1,
+            firstName: 'Doug',
+            lastName: 'Day',
+            emails: [{
+                id: 1,
+                address: 'dday@landmarkhw.com'
+            }, {
+                id: 2,
+                address: 'dougrday@gmail.com'
+            }],
+            phones: [{
+                id: 1,
+                number: '8011234567',
+                type: 3
+            }]
+        }
+    }
+}";
+
+            Assert.True(fixture.JsonEquals(expectedJson, json));
+        }
+
         [Fact(DisplayName = "Simple people query should succeed")]
         public async Task SimplePeopleQuery()
         {
@@ -122,6 +169,7 @@ query {
             var json = await fixture.QueryGraphQLAsync(@"
 query {
     person (id: 1) {
+        id
         firstName
         lastName
     }
@@ -131,6 +179,7 @@ query {
 {
     data: {
         person: {
+            id: 1,
             firstName: 'Doug',
             lastName: 'Day'
         }

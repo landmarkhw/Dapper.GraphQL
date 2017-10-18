@@ -16,9 +16,6 @@ namespace Dapper.GraphQL.Test.GraphQL
             IQueryBuilder<Person> personQueryBuilder,
             IServiceProvider serviceProvider)
         {
-            // Create a mapper that understands how to uniquely identify the 'Person' class.
-            var personMapper = entityMapperFactory.Build<Person>(person => person.Id);
-
             Field<ListGraphType<PersonType>>(
                 "people",
                 description: "A list of people.",
@@ -27,6 +24,9 @@ namespace Dapper.GraphQL.Test.GraphQL
                     var alias = "person";
                     var query = SqlBuilder.From($"Person {alias}");
                     query = personQueryBuilder.Build(query, context.FieldAst, alias);
+
+                    // Create a mapper that understands how to uniquely identify the 'Person' class.
+                    var personMapper = entityMapperFactory.Build<Person>(person => person.Id);
 
                     using (var connection = serviceProvider.GetRequiredService<IDbConnection>())
                     {
@@ -51,6 +51,9 @@ namespace Dapper.GraphQL.Test.GraphQL
                         .Where($"{alias}.Id = @id", new { id });
 
                     query = personQueryBuilder.Build(query, context.FieldAst, alias);
+
+                    // Create a mapper that understands how to uniquely identify the 'Person' class.
+                    var personMapper = entityMapperFactory.Build<Person>(person => person.Id);
 
                     using (var connection = serviceProvider.GetRequiredService<IDbConnection>())
                     {

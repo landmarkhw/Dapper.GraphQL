@@ -271,6 +271,16 @@ FROM {from}/**innerjoin**//**leftjoin**//**rightjoin**//**join**/
             return this;
         }
 
+        public SqlQueryContext Select(IEnumerable<string> select, dynamic parameters = null)
+        {
+            Parameters.AddDynamicParams(parameters);
+            foreach (var s in select)
+            {
+                SqlBuilder.Select(s);
+            }
+            return this;
+        }
+
         /// <summary>
         /// Instructs dapper to deserialized data into a different type, beginning with the specified column.
         /// </summary>

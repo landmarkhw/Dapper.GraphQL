@@ -18,12 +18,12 @@ namespace Dapper.GraphQL
             return new SqlQueryContext(from, parameters);
         }
 
-        public static SqlInsertContext Insert(string table)
+        public static SqlInsertContext Insert(string table, dynamic parameters = null)
         {
-            return new SqlInsertContext();
+            return new SqlInsertContext(table, parameters);
         }
 
-        public static SqlUpdateContext Update(string table)
+        public static SqlUpdateContext Update(string table, dynamic parameters = null)
         {
             return new SqlUpdateContext(table);
         }

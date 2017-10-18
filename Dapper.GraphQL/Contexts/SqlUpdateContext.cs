@@ -12,14 +12,17 @@ namespace Dapper.GraphQL
         public DynamicParameters Parameters { get; set; }
         private Dapper.SqlBuilder SqlBuilder { get; set; }
         public string Table { get; private set; }
+        private Dapper.SqlBuilder.Template Template { get; set; }
         private IServiceProvider ServiceProvider { get; set; }
 
         public SqlUpdateContext(
-            string table)
+            string table,
+            dynamic parameters = null)
         {
-            this.Parameters = new DynamicParameters();
+            this.Parameters = new DynamicParameters(parameters);
             this.SqlBuilder = new Dapper.SqlBuilder();
             this.Table = table;
+            this.Template = SqlBuilder.AddTemplate("/**where**/");
         }
 
         /// <summary>
@@ -29,6 +32,11 @@ namespace Dapper.GraphQL
         /// Do not include the 'WHERE' keyword, as it is added automatically.
         /// </remarks>
         /// <example>
+        ///     SqlBuilder
+        ///         .Update("Person")
+        ///         .Where("Id = @id", new { id })
+        ///         .Select("Id")
+        ///         .Select("Name")
         ///     var queryBuilder = new SqlQueryBuilder();
         ///     queryBuilder.From("Customer customer");
         ///     queryBuilder.Select(
@@ -53,6 +61,7 @@ namespace Dapper.GraphQL
         /// <returns>The query builder.</returns>
         public SqlUpdateContext AndWhere(string where, dynamic parameters = null)
         {
+            Parameters.AddDynamicParams(parameters);
             SqlBuilder.Where(where, parameters);
             return this;
         }
@@ -61,10 +70,10 @@ namespace Dapper.GraphQL
         /// Executes the update statement with Dapper, using the provided database connection.
         /// </summary>
         /// <param name="connection">The database connection.</param>
-        public async Task ExecuteAsync(IDbConnection connection)
+        public void Execute(IDbConnection connection)
         {
-            await connection.QueryAsync(
-                sql: this.ToString(),
+            connection.Query(
+                sql: BuildSql(),
                 param: this.Parameters
             );
         }
@@ -80,6 +89,7 @@ namespace Dapper.GraphQL
         /// <returns>The query builder.</returns>
         public SqlUpdateContext OrWhere(string where, dynamic parameters = null)
         {
+            Parameters.AddDynamicParams(parameters);
             SqlBuilder.OrWhere(where, parameters);
             return this;
         }
@@ -90,13 +100,7 @@ namespace Dapper.GraphQL
         /// <returns>The rendered SQL statement.</returns>
         public override string ToString()
         {
-            var sb = new StringBuilder();
-            sb.Append($"UPDATE {Table} SET ");
-            sb.Append(string.Join(", ", Parameters
-                .ParameterNames
-                .Select(name => $"{name} = @{name}")
-            ));
-            return sb.ToString();
+            return BuildSql();
         }
 
         /// <summary>
@@ -106,7 +110,25 @@ namespace Dapper.GraphQL
         /// <param name="parameters">Parameters included in the statement.</param>
         public SqlUpdateContext Where(string where, dynamic parameters = null)
         {
-            return AndWhere(where);
+            Parameters.AddDynamicParams(parameters);
+            SqlBuilder.Where(where);
+            return this;
+        }
+
+        /// <summary>
+        /// Builds the UPDATE statement.
+        /// </summary>
+        /// <returns></returns>
+        private string BuildSql()
+        {
+            var sb = new StringBuilder();
+            sb.Append($"UPDATE {Table} SET ");
+            sb.Append(string.Join(", ", Parameters
+                .ParameterNames
+                .Select(name => $"{name} = @{name}")
+            ));
+            sb.Append(Template.RawSql);
+            return sb.ToString();
         }
     }
 }
