@@ -33,10 +33,7 @@ namespace Dapper.GraphQL.Test
                     .Select("person.Id", "notAnAlias.Id")
                     .SplitOn<Person>("Id");
 
-                using (var dbConnection = fixture.DbConnection)
-                {
-                    query.Execute<Person>(dbConnection, personMapper);
-                }
+                query.Execute<Person>(fixture.DbConnection, personMapper);
             });
         }
     }

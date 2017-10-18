@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -9,6 +10,7 @@ namespace Dapper.GraphQL
 {
     public class SqlUpdateContext
     {
+        private HashSet<string> UpdateParameterNames;
         public DynamicParameters Parameters { get; set; }
         private Dapper.SqlBuilder SqlBuilder { get; set; }
         public string Table { get; private set; }
@@ -19,10 +21,16 @@ namespace Dapper.GraphQL
             string table,
             dynamic parameters = null)
         {
+            if (parameters != null && !(parameters is IEnumerable<KeyValuePair<string, object>>))
+            {
+                parameters = ParameterHelper.GetSetProperties(parameters);
+            }
             this.Parameters = new DynamicParameters(parameters);
             this.SqlBuilder = new Dapper.SqlBuilder();
             this.Table = table;
-            this.Template = SqlBuilder.AddTemplate("/**where**/");
+            this.Template = SqlBuilder.AddTemplate(@"
+/**where**/");
+            this.UpdateParameterNames = new HashSet<string>(Parameters.ParameterNames);
         }
 
         /// <summary>
@@ -72,10 +80,7 @@ namespace Dapper.GraphQL
         /// <param name="connection">The database connection.</param>
         public void Execute(IDbConnection connection)
         {
-            connection.Query(
-                sql: BuildSql(),
-                param: this.Parameters
-            );
+            var result = connection.Execute(BuildSql(), Parameters);
         }
 
         /// <summary>
@@ -123,10 +128,7 @@ namespace Dapper.GraphQL
         {
             var sb = new StringBuilder();
             sb.Append($"UPDATE {Table} SET ");
-            sb.Append(string.Join(", ", Parameters
-                .ParameterNames
-                .Select(name => $"{name} = @{name}")
-            ));
+            sb.Append(string.Join(", ", UpdateParameterNames.Select(name => $"{name} = @{name}")));
             sb.Append(Template.RawSql);
             return sb.ToString();
         }

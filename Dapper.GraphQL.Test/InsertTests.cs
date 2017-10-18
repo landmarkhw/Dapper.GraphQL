@@ -56,20 +56,5 @@ namespace Dapper.GraphQL.Test
             //    .Insert(phone)
             //    .Execute(dbConnection);
         }
-
-        [Fact(DisplayName = "UPDATE person succeeds", Skip = "Not implemented yet")]
-        public void UpdatePerson()
-        {
-            //var person = new Person
-            //{
-            //    FirstName = "Douglas"
-            //};
-
-            //SqlBuilder
-            //    .Update(person)
-            //    .Where("Id = @id")
-            //    .WithParameter("id", 1)
-            //    .Execute(dbConnection);
-        }
     }
 }

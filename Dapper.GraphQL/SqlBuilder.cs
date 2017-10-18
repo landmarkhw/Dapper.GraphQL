@@ -18,14 +18,29 @@ namespace Dapper.GraphQL
             return new SqlQueryContext(from, parameters);
         }
 
+        public static SqlQueryContext From<TEntityType>()
+        {
+            return new SqlQueryContext<TEntityType>();
+        }
+
+        public static SqlInsertContext Insert<TEntityType>(TEntityType obj)
+        {
+            return new SqlInsertContext(typeof(TEntityType).Name, obj);
+        }
+
         public static SqlInsertContext Insert(string table, dynamic parameters = null)
         {
             return new SqlInsertContext(table, parameters);
         }
 
+        public static SqlUpdateContext Update<TEntityType>(TEntityType obj)
+        {
+            return new SqlUpdateContext(typeof(TEntityType).Name, obj);
+        }
+
         public static SqlUpdateContext Update(string table, dynamic parameters = null)
         {
-            return new SqlUpdateContext(table);
+            return new SqlUpdateContext(table, parameters);
         }
     }
 }

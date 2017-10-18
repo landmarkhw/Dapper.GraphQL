@@ -8,14 +8,22 @@ using System.Threading.Tasks;
 
 namespace Dapper.GraphQL
 {
+    public class SqlQueryContext<TEntityType> : SqlQueryContext
+    {
+        public SqlQueryContext() : base(typeof(TEntityType).Name)
+        {
+            _types.Add(typeof(TEntityType));
+        }
+    }
+
     public class SqlQueryContext
     {
-        private List<string> _splitOn;
-        private List<Type> _types;
+        protected List<string> _splitOn;
+        protected List<Type> _types;
 
         public DynamicParameters Parameters { get; set; }
-        private Dapper.SqlBuilder SqlBuilder { get; set; }
-        private Dapper.SqlBuilder.Template QueryTemplate { get; set; }
+        protected Dapper.SqlBuilder SqlBuilder { get; set; }
+        protected Dapper.SqlBuilder.Template QueryTemplate { get; set; }
 
         public SqlQueryContext(string from, dynamic parameters = null)
         {
@@ -23,6 +31,8 @@ namespace Dapper.GraphQL
             _types = new List<Type>();
             Parameters = new DynamicParameters(parameters);
             SqlBuilder = new Dapper.SqlBuilder();
+
+            // See https://github.com/StackExchange/Dapper/blob/master/Dapper.SqlBuilder/SqlBuilder.cs
             QueryTemplate = SqlBuilder.AddTemplate($@"SELECT
 /**select**/
 FROM {from}/**innerjoin**//**leftjoin**//**rightjoin**//**join**/
@@ -271,9 +281,8 @@ FROM {from}/**innerjoin**//**leftjoin**//**rightjoin**//**join**/
             return this;
         }
 
-        public SqlQueryContext Select(IEnumerable<string> select, dynamic parameters = null)
+        public SqlQueryContext Select(params string[] select)
         {
-            Parameters.AddDynamicParams(parameters);
             foreach (var s in select)
             {
                 SqlBuilder.Select(s);
