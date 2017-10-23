@@ -10,7 +10,8 @@ namespace Dapper.GraphQL
 {
     public class SqlQueryContext<TEntityType> : SqlQueryContext
     {
-        public SqlQueryContext() : base(typeof(TEntityType).Name)
+        public SqlQueryContext(string alias = null) :
+            base(alias == null ? typeof(TEntityType).Name : $"{typeof(TEntityType).Name} {alias}")
         {
             _types.Add(typeof(TEntityType));
         }
@@ -146,6 +147,8 @@ FROM {from}/**innerjoin**//**leftjoin**//**rightjoin**//**join**/
         /// <returns>The query builder.</returns>
         public SqlQueryContext InnerJoin(string join, dynamic parameters = null)
         {
+            RemoveSingleTableQueryItems();
+
             Parameters.AddDynamicParams(parameters);
             SqlBuilder.InnerJoin(join);
             return this;
@@ -186,6 +189,8 @@ FROM {from}/**innerjoin**//**leftjoin**//**rightjoin**//**join**/
         /// <returns>The query builder.</returns>
         public SqlQueryContext LeftJoin(string join, dynamic parameters = null)
         {
+            RemoveSingleTableQueryItems();
+
             Parameters.AddDynamicParams(parameters);
             SqlBuilder.LeftJoin(join);
             return this;
@@ -337,6 +342,17 @@ FROM {from}/**innerjoin**//**leftjoin**//**rightjoin**//**join**/
         public SqlQueryContext Where(string where, dynamic parameters = null)
         {
             return AndWhere(where, parameters);
+        }
+
+        /// <summary>
+        /// Clears out items that are only relevant for single-table queries.
+        /// </summary>
+        private void RemoveSingleTableQueryItems()
+        {
+            if (_types.Count > 0 && _splitOn.Count == 0)
+            {
+                _types.Clear();
+            }
         }
     }
 }

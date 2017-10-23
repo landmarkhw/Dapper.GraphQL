@@ -10,6 +10,7 @@ using Microsoft.Data.Sqlite;
 using Microsoft.Extensions.DependencyInjection;
 using Newtonsoft.Json.Linq;
 using System;
+using System.Collections.Generic;
 using System.Data;
 using System.Reflection;
 using System.Threading.Tasks;
@@ -34,6 +35,12 @@ namespace Dapper.GraphQL.Test
 
             this.ServiceProvider = serviceCollection.BuildServiceProvider();
             this.Schema = ServiceProvider.GetRequiredService<PersonSchema>();
+        }
+
+        public Func<IEnumerable<object>, TEntityType> BuildMapper<TEntityType>(Func<TEntityType, object> mapper)
+            where TEntityType : class
+        {
+            return ServiceProvider.GetRequiredService<IEntityMapperFactory>().Build(mapper);
         }
 
         public void Dispose()
