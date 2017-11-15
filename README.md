@@ -63,6 +63,12 @@ FROM
   Phone phone ON person.Id = phone.PersonId
 ```
 
+## Entity Mappers
+
+Entity mappers are used to map entities to Dapper from query results.  Since a single entity can be composed of multiple rows of a query result, an entity mapper is designed to quickly merge multiple rows of output SQL into a single hierarchy of entities.
+
+See the `PersonEntityMapper.cs` class in the test project for an example.
+
 # Usage
 
 ## Setup
@@ -98,7 +104,7 @@ When creating a SQL query based on a GraphQL query, you need 2 things to build t
 
 ### Query builder
 
-Each entity in a system should have its own query builder, so any GraphQL queryies that interact with those entities can be automatically
+Each entity in a system should have its own query builder, so any GraphQL queries that interact with those entities can be automatically
 handled, even when nested within other entities.
 
 In the above setup, the `Email` query builder looks like this:
