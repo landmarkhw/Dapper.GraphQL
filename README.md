@@ -145,6 +145,39 @@ Let's break down what's happening in the `Build()` method:
 
 Query builders are intended to chain, as our entities tend to have a hierarchical relationship.  See the `PersonQueryBuilder.cs` file in the test project for a good example of chaining.
 
+## GraphQL integration
+
+Here's an example of a query definition in `graphql-dotnet`:
+
+```csharp
+Field<ListGraphType<PersonType>>(
+    "people",
+    description: "A list of people.",
+    resolve: context =>
+    {
+        // Create an alias for the 'Person' table.
+        var alias = "person";
+        // Add the 'Person' table to the FROM clause in SQL
+        var query = SqlBuilder.From($"Person {alias}");
+        // Build the query, using the GraphQL query and SQL table alias.
+        query = personQueryBuilder.Build(query, context.FieldAst, alias);
+
+        // Create a mapper that understands how to uniquely identify the 'Person' class.
+        var personMapper = entityMapperFactory.Build<Person>(person => person.Id);
+
+        // Open a connection to the database
+        using (var connection = serviceProvider.GetRequiredService<IDbConnection>())
+        {
+            // Execute the query with the person mapper
+            var results = query.Execute(connection, personMapper);
+            
+            // `results` contains a list of people.
+            return results;
+        }
+    }
+);
+```
+
 # Examples
 
 See the Dapper.GraphQL.Test project for a full set of examples, including how *query builders* and *entity mappers* are designed.
