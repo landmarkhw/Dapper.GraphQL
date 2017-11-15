@@ -181,3 +181,7 @@ Field<ListGraphType<PersonType>>(
 # Examples
 
 See the Dapper.GraphQL.Test project for a full set of examples, including how *query builders* and *entity mappers* are designed.
+
+# Roadmap
+
+* Fluent-style pagination
