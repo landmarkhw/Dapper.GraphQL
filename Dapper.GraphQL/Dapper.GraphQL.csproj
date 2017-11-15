@@ -2,6 +2,17 @@
 
   <PropertyGroup>
     <TargetFramework>netcoreapp1.1</TargetFramework>
+    <Version>0.1.0</Version>
+    <Authors>Doug Day</Authors>
+    <Company>Landmark Home Warranty</Company>
+    <Description>A library designed to integrate the Dapper and graphql-dotnet projects with ease-of-use in mind and performance as the primary concern.</Description>
+    <Copyright>Copyright 2017</Copyright>
+    <PackageLicenseUrl>https://opensource.org/licenses/MIT</PackageLicenseUrl>
+    <PackageProjectUrl>https://github.com/landmarkhw/Dapper.GraphQL</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/landmarkhw/Dapper.GraphQL.git</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    <PackageTags>Dapper Dapper.SqlBuilder GraphQL graphql-dotnet core coreclr .NET</PackageTags>
+    <PackageReleaseNotes>Initial release.</PackageReleaseNotes>
   </PropertyGroup>
 
   <ItemGroup>
