@@ -10,7 +10,7 @@ Dapper.GraphQL combines the ideas that come out-of-the-box with graphql-dotnet, 
 ## Query Builders
 
 Query builders are used to build dynamic queries based on what the client asked for in their GraphQL query.  For example, given this
-graphql query:
+GraphQL query:
 
 ```graphql
 query {
