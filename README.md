@@ -58,8 +58,8 @@ SELECT
   email.id, email.address,
   phone.id, phone.number, phone.type  
 FROM 
-  Person person INNER JOIN 
-  Email email ON person.Id = email.PersonId INNER JOIN
+  Person person LEFT OUTER JOIN
+  Email email ON person.Id = email.PersonId LEFT OUTER JOIN
   Phone phone ON person.Id = phone.PersonId
 ```
 
