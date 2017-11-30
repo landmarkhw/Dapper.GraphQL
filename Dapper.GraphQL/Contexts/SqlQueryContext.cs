@@ -37,7 +37,7 @@ namespace Dapper.GraphQL
             QueryTemplate = SqlBuilder.AddTemplate($@"SELECT
 /**select**/
 FROM {from}/**innerjoin**//**leftjoin**//**rightjoin**//**join**/
-/**where**//**orderBy**/");
+/**where**//**orderby**/");
         }
 
         /// <summary>
