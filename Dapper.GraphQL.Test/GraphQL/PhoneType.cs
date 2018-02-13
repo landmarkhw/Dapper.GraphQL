@@ -17,19 +17,19 @@ namespace Dapper.GraphQL.Test.GraphQL
             Field<IntGraphType>(
                 "id",
                 description: "A unique identifier for the phone number.",
-                resolve: context => context.Source.Id
+                resolve: context => context.Source?.Id
             );
 
             Field<StringGraphType>(
                 "number",
                 description: "The phone number.",
-                resolve: context => context.Source.Number
+                resolve: context => context.Source?.Number
             );
 
             Field<StringGraphType>(
                 "type",
                 description: "The type of phone number.  One of 'home', 'work', 'mobile', or 'other'.",
-                resolve: context => context.Source.Type
+                resolve: context => context.Source?.Type
             );
         }
     }

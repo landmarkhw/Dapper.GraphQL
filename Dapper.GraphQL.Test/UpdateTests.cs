@@ -40,7 +40,10 @@ namespace Dapper.GraphQL.Test
                 .Execute(fixture.DbConnection);
 
             // Build a person mapper for dapper
-            var personMapper = fixture.ServiceProvider.GetRequiredService<IEntityMapperFactory>().Build<Person>(p => p.Id);
+            var personMapper = fixture
+                .ServiceProvider
+                .GetRequiredService<IEntityMapperFactory>()
+                .Build<Person>(p => p.Id);
 
             // Get the same person back
             person = SqlBuilder

@@ -31,7 +31,7 @@ namespace Dapper.GraphQL.Test
             var person = new Person
             {
                 FirstName = "Steven",
-                LastName = "Rollman",
+                LastName = "Rollman",                
             };
 
             // Ensure inserting a person works and we get the person's Id back

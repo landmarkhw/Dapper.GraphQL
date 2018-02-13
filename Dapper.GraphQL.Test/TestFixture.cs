@@ -37,7 +37,7 @@ namespace Dapper.GraphQL.Test
             this.Schema = ServiceProvider.GetRequiredService<PersonSchema>();
         }
 
-        public Func<IEnumerable<object>, TEntityType> BuildMapper<TEntityType>(Func<TEntityType, object> mapper)
+        public Func<object[], TEntityType> BuildMapper<TEntityType>(Func<TEntityType, object> mapper)
             where TEntityType : class
         {
             return ServiceProvider.GetRequiredService<IEntityMapperFactory>().Build(mapper);

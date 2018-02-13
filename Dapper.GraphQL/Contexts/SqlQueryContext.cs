@@ -296,6 +296,15 @@ FROM {from}/**innerjoin**//**leftjoin**//**rightjoin**//**join**/
         }
 
         /// <summary>
+        /// Gets an array of types that are used to split objects during entity mapping.
+        /// </summary>
+        /// <returns></returns>
+        public List<Type> GetSplitOnTypes()
+        {
+            return _types;
+        }
+
+        /// <summary>
         /// Instructs dapper to deserialized data into a different type, beginning with the specified column.
         /// </summary>
         /// <typeparam name="TEntityType">The type to map data into.</typeparam>

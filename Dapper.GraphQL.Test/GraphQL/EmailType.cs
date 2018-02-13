@@ -17,13 +17,13 @@ namespace Dapper.GraphQL.Test.GraphQL
             Field<IntGraphType>(
                 "id",
                 description: "A unique identifier for the email address.",
-                resolve: context => context.Source.Id
+                resolve: context => context.Source?.Id
             );
 
             Field<StringGraphType>(
                 "address",
                 description: "The email address.",
-                resolve: context => context.Source.Address
+                resolve: context => context.Source?.Address
             );
         }
     }

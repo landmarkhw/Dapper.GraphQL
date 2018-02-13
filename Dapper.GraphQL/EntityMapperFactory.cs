@@ -1,4 +1,5 @@
-﻿using System;
+﻿using GraphQL.Language.AST;
+using System;
 using System.Collections.Generic;
 
 namespace Dapper.GraphQL
@@ -21,10 +22,14 @@ namespace Dapper.GraphQL
         /// </summary>
         /// <typeparam name="TEntityType">The type of entity to be mapped.</typeparam>
         /// <param name="resolve">A function that, given one or more entities, resolves to an entity instance to which child entities will be added.</param>
+        /// <param name="selectionSet">The GraphQL selection set (optional).</param>
+        /// <param name="splitOn">The types the query is split on.</param>
         /// <param name="shouldFilterDuplicates">True if duplicate objects should be filtered, false otherwise.</param>
         /// <returns>A Dapper mapping function.</returns>
-        public Func<IEnumerable<object>, TEntityType> Build<TEntityType>(
+        public Func<object[], TEntityType> Build<TEntityType>(
             Func<TEntityType, TEntityType, TEntityType> resolve = null,
+            IHaveSelectionSet selectionSet = null,
+            List<Type> splitOn = null,
             bool shouldFilterDuplicates = true)
             where TEntityType : class
         {
@@ -49,7 +54,7 @@ namespace Dapper.GraphQL
             return objs =>
             {
                 // Map the object
-                var next = mapper.Map(objs);
+                var next = mapper.Map(objs, selectionSet, splitOn);
 
                 // Return null if we are returning a duplicate object
                 if (shouldFilterDuplicates && object.ReferenceEquals(next, entity))
@@ -70,8 +75,13 @@ namespace Dapper.GraphQL
         /// </summary>
         /// <typeparam name="TEntityType">The type of entity to be mapped.</typeparam>
         /// <param name="resolve">A function that compares two values on the entity for equality, usually comparing primary keys.</param>
+        /// <param name="selectionSet">The GraphQL selection set (optional).</param>
+        /// <param name="splitOn">The types the query is split on.</param>
         /// <returns>A Dapper mapping function.</returns>
-        public Func<IEnumerable<object>, TEntityType> Build<TEntityType>(Func<TEntityType, object> selector)
+        public Func<object[], TEntityType> Build<TEntityType>(
+            Func<TEntityType, object> selector,
+            IHaveSelectionSet selectionSet = null,
+            List<Type> splitOn = null)
             where TEntityType : class
         {
             var resolve = new Func<TEntityType, TEntityType, TEntityType>(
@@ -88,7 +98,7 @@ namespace Dapper.GraphQL
             );
 
             // Build the mapper
-            return Build(resolve);
+            return Build(resolve, selectionSet, splitOn);
         }
     }
 }

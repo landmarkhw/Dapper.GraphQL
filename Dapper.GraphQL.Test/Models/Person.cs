@@ -11,6 +11,8 @@ namespace Dapper.GraphQL.Test.Models
         public int Id { get; set; }
         public string LastName { get; set; }
         public IList<Phone> Phones { get; set; }
+        public Person Supervisor { get; set; }
+        public Person CareerCounselor { get; set; }
 
         public Person()
         {

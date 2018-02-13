@@ -9,18 +9,11 @@ namespace Dapper.GraphQL.Test
 {
     public class QueryTests : IClassFixture<TestFixture>
     {
-        private readonly TestFixture fixture;
-        private readonly Func<IEnumerable<object>, Person> personMapper;
+        private readonly TestFixture fixture;        
 
         public QueryTests(TestFixture fixture)
         {
-            this.fixture = fixture;
-
-            // Build a mapper that compares primary keys when building 'Person' objects
-            this.personMapper = fixture
-                .ServiceProvider
-                .GetRequiredService<IEntityMapperFactory>()
-                .Build<Person>(person => person.Id);
+            this.fixture = fixture;            
         }
 
         [Fact(DisplayName = "ORDER BY should work")]
@@ -44,6 +37,12 @@ namespace Dapper.GraphQL.Test
                     .From("Person person")
                     .Select("person.Id", "notAnAlias.Id")
                     .SplitOn<Person>("Id");
+
+                // Build a mapper that compares primary keys when building 'Person' objects
+                var personMapper = fixture
+                    .ServiceProvider
+                    .GetRequiredService<IEntityMapperFactory>()
+                    .Build<Person>(person => person.Id);
 
                 query.Execute<Person>(fixture.DbConnection, personMapper);
             });

@@ -43,47 +43,21 @@ query {
             number
             type
         }
+        supervisor {
+            id
+            firstName
+            lastName
+        }
+        careerCounselor {
+            id
+            firstName
+            lastName
+        }
     }
 }");
 
             var expectedJson = @"
-{
-    data: {
-        people: [{
-            id: 1,
-            firstName: 'Doug',
-            lastName: 'Day',
-            emails: [{
-                id: 1,
-                address: 'dday@landmarkhw.com'
-            }, {
-                id: 2,
-                address: 'dougrday@gmail.com'
-            }],
-            phones: [{
-                id: 1,
-                number: '8011234567',
-                type: 3
-            }]
-        }, {
-            id: 2,
-            firstName: 'Kevin',
-            lastName: 'Russon',
-            emails: [{
-                id: 3,
-                address: 'krusson@landmarkhw.com'
-            }],
-            phones: [{
-                id: 3,
-                number: '8011111111',
-                type: 1
-            }, {
-                id: 2,
-                number: '8019876543',
-                type: 3
-            }]
-        }]
-    }
+{    
 }";
 
             Assert.True(fixture.JsonEquals(expectedJson, json));
@@ -94,7 +68,7 @@ query {
         {
             var json = await fixture.QueryGraphQLAsync(@"
 query {
-    person (id: 1) {
+    person (id: 2) {
         id
         firstName
         lastName
@@ -114,14 +88,14 @@ query {
 {
     data: {
         person: {
-            id: 1,
+            id: 2,
             firstName: 'Doug',
             lastName: 'Day',
             emails: [{
-                id: 1,
+                id: 2,
                 address: 'dday@landmarkhw.com'
             }, {
-                id: 2,
+                id: 3,
                 address: 'dougrday@gmail.com'
             }],
             phones: [{
@@ -149,15 +123,22 @@ query {
 
             var expectedJson = @"
 {
-    data: {
-        people: [{
-            firstName: 'Doug',
-            lastName: 'Day'
-        }, {
-            firstName: 'Kevin',
-            lastName: 'Russon'
-        }]
-    }
+  data: {
+    people: [
+      {
+        firstName: 'Hyrum',
+        lastName: 'Clyde'
+      },
+      {
+        firstName: 'Doug',
+        lastName: 'Day'
+      },
+      {
+        firstName: 'Kevin',
+        lastName: 'Russon'
+      }
+    ]
+  }
 }";
 
             Assert.True(fixture.JsonEquals(expectedJson, json));
@@ -168,7 +149,7 @@ query {
         {
             var json = await fixture.QueryGraphQLAsync(@"
 query {
-    person (id: 1) {
+    person (id: 2) {
         id
         firstName
         lastName
@@ -179,7 +160,7 @@ query {
 {
     data: {
         person: {
-            id: 1,
+            id: 2,
             firstName: 'Doug',
             lastName: 'Day'
         }

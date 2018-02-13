@@ -26,7 +26,11 @@ namespace Dapper.GraphQL.Test.GraphQL
                     query = personQueryBuilder.Build(query, context.FieldAst, alias);
 
                     // Create a mapper that understands how to uniquely identify the 'Person' class.
-                    var personMapper = entityMapperFactory.Build<Person>(person => person.Id);
+                    var personMapper = entityMapperFactory.Build<Person>(
+                        person => person.Id, 
+                        context.FieldAst, 
+                        query.GetSplitOnTypes()
+                    );
 
                     using (var connection = serviceProvider.GetRequiredService<IDbConnection>())
                     {
@@ -53,7 +57,11 @@ namespace Dapper.GraphQL.Test.GraphQL
                     query = personQueryBuilder.Build(query, context.FieldAst, alias);
 
                     // Create a mapper that understands how to uniquely identify the 'Person' class.
-                    var personMapper = entityMapperFactory.Build<Person>(person => person.Id);
+                    var personMapper = entityMapperFactory.Build<Person>(
+                        person => person.Id,
+                        context.FieldAst,
+                        query.GetSplitOnTypes()
+                    );
 
                     using (var connection = serviceProvider.GetRequiredService<IDbConnection>())
                     {
