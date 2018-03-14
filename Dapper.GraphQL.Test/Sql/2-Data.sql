@@ -1,8 +1,8 @@
-﻿INSERT INTO Person (Id, FirstName, LastName, SupervisorId, CareerCounselorId) VALUES (1, 'Hyrum', 'Clyde', 0, 0);
-INSERT INTO Person (Id, FirstName, LastName, SupervisorId, CareerCounselorId) VALUES (2, 'Doug', 'Day', 0, 1);
+﻿INSERT INTO Person (Id, FirstName, LastName, SupervisorId, CareerCounselorId) VALUES (1, 'Hyrum', 'Clyde', NULL, NULL);
+INSERT INTO Person (Id, FirstName, LastName, SupervisorId, CareerCounselorId) VALUES (2, 'Doug', 'Day', NULL, 1);
 INSERT INTO Person (Id, FirstName, LastName, SupervisorId, CareerCounselorId) VALUES (3, 'Kevin', 'Russon', 1, 2);
 
----- Add the relationship once all records are inserted
+-- Add the relationship once all records are inserted
 --UPDATE Person 
 --SET CareerCounselorId = 2
 --WHERE Id = 1;

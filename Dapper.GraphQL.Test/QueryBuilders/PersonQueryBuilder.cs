@@ -27,21 +27,6 @@ namespace Dapper.GraphQL.Test.QueryBuilders
 
             var fields = context.GetSelectedFields();
 
-            if (fields.ContainsKey("supervisor"))
-            {
-                query.Select($"{alias}.SupervisorId");
-                var supervisorAlias = $"{alias}Supervisor";
-                query.LeftJoin($"Person {supervisorAlias} ON {alias}.SupervisorId = {supervisorAlias}.Id");
-                query = Build(query, fields["supervisor"], supervisorAlias);
-            }
-            if (fields.ContainsKey("careerCounselor"))
-            {
-                query.Select($"{alias}.CareerCounselorId");
-                //var careerCounselorAlias = $"{alias}CareerCounselor";
-                //query.LeftJoin($"Person {careerCounselorAlias} ON {alias}.CareerCounselorId = {careerCounselorAlias}.Id");
-                //query = Build(query, fields["careerCounselor"], careerCounselorAlias);
-            }
-
             foreach (var kvp in fields)
             {
                 switch (kvp.Key)
@@ -65,6 +50,19 @@ namespace Dapper.GraphQL.Test.QueryBuilders
                         }
                         break;
                 }
+            }
+
+            if (fields.ContainsKey("supervisor"))
+            {
+                var supervisorAlias = $"{alias}Supervisor";
+                query.LeftJoin($"Person {supervisorAlias} ON {alias}.SupervisorId = {supervisorAlias}.Id");
+                query = Build(query, fields["supervisor"], supervisorAlias);
+            }
+            if (fields.ContainsKey("careerCounselor"))
+            {
+                var careerCounselorAlias = $"{alias}CareerCounselor";
+                query.LeftJoin($"Person {careerCounselorAlias} ON {alias}.CareerCounselorId = {careerCounselorAlias}.Id");
+                query = Build(query, fields["careerCounselor"], careerCounselorAlias);
             }
 
             return query;

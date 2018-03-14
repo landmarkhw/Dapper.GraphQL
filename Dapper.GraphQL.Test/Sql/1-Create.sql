@@ -4,8 +4,8 @@
 	LastName TEXT,
 	-- Known issue with FK reference to non-null numeric types
 	-- https://github.com/StackExchange/Dapper/issues/917
-	SupervisorId INTEGER NOT NULL,
-	CareerCounselorId INTEGER NOT NULL,
+	SupervisorId INTEGER,
+	CareerCounselorId INTEGER,
 	FOREIGN KEY (SupervisorId) REFERENCES Person(Id),
 	FOREIGN KEY (CareerCounselorId) REFERENCES Person(Id)
 );
