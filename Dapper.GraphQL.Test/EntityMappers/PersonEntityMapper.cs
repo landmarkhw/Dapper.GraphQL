@@ -51,7 +51,7 @@ namespace Dapper.GraphQL.Test.EntityMappers
 
                 // NOTE: order matters here, if both supervisor
                 // and careerCounselor exist, then supervisor must appear
-                // first in the list.
+                // first in the list.  This order is guaranteed in PersonQueryBuilder.
                 if (fields.ContainsKey("supervisor"))
                 {
                     supervisorIndex = splitOn.IndexOf(typeof(Person), startingIndex);

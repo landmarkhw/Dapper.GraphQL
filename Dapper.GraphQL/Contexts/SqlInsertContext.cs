@@ -27,7 +27,7 @@ namespace Dapper.GraphQL
         }
 
         /// <summary>
-        /// Executes the update statement with Dapper, using the provided database connection.
+        /// Executes the INSERT statements with Dapper, using the provided database connection.
         /// </summary>
         /// <param name="connection">The database connection.</param>
         public int Execute(IDbConnection connection)

@@ -149,7 +149,7 @@ Let's break down what's happening in the `Build()` method:
 
 #### Query builder chaining
 
-Query builders are intended to chain, as our entities tend to have a hierarchical relationship.  See the `PersonQueryBuilder.cs` file in the test project for a good example of chaining.
+Query builders are intended to chain, as our entities tend to have a hierarchical relationship.  See the [PersonQueryBuilder.cs](https://github.com/landmarkhw/Dapper.GraphQL/blob/master/Dapper.GraphQL.Test/QueryBuilders/PersonQueryBuilder.cs) file in the test project for a good example of chaining.
 
 ## GraphQL integration
 
@@ -184,6 +184,10 @@ Field<ListGraphType<PersonType>>(
 );
 ```
 
+# Mapping objects of the same type
+
+The test project contains an example of how to handle this scenario.  See [PersonEntityMapper.cs](https://github.com/landmarkhw/Dapper.GraphQL/blob/master/Dapper.GraphQL.Test/EntityMappers/PersonEntityMapper.cs).
+
 # Examples
 
 See the Dapper.GraphQL.Test project for a full set of examples, including how *query builders* and *entity mappers* are designed.
@@ -191,3 +195,4 @@ See the Dapper.GraphQL.Test project for a full set of examples, including how *q
 # Roadmap
 
 * Fluent-style pagination
+* Async support

@@ -113,6 +113,15 @@ FROM {from}/**innerjoin**//**leftjoin**//**rightjoin**//**join**/
         }
 
         /// <summary>
+        /// Gets an array of types that are used to split objects during entity mapping.
+        /// </summary>
+        /// <returns></returns>
+        public List<Type> GetSplitOnTypes()
+        {
+            return _types;
+        }
+
+        /// <summary>
         /// Performs an INNER JOIN.
         /// </summary>
         /// <remarks>
@@ -293,15 +302,6 @@ FROM {from}/**innerjoin**//**leftjoin**//**rightjoin**//**join**/
                 SqlBuilder.Select(s);
             }
             return this;
-        }
-
-        /// <summary>
-        /// Gets an array of types that are used to split objects during entity mapping.
-        /// </summary>
-        /// <returns></returns>
-        public List<Type> GetSplitOnTypes()
-        {
-            return _types;
         }
 
         /// <summary>

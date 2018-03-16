@@ -1,19 +1,17 @@
 using Dapper.GraphQL.Test.Models;
-using Microsoft.Data.Sqlite;
 using Microsoft.Extensions.DependencyInjection;
-using System;
-using System.Collections.Generic;
+using System.Data.SqlClient;
 using Xunit;
 
 namespace Dapper.GraphQL.Test
 {
     public class QueryTests : IClassFixture<TestFixture>
     {
-        private readonly TestFixture fixture;        
+        private readonly TestFixture fixture;
 
         public QueryTests(TestFixture fixture)
         {
-            this.fixture = fixture;            
+            this.fixture = fixture;
         }
 
         [Fact(DisplayName = "ORDER BY should work")]
@@ -21,7 +19,7 @@ namespace Dapper.GraphQL.Test
         {
             var query = SqlBuilder
                 .From("Person person")
-                .Select("person.Id", "notAnAlias.Id")
+                .Select("person.Id")
                 .SplitOn<Person>("Id")
                 .OrderBy("LastName");
 
@@ -31,7 +29,7 @@ namespace Dapper.GraphQL.Test
         [Fact(DisplayName = "SELECT without matching alias should throw")]
         public void SelectWithoutMatchingAliasShouldThrow()
         {
-            Assert.ThrowsAsync<SqliteException>(async () =>
+            Assert.Throws<SqlException>(() =>
             {
                 var query = SqlBuilder
                     .From("Person person")
@@ -44,7 +42,10 @@ namespace Dapper.GraphQL.Test
                     .GetRequiredService<IEntityMapperFactory>()
                     .Build<Person>(person => person.Id);
 
-                query.Execute<Person>(fixture.DbConnection, personMapper);
+                using (var db = fixture.GetDbConnection())
+                {
+                    query.Execute<Person>(db, personMapper);
+                }
             });
         }
     }

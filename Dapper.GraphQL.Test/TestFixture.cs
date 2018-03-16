@@ -3,25 +3,51 @@ using Dapper.GraphQL.Test.GraphQL;
 using Dapper.GraphQL.Test.Models;
 using Dapper.GraphQL.Test.QueryBuilders;
 using DbUp;
-using DbUp.SQLite.Helpers;
 using GraphQL;
 using GraphQL.Http;
-using Microsoft.Data.Sqlite;
 using Microsoft.Extensions.DependencyInjection;
 using Newtonsoft.Json.Linq;
 using System;
-using System.Collections.Generic;
 using System.Data;
+using System.Data.SqlClient;
 using System.Reflection;
 using System.Threading.Tasks;
 
 namespace Dapper.GraphQL.Test
 {
-    public class TestFixture : IDisposable
+    public class TestFixture
     {
-        private readonly DocumentExecuter documentExecuter;
+        #region Statics
 
-        public SharedConnection DbConnection { get; set; }
+        private static string ConnectionString { get; set; }
+
+        static TestFixture()
+        {
+            EnsureSqlExpressDatabase();
+        }
+
+        private static void EnsureSqlExpressDatabase()
+        {
+            ConnectionString = "Server=(localdb)\\mssqllocaldb;Integrated Security=true;MultipleActiveResultSets=true;Database=DapperGraphQLTest";
+
+            // Drop the database if it already exists
+            DropDatabase.For.SqlDatabase(ConnectionString);
+
+            // Ensure the database exists
+            EnsureDatabase.For.SqlDatabase(ConnectionString);
+
+            var upgrader = DeployChanges.To
+                .SqlDatabase(ConnectionString)
+                .WithScriptsEmbeddedInAssembly(typeof(Person).GetTypeInfo().Assembly)
+                .LogToConsole()
+                .Build();
+
+            var upgradeResult = upgrader.PerformUpgrade();
+        }
+
+        #endregion Statics
+
+        private readonly DocumentExecuter documentExecuter;
         public PersonSchema Schema { get; set; }
         public IServiceProvider ServiceProvider { get; set; }
 
@@ -31,7 +57,7 @@ namespace Dapper.GraphQL.Test
             var serviceCollection = new ServiceCollection();
 
             SetupDapperGraphQL(serviceCollection);
-            SetupInMemorySqliteDatabase(serviceCollection);
+            SetupDatabaseConnection(serviceCollection);
 
             this.ServiceProvider = serviceCollection.BuildServiceProvider();
             this.Schema = ServiceProvider.GetRequiredService<PersonSchema>();
@@ -43,14 +69,9 @@ namespace Dapper.GraphQL.Test
             return ServiceProvider.GetRequiredService<IEntityMapperFactory>().Build(mapper);
         }
 
-        public void Dispose()
+        public IDbConnection GetDbConnection()
         {
-            if (DbConnection != null)
-            {
-                DbConnection.Close();
-                DbConnection.Dispose();
-                DbConnection = null;
-            }
+            return new SqlConnection(ConnectionString);
         }
 
         public bool JsonEquals(string expectedJson, string actualJson)
@@ -97,20 +118,9 @@ namespace Dapper.GraphQL.Test
             });
         }
 
-        private void SetupInMemorySqliteDatabase(IServiceCollection serviceCollection)
+        private void SetupDatabaseConnection(ServiceCollection serviceCollection)
         {
-            var connectionStringBuilder = new SqliteConnectionStringBuilder { DataSource = ":memory:" };
-            DbConnection = new SharedConnection(new SqliteConnection(connectionStringBuilder.ToString()));
-
-            var upgrader = DeployChanges.To
-                .SQLiteDatabase(DbConnection)
-                .WithScriptsEmbeddedInAssembly(typeof(Person).GetTypeInfo().Assembly)
-                .LogToConsole()
-                .Build();
-
-            var upgradeResult = upgrader.PerformUpgrade();
-
-            serviceCollection.AddSingleton<IDbConnection>(DbConnection);
+            serviceCollection.AddTransient<IDbConnection>(serviceProvider => GetDbConnection());
         }
     }
 }

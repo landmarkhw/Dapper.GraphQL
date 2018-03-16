@@ -4,6 +4,12 @@
     <TargetFramework>netcoreapp1.1</TargetFramework>
 
     <IsPackable>false</IsPackable>
+
+    <AssemblyVersion>0.2.0.0</AssemblyVersion>
+
+    <FileVersion>0.2.0.0</FileVersion>
+
+    <Version>0.2.0</Version>
   </PropertyGroup>
 
   <ItemGroup>
@@ -21,10 +27,10 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="dbup-core" Version="4.0.0-beta0002" />
-    <PackageReference Include="dbup-sqlite" Version="4.0.0-beta0002" />
-    <PackageReference Include="Microsoft.Data.Sqlite" Version="1.1.1" />
+    <PackageReference Include="dbup-core" Version="4.0.0-beta0004" />
+    <PackageReference Include="dbup-sqlserver" Version="4.0.0-beta0004" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="15.5.0" />
+    <PackageReference Include="System.Data.SqlClient" Version="4.4.3" />
     <PackageReference Include="xunit" Version="2.3.1" />
     <PackageReference Include="xunit.analyzers" Version="0.7.0" />
     <PackageReference Include="xunit.runner.visualstudio" Version="2.3.1" />

@@ -17,11 +17,10 @@ namespace Dapper.GraphQL
                 sb.AppendLine(context.ToString());
                 sb.AppendLine("SELECT CAST(SCOPE_IDENTITY() AS INT)");
             }
-            else if (typeof(TIdentityType) == typeof(Guid))
+            else if (typeof(TIdentityType) == typeof(long))
             {
-                sb.AppendLine($"DECLARE @InsertedRows AS TABLE (Id UNIQUEIDENTIFIER);");
                 sb.AppendLine(context.ToString());
-                sb.AppendLine($"SELECT Id FROM @InsertedRows");
+                sb.AppendLine("SELECT CAST(SCOPE_IDENTITY() AS BIGINT)");
             }
             else throw new InvalidCastException($"Type {typeof(TIdentityType).Name} in not supported this SQL context.");
 

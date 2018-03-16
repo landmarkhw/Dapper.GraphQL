@@ -2,8 +2,6 @@ using Dapper.GraphQL.Test.EntityMappers;
 using Dapper.GraphQL.Test.Models;
 using Dapper.GraphQL.Test.QueryBuilders;
 using DbUp;
-using DbUp.SQLite.Helpers;
-using Microsoft.Data.Sqlite;
 using Microsoft.Extensions.DependencyInjection;
 using Newtonsoft.Json.Linq;
 using System;
@@ -28,34 +26,66 @@ namespace Dapper.GraphQL.Test
         [Fact(DisplayName = "UPDATE person succeeds")]
         public void UpdatePerson()
         {
-            var person = new Person
+            Person person = new Person
             {
                 FirstName = "Douglas"
             };
+            Person previousPerson = null;
 
-            // Update the person with Id = 1 with a new FirstName
-            SqlBuilder
-                .Update(person)
-                .Where("Id = @id", new { id = 1 })
-                .Execute(fixture.DbConnection);
-
-            // Build a person mapper for dapper
-            var personMapper = fixture
+            // Get an entity mapper factory
+            var entityMapperFactory = fixture
                 .ServiceProvider
-                .GetRequiredService<IEntityMapperFactory>()
-                .Build<Person>(p => p.Id);
+                .GetRequiredService<IEntityMapperFactory>();
 
-            // Get the same person back
-            person = SqlBuilder
-                .From<Person>()
-                .Select("Id", "FirstName")
-                .Where("Id = @id", new { id = 1 })
-                .Execute(fixture.DbConnection, personMapper)
-                .FirstOrDefault();
+            try
+            {
+                // Update the person with Id = 2 with a new FirstName
+                using (var db = fixture.GetDbConnection())
+                {
+                    previousPerson = SqlBuilder
+                        .From<Person>()
+                        .Select("Id", "FirstName")
+                        .Where("FirstName = @firstName", new { firstName = "Doug" })
+                        .Execute(db, entityMapperFactory.Build<Person>(p => p.Id))
+                        .FirstOrDefault();
 
-            // Ensure we got a person and their name was indeed changed
-            Assert.NotNull(person);
-            Assert.Equal("Douglas", person.FirstName);
+                    SqlBuilder
+                        .Update(person)
+                        .Where("Id = @id", new { id = previousPerson.Id })
+                        .Execute(db);
+
+                    // Get the same person back
+                    person = SqlBuilder
+                        .From<Person>()
+                        .Select("Id", "FirstName")
+                        .Where("Id = @id", new { id = previousPerson.Id })
+                        .Execute(db, entityMapperFactory.Build<Person>(p => p.Id))
+                        .FirstOrDefault();
+                }
+
+                // Ensure we got a person and their name was indeed changed
+                Assert.NotNull(person);
+                Assert.Equal("Douglas", person.FirstName);
+            }
+            finally
+            {
+                if (previousPerson != null)
+                {
+                    using (var db = fixture.GetDbConnection())
+                    {
+                        person = new Person
+                        {
+                            FirstName = previousPerson.FirstName
+                        };
+
+                        // Put the entity back to the way it was
+                        SqlBuilder
+                            .Update<Person>(person)
+                            .Where("Id = @id", new { id = 2 })
+                            .Execute(db);
+                    }
+                }
+            }
         }
     }
 }

@@ -13,6 +13,16 @@ namespace Dapper.GraphQL
     /// </summary>
     public static class SqlBuilder
     {
+        public static SqlDeleteContext Delete(string from, dynamic parameters = null)
+        {
+            return new SqlDeleteContext(from, parameters);
+        }
+
+        public static SqlDeleteContext Delete<TEntityType>(dynamic parameters = null)
+        {
+            return new SqlDeleteContext(typeof(TEntityType).Name, parameters);
+        }
+
         public static SqlQueryContext From(string from, dynamic parameters = null)
         {
             return new SqlQueryContext(from, parameters);
