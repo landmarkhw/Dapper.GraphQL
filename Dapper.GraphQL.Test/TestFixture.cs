@@ -28,7 +28,7 @@ namespace Dapper.GraphQL.Test
 
         private static void EnsureSqlExpressDatabase()
         {
-            ConnectionString = "Server=(localdb)\\dapper-graphql-test;Integrated Security=true;MultipleActiveResultSets=true";
+            ConnectionString = "Server=(localdb)\\mssqllocaldb;Integrated Security=true;MultipleActiveResultSets=true;Database=DapperGraphQLTest";
 
             // Drop the database if it already exists
             DropDatabase.For.SqlDatabase(ConnectionString);
