@@ -112,6 +112,44 @@ FROM {from}/**innerjoin**//**leftjoin**//**rightjoin**//**join**/
             return results.Where(e => e != null);
         }
 
+
+        /// <summary>
+        /// Executes the query with Dapper asynchronously, using the provided database connection and map function.
+        /// </summary>
+        /// <example>
+        ///     var queryBuilder = new SqlQueryBuilder();
+        ///     queryBuilder.From("Customer customer");
+        ///     queryBuilder.Select(
+        ///         "customer.id",
+        ///         "customer.name",
+        ///     );
+        ///     queryBuilder.SplitOn<Customer>("id");
+        ///     queryBuilder.Where("customer.id == @id");
+        ///     queryBuilder.Parameters.Add("id", 1);
+        ///     var customer = queryBuilder
+        ///         .Execute(dbConnection, objs => objs.OfType<Customer>())
+        ///         .FirstOrDefault();
+        ///
+        ///     // SELECT customer.id, customer.name
+        ///     // FROM Customer customer
+        ///     // WHERE customer.id == @id
+        /// </example>
+        /// <typeparam name="TEntityType">The entity type to be mapped.</typeparam>
+        /// <param name="connection">The database connection.</param>
+        /// <param name="map">The dapper mapping function.</param>
+        /// <returns>A list of entities returned by the query.</returns>
+        public async Task<IEnumerable<TEntityType>> ExecuteAsync<TEntityType>(IDbConnection connection, Func<object[], TEntityType> map)
+        {
+            var results = await connection.QueryAsync<TEntityType>(
+                sql: this.ToString(),
+                types: this._types.ToArray(),
+                param: this.Parameters,
+                map: map,
+                splitOn: string.Join(",", this._splitOn)
+            );
+            return results.Where(e => e != null);
+        }
+
         /// <summary>
         /// Gets an array of types that are used to split objects during entity mapping.
         /// </summary>
