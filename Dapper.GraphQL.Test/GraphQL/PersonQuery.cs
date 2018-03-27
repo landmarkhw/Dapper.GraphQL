@@ -19,7 +19,8 @@ namespace Dapper.GraphQL.Test.GraphQL
             Field<ListGraphType<PersonType>>(
                 "people",
                 description: "A list of people.",
-                resolve: context => {
+                resolve: context => 
+                {
                     var alias = "person";
                     var query = SqlBuilder.From($"Person {alias}");
                     query = personQueryBuilder.Build(query, context.FieldAst, alias);
@@ -42,7 +43,8 @@ namespace Dapper.GraphQL.Test.GraphQL
             FieldAsync<ListGraphType<PersonType>>(
                 "peopleAsync",
                 description: "A list of people fetched asynchronously.",
-                resolve: async context => {
+                resolve: async context => 
+                {
                     var alias = "person";
                     var query = SqlBuilder.From($"Person {alias}");
                     query = personQueryBuilder.Build(query, context.FieldAst, alias);
