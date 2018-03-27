@@ -19,7 +19,7 @@ namespace Dapper.GraphQL.Test.GraphQL
             Field<ListGraphType<PersonType>>(
                 "people",
                 description: "A list of people.",
-                resolve: context => 
+                resolve: context =>
                 {
                     var alias = "person";
                     var query = SqlBuilder.From($"Person {alias}");
@@ -27,8 +27,8 @@ namespace Dapper.GraphQL.Test.GraphQL
 
                     // Create a mapper that understands how to uniquely identify the 'Person' class.
                     var personMapper = entityMapperFactory.Build<Person>(
-                        person => person.Id,
-                        context.FieldAst,
+                        person => person.Id, 
+                        context.FieldAst, 
                         query.GetSplitOnTypes()
                     );
 
