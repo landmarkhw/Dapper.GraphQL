@@ -1,14 +1,6 @@
-using Dapper.GraphQL.Test.EntityMappers;
 using Dapper.GraphQL.Test.Models;
-using Dapper.GraphQL.Test.QueryBuilders;
-using DbUp;
 using Microsoft.Extensions.DependencyInjection;
-using Newtonsoft.Json.Linq;
-using System;
-using System.Collections.Generic;
-using System.Data.Common;
 using System.Linq;
-using System.Reflection;
 using System.Threading.Tasks;
 using Xunit;
 
@@ -107,6 +99,8 @@ namespace Dapper.GraphQL.Test
                 // Update the person with Id = 2 with a new FirstName
                 using (var db = fixture.GetDbConnection())
                 {
+                    db.Open();
+
                     var previousPeople = await SqlBuilder
                         .From<Person>()
                         .Select("Id", "FirstName")
@@ -140,6 +134,8 @@ namespace Dapper.GraphQL.Test
                 {
                     using (var db = fixture.GetDbConnection())
                     {
+                        db.Open();
+
                         person = new Person
                         {
                             FirstName = previousPerson.FirstName
