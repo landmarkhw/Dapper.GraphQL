@@ -195,4 +195,3 @@ See the Dapper.GraphQL.Test project for a full set of examples, including how *q
 # Roadmap
 
 * Fluent-style pagination
-* Async support
