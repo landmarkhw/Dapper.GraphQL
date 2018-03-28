@@ -10,40 +10,80 @@ using Newtonsoft.Json.Linq;
 using System;
 using System.Data;
 using System.Data.SqlClient;
+using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
 
 namespace Dapper.GraphQL.Test
 {
+    public class DbConnectionWrapper : IDbConnection
+    {
+        private readonly IDbConnection dbConnection;
+        private readonly Action onDispose;
+        private bool isDisposed = false;
+
+        public string ConnectionString { get => dbConnection.ConnectionString; set => dbConnection.ConnectionString = value; }
+
+        public int ConnectionTimeout => dbConnection.ConnectionTimeout;
+
+        public string Database => dbConnection.Database;
+
+        public ConnectionState State => dbConnection.State;
+
+        public DbConnectionWrapper(IDbConnection dbConnection, Action onDispose)
+        {
+            this.dbConnection = dbConnection;
+            this.onDispose = onDispose;
+        }
+
+        public IDbTransaction BeginTransaction()
+        {
+            return dbConnection.BeginTransaction();
+        }
+
+        public IDbTransaction BeginTransaction(IsolationLevel il)
+        {
+            return dbConnection.BeginTransaction(il);
+        }
+
+        public void ChangeDatabase(string databaseName)
+        {
+            dbConnection.ChangeDatabase(databaseName);
+        }
+
+        public void Close()
+        {
+            dbConnection.Close();
+        }
+
+        public IDbCommand CreateCommand()
+        {
+            return dbConnection.CreateCommand();
+        }
+
+        public void Dispose()
+        {
+            if (!isDisposed)
+            {
+                isDisposed = true;
+                onDispose();
+            }
+
+            dbConnection.Dispose();
+        }
+
+        public void Open()
+        {
+            dbConnection.Open();
+        }
+    }
+
     public class TestFixture
     {
         #region Statics
 
-        private static string ConnectionString { get; set; }
-
-        static TestFixture()
-        {
-            EnsureSqlExpressDatabase();
-        }
-
-        private static void EnsureSqlExpressDatabase()
-        {
-            ConnectionString = "Server=(localdb)\\mssqllocaldb;Integrated Security=true;MultipleActiveResultSets=true;Database=DapperGraphQLTest";
-
-            // Drop the database if it already exists
-            DropDatabase.For.SqlDatabase(ConnectionString);
-
-            // Ensure the database exists
-            EnsureDatabase.For.SqlDatabase(ConnectionString);
-
-            var upgrader = DeployChanges.To
-                .SqlDatabase(ConnectionString)
-                .WithScriptsEmbeddedInAssembly(typeof(Person).GetTypeInfo().Assembly)
-                .LogToConsole()
-                .Build();
-
-            var upgradeResult = upgrader.PerformUpgrade();
-        }
+        private static string chars = "abcdefghijklmnopqrstuvwxyz0123456789";
+        private static Random random = new Random();
 
         #endregion Statics
 
@@ -71,7 +111,29 @@ namespace Dapper.GraphQL.Test
 
         public IDbConnection GetDbConnection()
         {
-            return new SqlConnection(ConnectionString);
+            // Generate a random db name
+            var dbName = "test-" + new string(chars.OrderBy(c => random.Next()).ToArray());
+
+            var connectionString = $"Server=(localdb)\\mssqllocaldb;Integrated Security=true;MultipleActiveResultSets=true;Database={dbName}";
+
+            // Ensure the database exists
+            EnsureDatabase.For.SqlDatabase(connectionString);
+
+            var upgrader = DeployChanges.To
+                .SqlDatabase(connectionString)
+                .WithScriptsEmbeddedInAssembly(typeof(Person).GetTypeInfo().Assembly)
+                .LogToConsole()
+                .Build();
+
+            var upgradeResult = upgrader.PerformUpgrade();
+
+            var sqlConnection = new SqlConnection(connectionString);
+            var autoDroppingConnection = new DbConnectionWrapper(sqlConnection, () =>
+            {
+                // Drop the database when we're done with it
+                DropDatabase.For.SqlDatabase(connectionString);
+            });
+            return autoDroppingConnection;
         }
 
         public bool JsonEquals(string expectedJson, string actualJson)

@@ -30,31 +30,28 @@ namespace Dapper.GraphQL.Test
                 personId = SqlBuilder
                     .Insert(person)
                     .ExecuteWithSqlIdentity<int>(db);
-            }
 
-            Assert.True(personId > 0);
+                Assert.True(personId > 0);
 
-            var email = new Email
-            {
-                Address = "srollman@landmarkhw.com",
-                PersonId = personId,
-            };
+                var email = new Email
+                {
+                    Address = "srollman@landmarkhw.com",
+                    PersonId = personId,
+                };
 
-            var phone = new Phone
-            {
-                Number = "8011115555",
-                Type = PhoneType.Mobile,
-                PersonId = personId,
-            };
+                var phone = new Phone
+                {
+                    Number = "8011115555",
+                    Type = PhoneType.Mobile,
+                    PersonId = personId,
+                };
 
-            // Add email and phone number to the person
-            int insertedCount;
-            using (var db = fixture.GetDbConnection())
-            {
+                // Add email and phone number to the person
+                int insertedCount;
                 insertedCount = SqlBuilder
                     .Insert(email)
                     .Insert(phone)
-                    .Execute(fixture.GetDbConnection());
+                    .Execute(db);
 
                 // Ensure both were inserted properly
                 Assert.Equal(2, insertedCount);
@@ -74,34 +71,21 @@ namespace Dapper.GraphQL.Test
                     .Where("person.Id = @id", new { id = personId });
 
                 person = query
-                    .Execute(fixture.GetDbConnection(), personMapper)
+                    .Execute(db, personMapper)
                     .FirstOrDefault();
             }
 
-            try
-            {
-                // Ensure all inserted data is present
-                Assert.NotNull(person);
-                Assert.Equal(personId, person.Id);
-                Assert.Equal("Steven", person.FirstName);
-                Assert.Equal("Rollman", person.LastName);
-                Assert.Equal(1, person.Emails.Count);
-                Assert.Equal("srollman@landmarkhw.com", person.Emails[0].Address);
-                Assert.Equal(personId, person.Emails[0].PersonId);
-                Assert.Equal(1, person.Phones.Count);
-                Assert.Equal("8011115555", person.Phones[0].Number);
-                Assert.Equal(personId, person.Phones[0].PersonId);
-            }
-            finally
-            {
-                // Delete the items we inserted so it doesn't skew other tests
-                using (var db = fixture.GetDbConnection())
-                {
-                    SqlBuilder.Delete<Email>(new { Id = person.Emails[0].Id }).Execute(db);
-                    SqlBuilder.Delete<Phone>(new { Id = person.Phones[0].Id }).Execute(db);
-                    SqlBuilder.Delete<Person>(new { Id = person.Id }).Execute(db);
-                }
-            }
+            // Ensure all inserted data is present
+            Assert.NotNull(person);
+            Assert.Equal(personId, person.Id);
+            Assert.Equal("Steven", person.FirstName);
+            Assert.Equal("Rollman", person.LastName);
+            Assert.Equal(1, person.Emails.Count);
+            Assert.Equal("srollman@landmarkhw.com", person.Emails[0].Address);
+            Assert.Equal(personId, person.Emails[0].PersonId);
+            Assert.Equal(1, person.Phones.Count);
+            Assert.Equal("8011115555", person.Phones[0].Number);
+            Assert.Equal(personId, person.Phones[0].PersonId);
         }
 
         [Fact(DisplayName = "INSERT person asynchronously succeeds")]

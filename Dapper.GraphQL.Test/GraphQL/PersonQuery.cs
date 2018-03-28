@@ -27,8 +27,8 @@ namespace Dapper.GraphQL.Test.GraphQL
 
                     // Create a mapper that understands how to uniquely identify the 'Person' class.
                     var personMapper = entityMapperFactory.Build<Person>(
-                        person => person.Id, 
-                        context.FieldAst, 
+                        person => person.Id,
+                        context.FieldAst,
                         query.GetSplitOnTypes()
                     );
 
@@ -43,7 +43,7 @@ namespace Dapper.GraphQL.Test.GraphQL
             FieldAsync<ListGraphType<PersonType>>(
                 "peopleAsync",
                 description: "A list of people fetched asynchronously.",
-                resolve: async context => 
+                resolve: async context =>
                 {
                     var alias = "person";
                     var query = SqlBuilder.From($"Person {alias}");
@@ -58,6 +58,8 @@ namespace Dapper.GraphQL.Test.GraphQL
 
                     using (var connection = serviceProvider.GetRequiredService<IDbConnection>())
                     {
+                        connection.Open();
+
                         var results = await query.ExecuteAsync(connection, personMapper);
                         return results;
                     }
