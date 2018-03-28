@@ -40,6 +40,30 @@ namespace Dapper.GraphQL.Test.GraphQL
                 }
             );
 
+            FieldAsync<ListGraphType<PersonType>>(
+                "peopleAsync",
+                description: "A list of people fetched asynchronously.",
+                resolve: async context => 
+                {
+                    var alias = "person";
+                    var query = SqlBuilder.From($"Person {alias}");
+                    query = personQueryBuilder.Build(query, context.FieldAst, alias);
+
+                    // Create a mapper that understands how to uniquely identify the 'Person' class.
+                    var personMapper = entityMapperFactory.Build<Person>(
+                        person => person.Id,
+                        context.FieldAst,
+                        query.GetSplitOnTypes()
+                    );
+
+                    using (var connection = serviceProvider.GetRequiredService<IDbConnection>())
+                    {
+                        var results = await query.ExecuteAsync(connection, personMapper);
+                        return results;
+                    }
+                }
+            );
+
             Field<PersonType>(
                 "person",
                 description: "Gets a person by ID.",
