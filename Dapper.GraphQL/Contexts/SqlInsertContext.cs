@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Data;
 using System.Linq;
 using System.Text;
+using System.Threading.Tasks;
 
 namespace Dapper.GraphQL
 {
@@ -37,6 +38,21 @@ namespace Dapper.GraphQL
             {
                 // Execute each insert and aggregate the results
                 result = Inserts.Aggregate(result, (current, insert) => current + insert.Execute(connection));
+            }
+            return result;
+        }
+
+        /// <summary>
+        /// Executes the INSERT statements with Dapper asynchronously, using the provided database connection.
+        /// </summary>
+        /// <param name="connection">The database connection.</param>
+        public async Task<int> ExecuteAsync(IDbConnection connection)
+        {
+            int result = await connection.ExecuteAsync(BuildSql(), Parameters);
+            if (Inserts != null)
+            {
+                // Execute each insert and aggregate the results
+                result = await Inserts.AggregateAsync(result, async (current, insert) => current + await insert.ExecuteAsync(connection));
             }
             return result;
         }

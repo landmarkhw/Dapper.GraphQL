@@ -84,6 +84,16 @@ namespace Dapper.GraphQL
         }
 
         /// <summary>
+        /// Executes the update statement with Dapper asynchronously, using the provided database connection.
+        /// </summary>
+        /// <param name="connection">The database connection.</param>
+        public async Task<int> ExecuteAsync(IDbConnection connection)
+        {
+            var result = await connection.ExecuteAsync(BuildSql(), Parameters);
+            return result;
+        }
+
+        /// <summary>
         /// Adds a WHERE clause to the query, joining it with the previous with an 'OR' operator if needed.
         /// </summary>
         /// <remarks>
