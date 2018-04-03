@@ -101,7 +101,7 @@ namespace Dapper.GraphQL.Test
             int personId;
             using (var db = fixture.GetDbConnection())
             {
-                // db.Open();
+                db.Open();
 
                 personId = await SqlBuilder
                     .Insert(person)
@@ -127,7 +127,7 @@ namespace Dapper.GraphQL.Test
             int insertedCount;
             using (var db = fixture.GetDbConnection())
             {
-                // db.Open();
+                db.Open();
 
                 insertedCount = await SqlBuilder
                     .Insert(email)
