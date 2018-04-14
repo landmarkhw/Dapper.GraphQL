@@ -20,7 +20,7 @@ namespace Dapper.GraphQL
 
         public static SqlDeleteContext Delete<TEntityType>(dynamic parameters = null)
         {
-            return new SqlDeleteContext(typeof(TEntityType).Name, parameters);
+            return new SqlDeleteContext(TableHelper.GetTableName<TEntityType>(), parameters);
         }
 
         public static SqlQueryContext From(string from, dynamic parameters = null)
@@ -35,7 +35,7 @@ namespace Dapper.GraphQL
 
         public static SqlInsertContext Insert<TEntityType>(TEntityType obj)
         {
-            return new SqlInsertContext(typeof(TEntityType).Name, obj);
+            return new SqlInsertContext(TableHelper.GetTableName<TEntityType>(), obj);
         }
 
         public static SqlInsertContext Insert(string table, dynamic parameters = null)
@@ -45,7 +45,7 @@ namespace Dapper.GraphQL
 
         public static SqlUpdateContext Update<TEntityType>(TEntityType obj)
         {
-            return new SqlUpdateContext(typeof(TEntityType).Name, obj);
+            return new SqlUpdateContext(TableHelper.GetTableName<TEntityType>(), obj);
         }
 
         public static SqlUpdateContext Update(string table, dynamic parameters = null)

@@ -27,7 +27,7 @@ namespace Dapper.GraphQL
 
         public static SqlDeleteContext Delete<TEntityType>(dynamic parameters = null)
         {
-            return new SqlDeleteContext(typeof(TEntityType).Name, parameters);
+            return new SqlDeleteContext(TableHelper.GetTableName<TEntityType>(), parameters);
         }
 
         /// <summary>

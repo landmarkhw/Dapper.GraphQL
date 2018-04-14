@@ -63,5 +63,18 @@ namespace Dapper.GraphQL
             serviceCollection.AddSingleton<TGraphType>();
             return this;
         }
+
+        /// <summary>
+        /// Configures a custom table name to use when auto-mapping <typeparamref name="TGraphType"/>
+        /// to a SQL table.
+        /// </summary>
+        /// <typeparam name="TGraphType">The model type to be mapped.</typeparam>
+        /// <param name="tableName">The custom table name to set.</param>
+        /// <returns></returns>
+        public DapperGraphQLOptions AddCustomTableNameMapping<TGraphType>(string tableName) where TGraphType : class, IGraphType
+        {
+            TableHelper.AddCustomTableNameMapping<TGraphType>(tableName);
+            return this;
+        }
     }
 }
