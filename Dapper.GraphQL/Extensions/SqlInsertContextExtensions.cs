@@ -54,7 +54,7 @@ namespace Dapper.GraphQL
 
             return sb;
         }
-        
+
         public static int ExecuteWithSqliteIdentity(this SqlInsertContext context, IDbConnection dbConnection)
         {
             var sb = BuildSqliteIdentityQuery(context);

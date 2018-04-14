@@ -120,27 +120,22 @@ namespace Dapper.GraphQL.Test
                     .ExecuteWithSqlIdentityAsync<Person, int>(db, p => p.Id);
 
                 Assert.True(anotherPersonId > 1);
-            }
 
-            var email = new Email
-            {
-                Address = "srollman@landmarkhw.com",
-                PersonId = personId,
-            };
+                var email = new Email
+                {
+                    Address = "srollman@landmarkhw.com",
+                    PersonId = personId,
+                };
 
-            var phone = new Phone
-            {
-                Number = "8011115555",
-                Type = PhoneType.Mobile,
-                PersonId = personId,
-            };
+                var phone = new Phone
+                {
+                    Number = "8011115555",
+                    Type = PhoneType.Mobile,
+                    PersonId = personId,
+                };
 
-            // Add email and phone number to the person
-            int insertedCount;
-            using (var db = fixture.GetDbConnection())
-            {
-                // db.Open();
-
+                // Add email and phone number to the person
+                int insertedCount;
                 insertedCount = await SqlBuilder
                     .Insert(email)
                     .Insert(phone)
