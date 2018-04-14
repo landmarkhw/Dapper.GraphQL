@@ -8,6 +8,11 @@ namespace Dapper.GraphQL
 {
     public static class SqlInsertContextExtensions
     {
+        public static TIdentityType ExecuteWithSqlIdentity<TEntity, TIdentityType>(this SqlInsertContext context, IDbConnection dbConnection, Func<TEntity, TIdentityType> identityTypeSelector)
+        {
+            return ExecuteWithSqlIdentity<TIdentityType>(context, dbConnection);
+        }
+
         public static TIdentityType ExecuteWithSqlIdentity<TIdentityType>(this SqlInsertContext context, IDbConnection dbConnection)
         {
             var sb = BuildSqlIdentityQuery<TIdentityType>(context);
@@ -15,6 +20,11 @@ namespace Dapper.GraphQL
             return dbConnection
                 .Query<TIdentityType>(sb.ToString(), context.Parameters)
                 .Single();
+        }
+
+        public static async Task<TIdentityType> ExecuteWithSqlIdentityAsync<TEntity, TIdentityType>(this SqlInsertContext context, IDbConnection dbConnection, Func<TEntity, TIdentityType> identityTypeSelector)
+        {
+            return await ExecuteWithSqlIdentityAsync<TIdentityType>(context, dbConnection);
         }
 
         public static async Task<TIdentityType> ExecuteWithSqlIdentityAsync<TIdentityType>(this SqlInsertContext context, IDbConnection dbConnection)
@@ -44,7 +54,7 @@ namespace Dapper.GraphQL
 
             return sb;
         }
-
+        
         public static int ExecuteWithSqliteIdentity(this SqlInsertContext context, IDbConnection dbConnection)
         {
             var sb = BuildSqliteIdentityQuery(context);
