@@ -33,6 +33,12 @@ namespace Dapper.GraphQL.Test
 
                 Assert.True(personId > 0);
 
+                int anotherPersonId = SqlBuilder
+                    .Insert(person)
+                    .ExecuteWithSqlIdentity<Person, int>(db, p => p.Id);
+
+                Assert.True(anotherPersonId > 1);
+
                 var email = new Email
                 {
                     Address = "srollman@landmarkhw.com",
@@ -101,14 +107,20 @@ namespace Dapper.GraphQL.Test
             int personId;
             using (var db = fixture.GetDbConnection())
             {
-                // db.Open();
+                db.Open();
 
                 personId = await SqlBuilder
                     .Insert(person)
                     .ExecuteWithSqlIdentityAsync<int>(db);
-            }
 
-            Assert.True(personId > 0);
+                Assert.True(personId > 0);
+
+                int anotherPersonId = await SqlBuilder
+                    .Insert(person)
+                    .ExecuteWithSqlIdentityAsync<Person, int>(db, p => p.Id);
+
+                Assert.True(anotherPersonId > 1);
+            }
 
             var email = new Email
             {
