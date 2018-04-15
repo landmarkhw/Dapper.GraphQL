@@ -48,5 +48,18 @@ namespace Dapper.GraphQL.Test
                 }
             });
         }
+        
+        [Fact(DisplayName = "SELECT query uses custom table name")]
+        public void SelectWithCustomTableName()
+        {
+            // Check generic Select uses custom table name for Contact as configured in TestFixture
+            var contact = new Contact();
+
+            var query = SqlBuilder.From<Contact>();
+            Assert.Equal("SELECT\r\n\r\nFROM Contacts\r\n", query.ToString());
+
+            var queryWithAlias = SqlBuilder.From<Contact>("contacts");
+            Assert.Equal("SELECT\r\n\r\nFROM Contacts contacts\r\n", queryWithAlias.ToString());
+        }
     }
 }

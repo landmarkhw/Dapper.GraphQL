@@ -106,33 +106,28 @@ namespace Dapper.GraphQL.Test
                 personId = await SqlBuilder
                     .Insert(person)
                     .ExecuteWithSqlIdentityAsync<int>(db);
-            }
 
-            Assert.True(personId > 0);
+                Assert.True(personId > 0);
 
-            var email = new Email
-            {
-                Address = "srollman@landmarkhw.com",
-                PersonId = personId,
-            };
+                var email = new Email
+                {
+                    Address = "srollman@landmarkhw.com",
+                    PersonId = personId,
+                };
 
-            var phone = new Phone
-            {
-                Number = "8011115555",
-                Type = PhoneType.Mobile,
-                PersonId = personId,
-            };
+                var phone = new Phone
+                {
+                    Number = "8011115555",
+                    Type = PhoneType.Mobile,
+                    PersonId = personId,
+                };
 
-            // Add email and phone number to the person
-            int insertedCount;
-            using (var db = fixture.GetDbConnection())
-            {
-                db.Open();
-
-                insertedCount = await SqlBuilder
+                // Add email and phone number to the person
+                int insertedCount;
+                var insert = SqlBuilder
                     .Insert(email)
-                    .Insert(phone)
-                    .ExecuteAsync(db);
+                    .Insert(phone);
+                insertedCount = await insert.ExecuteAsync(db);
 
                 // Ensure both were inserted properly
                 Assert.Equal(2, insertedCount);
@@ -168,6 +163,17 @@ namespace Dapper.GraphQL.Test
             Assert.Equal(1, person.Phones.Count);
             Assert.Equal("8011115555", person.Phones[0].Number);
             Assert.Equal(personId, person.Phones[0].PersonId);
+        }
+
+        [Fact(DisplayName = "INSERT query uses custom table name")]
+        public void InsertWithCustomTableName()
+        {
+            // Check generic Insert uses custom table name for Contact as configured in TestFixture
+            var contact = new Contact();
+            var query = SqlBuilder.Insert<Contact>(contact);
+
+            Assert.Equal("Contacts", query.Table);
+            Assert.Equal("INSERT INTO Contacts () VALUES ();", query.ToString());
         }
     }
 }

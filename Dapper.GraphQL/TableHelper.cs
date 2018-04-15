@@ -13,11 +13,11 @@ namespace Dapper.GraphQL
         /// <summary>
         /// Gets a table name for a given type, as configured with a default.
         /// </summary>
-        /// <typeparam name="TType">The type to get a table name for.</typeparam>
+        /// <typeparam name="TEntity">The type to get a table name for.</typeparam>
         /// <returns>The configured table name or a generated default.</returns>
-        public static string GetTableName<TType>()
+        public static string GetTableName<TEntity>()
         {
-            var type = typeof(TType);
+            var type = typeof(TEntity);
             if (!TableNameCache.ContainsKey(type))
             {
                 lock (TableNameCache)
@@ -37,15 +37,20 @@ namespace Dapper.GraphQL
             return TableNameCache[type];
         }
 
-        public static void AddCustomTableNameMapping<TType>(string name)
+        public static void AddCustomTableNameMapping<TEntity>(string name)
         {
-            var type = typeof(TType);
-            if (TableNameCache.ContainsKey(type))
+            var type = typeof(TEntity);
+            if (TableNameCache.TryGetValue(type, out string tableName) && tableName != name)
             {
-                throw new InvalidOperationException($"Dapper.GraphQL - Cannot add duplicate custom table name for type '${type.Name}'");
+                throw new InvalidOperationException($"Dapper.GraphQL - Cannot add multiple custom table names for type '${type.Name}'");
             }
-
-            TableNameCache[typeof(TType)] = name;
+            else
+            {
+                lock (TableNameCache)
+                {
+                    TableNameCache[type] = name;
+                }
+            }
         }
     }
 }

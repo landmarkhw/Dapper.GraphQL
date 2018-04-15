@@ -11,7 +11,7 @@ namespace Dapper.GraphQL
     public class SqlQueryContext<TEntityType> : SqlQueryContext
     {
         public SqlQueryContext(string alias = null) :
-            base(alias == null ? typeof(TEntityType).Name : $"{typeof(TEntityType).Name} {alias}")
+            base(alias == null ? TableHelper.GetTableName<TEntityType>() : $"{TableHelper.GetTableName<TEntityType>()} {alias}")
         {
             _types.Add(typeof(TEntityType));
         }

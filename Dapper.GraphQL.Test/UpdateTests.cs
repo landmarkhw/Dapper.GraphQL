@@ -150,5 +150,15 @@ namespace Dapper.GraphQL.Test
                 }
             }
         }
+
+        [Fact(DisplayName = "UPDATE query uses custom table name")]
+        public void UpdateWithCustomTableName()
+        {
+            // Check generic Update uses custom table name for Contact as configured in TestFixture
+            var contact = new Contact();
+
+            var query = SqlBuilder.Update<Contact>(contact);
+            Assert.Equal("UPDATE Contacts SET \r\n", query.ToString());
+        }
     }
 }

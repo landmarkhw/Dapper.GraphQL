@@ -65,15 +65,15 @@ namespace Dapper.GraphQL
         }
 
         /// <summary>
-        /// Configures a custom table name to use when auto-mapping <typeparamref name="TGraphType"/>
-        /// to a SQL table.
+        /// Configures a custom table name to use for <typeparamref name="TEntity"/>
+        /// when auto-mapping to a SQL table name.
         /// </summary>
-        /// <typeparam name="TGraphType">The model type to be mapped.</typeparam>
+        /// <typeparam name="TEntity">The model type to be mapped.</typeparam>
         /// <param name="tableName">The custom table name to set.</param>
         /// <returns></returns>
-        public DapperGraphQLOptions AddCustomTableNameMapping<TGraphType>(string tableName) where TGraphType : class, IGraphType
+        public DapperGraphQLOptions AddCustomTableNameMapping<TEntity>(string tableName) where TEntity : class
         {
-            TableHelper.AddCustomTableNameMapping<TGraphType>(tableName);
+            TableHelper.AddCustomTableNameMapping<TEntity>(tableName);
             return this;
         }
     }

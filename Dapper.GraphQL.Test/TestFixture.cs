@@ -177,6 +177,9 @@ namespace Dapper.GraphQL.Test
 
                 // Add entity mappers
                 options.AddEntityMapper<Person, PersonEntityMapper>();
+
+                // Configure custom table names
+                options.AddCustomTableNameMapping<Contact>("Contacts"); 
             });
         }
 
