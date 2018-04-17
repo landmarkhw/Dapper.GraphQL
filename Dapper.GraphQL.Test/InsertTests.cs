@@ -22,7 +22,7 @@ namespace Dapper.GraphQL.Test
                 FirstName = "Steven",
                 LastName = "Rollman",
             };
-            
+
             // Ensure inserting a person works and we get the person's Id back
             int personId;
             using (var db = fixture.GetDbConnection())
@@ -96,7 +96,7 @@ namespace Dapper.GraphQL.Test
                 FirstName = "Steven",
                 LastName = "Rollman",
             };
-            
+
             // Ensure inserting a person works and we get the person's Id back
             int personId;
             using (var db = fixture.GetDbConnection())
@@ -106,30 +106,24 @@ namespace Dapper.GraphQL.Test
                 personId = await SqlBuilder
                     .Insert(person)
                     .ExecuteWithSqlIdentityAsync<int>(db);
-            }
 
-            Assert.True(personId > 0);
+                Assert.True(personId > 0);
 
-            var email = new Email
-            {
-                Address = "srollman@landmarkhw.com",
-                PersonId = personId,
-            };
+                var email = new Email
+                {
+                    Address = "srollman@landmarkhw.com",
+                    PersonId = personId,
+                };
 
-            var phone = new Phone
-            {
-                Number = "8011115555",
-                Type = PhoneType.Mobile,
-                PersonId = personId,
-            };
+                var phone = new Phone
+                {
+                    Number = "8011115555",
+                    Type = PhoneType.Mobile,
+                    PersonId = personId,
+                };
 
-            // Add email and phone number to the person
-            int insertedCount;
-            using (var db = fixture.GetDbConnection())
-            {
-                db.Open();
-
-                insertedCount = await SqlBuilder
+                // Add email and phone number to the person
+                int insertedCount = await SqlBuilder
                     .Insert(email)
                     .Insert(phone)
                     .ExecuteAsync(db);
