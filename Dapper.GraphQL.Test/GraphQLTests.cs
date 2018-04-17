@@ -1,13 +1,3 @@
-using Dapper.GraphQL.Test.EntityMappers;
-using Dapper.GraphQL.Test.Models;
-using Dapper.GraphQL.Test.QueryBuilders;
-using DbUp;
-using Microsoft.Extensions.DependencyInjection;
-using Newtonsoft.Json.Linq;
-using System;
-using System.Data.Common;
-using System.Linq;
-using System.Reflection;
 using System.Threading.Tasks;
 using Xunit;
 

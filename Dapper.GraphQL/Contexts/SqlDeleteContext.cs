@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Data;
 using System.Linq;
 using System.Text;
+using System.Threading.Tasks;
 
 namespace Dapper.GraphQL
 {
@@ -57,6 +58,21 @@ namespace Dapper.GraphQL
             {
                 // Execute each delete and aggregate the results
                 result = Deletes.Aggregate(result, (current, delete) => current + delete.Execute(connection));
+            }
+            return result;
+        }
+
+        /// <summary>
+        /// Executes the DELETE statement with Dapper asynchronously, using the provided database connection.
+        /// </summary>
+        /// <param name="connection">The database connection.</param>
+        public async Task<int> ExecuteAsync(IDbConnection connection)
+        {
+            int result = await connection.ExecuteAsync(BuildSql(), Parameters);
+            if (Deletes != null)
+            {
+                // Execute each delete and aggregate the results
+                result = await Deletes.AggregateAsync(result, async (current, delete) => current + await delete.ExecuteAsync(connection));
             }
             return result;
         }
