@@ -22,7 +22,7 @@ namespace Dapper.GraphQL.Test
                 FirstName = "Steven",
                 LastName = "Rollman",
             };
-            
+
             // Ensure inserting a person works and we get the person's Id back
             int personId;
             using (var db = fixture.GetDbConnection())
@@ -47,8 +47,7 @@ namespace Dapper.GraphQL.Test
                 };
 
                 // Add email and phone number to the person
-                int insertedCount;
-                insertedCount = SqlBuilder
+                var insertedCount = SqlBuilder
                     .Insert(email)
                     .Insert(phone)
                     .Execute(db);
@@ -96,7 +95,7 @@ namespace Dapper.GraphQL.Test
                 FirstName = "Steven",
                 LastName = "Rollman",
             };
-            
+
             // Ensure inserting a person works and we get the person's Id back
             int personId;
             using (var db = fixture.GetDbConnection())
@@ -123,11 +122,10 @@ namespace Dapper.GraphQL.Test
                 };
 
                 // Add email and phone number to the person
-                int insertedCount;
-                var insert = SqlBuilder
+                var insertedCount = await SqlBuilder
                     .Insert(email)
-                    .Insert(phone);
-                insertedCount = await insert.ExecuteAsync(db);
+                    .Insert(phone)
+                    .ExecuteAsync(db);
 
                 // Ensure both were inserted properly
                 Assert.Equal(2, insertedCount);
