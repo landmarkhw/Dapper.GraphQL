@@ -22,7 +22,7 @@ namespace Dapper.GraphQL.Test
                 FirstName = "Steven",
                 LastName = "Rollman",
             };
-            
+
             // Ensure inserting a person works and we get the person's Id back
             int personId;
             using (var db = fixture.GetDbConnection())
@@ -102,7 +102,7 @@ namespace Dapper.GraphQL.Test
                 FirstName = "Steven",
                 LastName = "Rollman",
             };
-            
+
             // Ensure inserting a person works and we get the person's Id back
             int personId;
             using (var db = fixture.GetDbConnection())
