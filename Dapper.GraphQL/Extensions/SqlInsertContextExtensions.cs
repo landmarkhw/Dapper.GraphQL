@@ -8,7 +8,7 @@ namespace Dapper.GraphQL
 {
     public static class SqlInsertContextExtensions
     {
-        public static TIdentityType ExecuteWithSqlIdentity<TEntity, TIdentityType>(this SqlInsertContext context, IDbConnection dbConnection, Func<TEntity, TIdentityType> identityTypeSelector)
+        public static TIdentityType ExecuteWithSqlIdentity<TEntityType, TIdentityType>(this SqlInsertContext<TEntityType> context, IDbConnection dbConnection, Func<TEntityType, TIdentityType> identityTypeSelector)
         {
             return ExecuteWithSqlIdentity<TIdentityType>(context, dbConnection);
         }

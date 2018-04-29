@@ -29,13 +29,13 @@ namespace Dapper.GraphQL.Test
             {
                 personId = SqlBuilder
                     .Insert(person)
-                    .ExecuteWithSqlIdentity<int>(db);
+                    .ExecuteWithSqlIdentity<int>(db); // supply the identifier's type yourself
 
                 Assert.True(personId > 0);
 
                 int anotherPersonId = SqlBuilder
                     .Insert(person)
-                    .ExecuteWithSqlIdentity<Person, int>(db, p => p.Id);
+                    .ExecuteWithSqlIdentity(db, p => p.Id); // use type and func selector to identifier
 
                 Assert.True(anotherPersonId > 1);
 

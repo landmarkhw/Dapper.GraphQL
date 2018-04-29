@@ -7,6 +7,33 @@ using System.Threading.Tasks;
 
 namespace Dapper.GraphQL
 {
+    public class SqlInsertContext<TEntityType> : SqlInsertContext
+    {
+        private List<SqlInsertContext<TEntityType>> Inserts { get; set; }
+
+        public SqlInsertContext(string table, TEntityType obj)
+            : base(table, obj)
+        {
+
+        }
+
+        /// <summary>
+        /// Adds an additional INSERT statement after this one.
+        /// </summary>
+        /// <param name="obj">The data to be inserted.</param>
+        /// <returns>The context of the INSERT statement.</returns>
+        public virtual SqlInsertContext Insert(TEntityType obj)
+        {
+            if (Inserts == null)
+            {
+                Inserts = new List<SqlInsertContext<TEntityType>>();
+            }
+            var insert = SqlBuilder.Insert(obj);
+            Inserts.Add(insert);
+            return this;
+        }
+    }
+
     public class SqlInsertContext
     {
         private HashSet<string> InsertParameterNames;
@@ -63,7 +90,7 @@ namespace Dapper.GraphQL
         /// <typeparam name="TEntityType">The type of entity to be inserted.</typeparam>
         /// <param name="obj">The data to be inserted.</param>
         /// <returns>The context of the INSERT statement.</returns>
-        public SqlInsertContext Insert<TEntityType>(TEntityType obj)
+        public virtual SqlInsertContext Insert<TEntityType>(TEntityType obj)
         {
             if (Inserts == null)
             {

@@ -2,16 +2,14 @@
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
-using System.Text;
-using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
 namespace Dapper.GraphQL
 {
     public class SqlQueryContext<TEntityType> : SqlQueryContext
     {
-        public SqlQueryContext(string alias = null) :
-            base(alias == null ? typeof(TEntityType).Name : $"{typeof(TEntityType).Name} {alias}")
+        public SqlQueryContext(string alias = null, dynamic parameters = null)
+            : base(alias == null ? typeof(TEntityType).Name : $"{typeof(TEntityType).Name} {alias}")
         {
             _types.Add(typeof(TEntityType));
         }
