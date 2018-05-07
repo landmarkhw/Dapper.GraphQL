@@ -2,16 +2,14 @@
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
-using System.Text;
-using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
 namespace Dapper.GraphQL
 {
     public class SqlQueryContext<TEntityType> : SqlQueryContext
     {
-        public SqlQueryContext(string alias = null) :
-            base(alias == null ? typeof(TEntityType).Name : $"{typeof(TEntityType).Name} {alias}")
+        public SqlQueryContext(string alias = null, dynamic parameters = null)
+            : base(alias == null ? typeof(TEntityType).Name : $"{typeof(TEntityType).Name} {alias}")
         {
             _types.Add(typeof(TEntityType));
         }
@@ -341,7 +339,7 @@ FROM {from}/**innerjoin**//**leftjoin**//**rightjoin**//**join**/
             }
             return this;
         }
-
+        
         /// <summary>
         /// Instructs dapper to deserialized data into a different type, beginning with the specified column.
         /// </summary>
@@ -351,10 +349,7 @@ FROM {from}/**innerjoin**//**leftjoin**//**rightjoin**//**join**/
         /// <returns>The query builder.</returns>
         public SqlQueryContext SplitOn<TEntityType>(string columnName)
         {
-            _splitOn.Add(columnName);
-            _types.Add(typeof(TEntityType));
-
-            return this;
+            return SplitOn(columnName, typeof(TEntityType));
         }
 
         /// <summary>
