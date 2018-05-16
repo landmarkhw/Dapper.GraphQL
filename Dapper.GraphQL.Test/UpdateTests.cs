@@ -38,7 +38,7 @@ namespace Dapper.GraphQL.Test
                         .From<Person>()
                         .Select("Id", "FirstName")
                         .Where("FirstName = @firstName", new { firstName = "Doug" })
-                        .Execute(db, entityMapperFactory.Build<Person>(p => p.Id))
+                        .Execute(db, entityMapperFactory.Build<Person>(p => p.Id), null)
                         .FirstOrDefault();
 
                     SqlBuilder
@@ -51,7 +51,7 @@ namespace Dapper.GraphQL.Test
                         .From<Person>()
                         .Select("Id", "FirstName")
                         .Where("Id = @id", new { id = previousPerson.Id })
-                        .Execute(db, entityMapperFactory.Build<Person>(p => p.Id))
+                        .Execute(db, entityMapperFactory.Build<Person>(p => p.Id), null)
                         .FirstOrDefault();
                 }
 
@@ -105,9 +105,9 @@ namespace Dapper.GraphQL.Test
                         .From<Person>()
                         .Select("Id", "FirstName")
                         .Where("FirstName = @firstName", new { firstName = "Doug" })
-                        .ExecuteAsync(db, entityMapperFactory.Build<Person>(p => p.Id));
-                    previousPerson = previousPeople
-                        .FirstOrDefault();
+                        .ExecuteAsync(db, entityMapperFactory.Build<Person>(p => p.Id), null);
+
+                    previousPerson = previousPeople.FirstOrDefault();
 
                     await SqlBuilder
                         .Update(person)
@@ -119,7 +119,7 @@ namespace Dapper.GraphQL.Test
                         .From<Person>()
                         .Select("Id", "FirstName")
                         .Where("Id = @id", new { id = previousPerson.Id })
-                        .ExecuteAsync(db, entityMapperFactory.Build<Person>(p => p.Id));
+                        .ExecuteAsync(db, entityMapperFactory.Build<Person>(p => p.Id), null);
                     person = people
                         .FirstOrDefault();
                 }

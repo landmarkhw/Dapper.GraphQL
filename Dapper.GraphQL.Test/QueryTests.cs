@@ -44,7 +44,7 @@ namespace Dapper.GraphQL.Test
 
                 using (var db = fixture.GetDbConnection())
                 {
-                    query.Execute<Person>(db, personMapper);
+                    query.Execute<Person>(db, personMapper, null);
                 }
             });
         }

@@ -4,7 +4,9 @@ using Dapper.GraphQL.Test.Models;
 using Dapper.GraphQL.Test.QueryBuilders;
 using DbUp;
 using GraphQL;
+using GraphQL.Execution;
 using GraphQL.Http;
+using GraphQL.Language.AST;
 using Microsoft.Extensions.DependencyInjection;
 using Newtonsoft.Json.Linq;
 using System;
@@ -45,7 +47,7 @@ namespace Dapper.GraphQL.Test
         {
             return dbConnection.BeginTransaction(il);
         }
-
+        
         public void ChangeDatabase(string databaseName)
         {
             dbConnection.ChangeDatabase(databaseName);
@@ -103,7 +105,13 @@ namespace Dapper.GraphQL.Test
             this.Schema = ServiceProvider.GetRequiredService<PersonSchema>();
         }
 
-        public Func<object[], TEntityType> BuildMapper<TEntityType>(Func<TEntityType, object> mapper)
+        public IHaveSelectionSet BuildGraphQLSelection(string body)
+        {
+            var document = new GraphQLDocumentBuilder().Build(body);
+            return document.Operations.OfType<IHaveSelectionSet>().First();
+        }
+
+        public IEntityMapper<TEntityType> BuildMapper<TEntityType>(Func<TEntityType, object> mapper)
             where TEntityType : class
         {
             return ServiceProvider.GetRequiredService<IEntityMapperFactory>().Build(mapper);

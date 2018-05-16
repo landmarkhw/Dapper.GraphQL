@@ -1,4 +1,5 @@
-﻿using System;
+﻿using GraphQL.Language.AST;
+using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
@@ -96,15 +97,23 @@ FROM {from}/**innerjoin**//**leftjoin**//**rightjoin**//**join**/
         /// </example>
         /// <typeparam name="TEntityType">The entity type to be mapped.</typeparam>
         /// <param name="connection">The database connection.</param>
-        /// <param name="map">The dapper mapping function.</param>
+        /// <param name="mapper">The entity mapper.</param>
+        /// <param name="selectionSet">The GraphQL selection set (optional).</param>
         /// <returns>A list of entities returned by the query.</returns>
-        public IEnumerable<TEntityType> Execute<TEntityType>(IDbConnection connection, Func<object[], TEntityType> map)
+        public IEnumerable<TEntityType> Execute<TEntityType>(
+            IDbConnection connection, 
+            IEntityMapper<TEntityType> mapper,
+            IHaveSelectionSet selectionSet)
+            where TEntityType : class
         {
+            // Build a function used to map entities with selection criteria and splitOn types 
+            var fn = new Func<object[], TEntityType>(objs => mapper.Map(objs, selectionSet, GetSplitOnTypes()));
+
             var results = connection.Query<TEntityType>(
                 sql: this.ToString(),
                 types: this._types.ToArray(),
                 param: this.Parameters,
-                map: map,
+                map: fn,
                 splitOn: string.Join(",", this._splitOn)
             );
             return results.Where(e => e != null);
@@ -134,15 +143,23 @@ FROM {from}/**innerjoin**//**leftjoin**//**rightjoin**//**join**/
         /// </example>
         /// <typeparam name="TEntityType">The entity type to be mapped.</typeparam>
         /// <param name="connection">The database connection.</param>
-        /// <param name="map">The dapper mapping function.</param>
+        /// <param name="mapper">The entity mapper.</param>
+        /// <param name="selectionSet">The GraphQL selection set (optional).</param>
         /// <returns>A list of entities returned by the query.</returns>
-        public async Task<IEnumerable<TEntityType>> ExecuteAsync<TEntityType>(IDbConnection connection, Func<object[], TEntityType> map)
+        public async Task<IEnumerable<TEntityType>> ExecuteAsync<TEntityType>(
+            IDbConnection connection, 
+            IEntityMapper<TEntityType> mapper,
+            IHaveSelectionSet selectionSet)
+            where TEntityType : class
         {
+            // Build a function used to map entities with selection criteria and splitOn types 
+            var fn = new Func<object[], TEntityType>(objs => mapper.Map(objs, selectionSet, GetSplitOnTypes()));
+
             var results = await connection.QueryAsync<TEntityType>(
                 sql: this.ToString(),
                 types: this._types.ToArray(),
                 param: this.Parameters,
-                map: map,
+                map: fn,
                 splitOn: string.Join(",", this._splitOn)
             );
             return results.Where(e => e != null);
