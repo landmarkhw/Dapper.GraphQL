@@ -1,6 +1,7 @@
 ﻿using GraphQL.Language.AST;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 
 namespace Dapper.GraphQL
@@ -28,30 +29,33 @@ namespace Dapper.GraphQL
         protected TEntityType Previous { get; set; }
 
         /// <summary>
-        /// True if duplicate entries should return null, false otherwise.
-        /// </summary>
-        public bool ReturnNullForDuplicates { get; set; } = true;
-
-        /// <summary>
         /// Maps a row of data to an entity.
         /// </summary>
-        /// <param name="objs">A row objects to be mapped.</param>
-        /// <param name="selectionSet">The GraphQL selection set (optional).</param>
-        /// <param name="splitOn">The types the query is split on.</param>
+        /// <param name="context">A context that contains information used to map Dapper objects.</param>
         /// <returns>The mapped entity, or null if the entity has previously been returned.</returns>
-        public virtual TEntityType Map(object[] objs, IHaveSelectionSet selectionSet, List<Type> splitOn)
+        public virtual TEntityType Map(EntityMapContext<TEntityType> context)
         {
             // Deduplicate the top object (entity) in the list
-            if (objs[0] is TEntityType entity)
+            if (context.Items != null &&
+                context.Items.Any())
             {
-                objs[0] = Deduplicate(Previous, entity);
+                if (Previous != null &&
+                    context.Items.First() is TEntityType entity)
+                {
+                    entity = Deduplicate(Previous, entity);
+                    if (entity == Previous)
+                    {
+                        context.Items = new[] { entity }.Concat(context.Items.Skip(1));
+                    }
+                }
             }
 
             // Map the object
-            var next = Mapper.Map(objs, selectionSet, splitOn);
+            var next = Mapper.Map(context);
 
-            // Return null if we are returning a duplicate object
-            if (ReturnNullForDuplicates && object.ReferenceEquals(next, Previous))
+            // Return null if we are returning a duplicate object.
+            // Queries can filter out null entries to prevent duplicates.
+            if (object.ReferenceEquals(next, Previous))
             {
                 return null;
             }

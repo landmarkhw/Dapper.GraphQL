@@ -22,11 +22,9 @@ namespace Dapper.GraphQL
         /// </summary>
         /// <typeparam name="TEntityType">The type of entity to be mapped.</typeparam>
         /// <param name="deduplicate">A function that, given one or more entities, resolves to an entity instance to which child entities will be added.</param>                
-        /// <param name="returnNullForDuplicates">True if duplicate entries should return null, false otherwise.</param>
         /// <returns>A Dapper mapping function.</returns>
         public IEntityMapper<TEntityType> Build<TEntityType>(
-            Func<TEntityType, TEntityType, TEntityType> deduplicate = null,
-            bool returnNullForDuplicates = true)
+            Func<TEntityType, TEntityType, TEntityType> deduplicate = null)
             where TEntityType : class
         {
             // Build an entity mapper for the given type
@@ -34,11 +32,6 @@ namespace Dapper.GraphQL
             if (mapper == null)
             {
                 throw new InvalidOperationException($"Could not find a mapper for type {typeof(IEntityMapper<TEntityType>).Name}");
-            }
-
-            if (!returnNullForDuplicates)
-            {
-                return mapper;
             }
 
             var deduplicatingMapper = new DeduplicatingEntityMapper<TEntityType>
@@ -58,12 +51,10 @@ namespace Dapper.GraphQL
         /// Builds an entity mapper for the given entity type.
         /// </summary>
         /// <typeparam name="TEntityType">The type of entity to be mapped.</typeparam>
-        /// <param name="selector">A function that returns the primary key of an object, used to deduplicate objects.</param>
-        /// <param name="returnNullForDuplicates">True if duplicate entries should return null, false otherwise.</param>
+        /// <param name="selector">A function that returns the primary key of an object, used to deduplicate objects.</param>        
         /// <returns>A Dapper mapping function.</returns>
         public IEntityMapper<TEntityType> Build<TEntityType>(
-            Func<TEntityType, object> selector,
-            bool returnNullForDuplicates = true)
+            Func<TEntityType, object> selector)
             where TEntityType : class
         {
             var deduplicate = new Func<TEntityType, TEntityType, TEntityType>(
@@ -80,7 +71,7 @@ namespace Dapper.GraphQL
             );
 
             // Build the mapper
-            return Build(deduplicate, returnNullForDuplicates);
+            return Build(deduplicate);
         }
     }
 }

@@ -108,7 +108,14 @@ namespace Dapper.GraphQL.Test
         public IHaveSelectionSet BuildGraphQLSelection(string body)
         {
             var document = new GraphQLDocumentBuilder().Build(body);
-            return document.Operations.OfType<IHaveSelectionSet>().First();
+            return document
+                .Operations
+                .OfType<IHaveSelectionSet>()
+                .First()?
+                .SelectionSet
+                .Selections
+                .OfType<Field>()
+                .FirstOrDefault();
         }
 
         public IEntityMapper<TEntityType> BuildMapper<TEntityType>(Func<TEntityType, object> mapper)

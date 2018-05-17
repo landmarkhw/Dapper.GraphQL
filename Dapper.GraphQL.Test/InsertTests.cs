@@ -193,7 +193,7 @@ namespace Dapper.GraphQL.Test
 }";
                 var selection = fixture.BuildGraphQLSelection(graphql);
 
-                var people = await query.ExecuteAsync(db, personMapper, null);
+                var people = await query.ExecuteAsync(db, personMapper, selection);
                 person = people
                     .FirstOrDefault();
             }

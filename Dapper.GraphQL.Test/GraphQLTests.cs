@@ -35,96 +35,124 @@ query {
             id
             firstName
             lastName
+            emails {
+                id
+                address
+            }
+            phones {
+                id
+                number
+                type
+            }
         }
         careerCounselor {
             id
             firstName
             lastName
+            emails {
+                id
+                address
+            }
+            phones {
+                id
+                number
+                type
+            }
         }
     }
 }");
 
             var expectedJson = @"
 {
-  ""data"": {
-    ""people"": [
-      {
-        ""id"": 1,
-        ""firstName"": ""Hyrum"",
-        ""lastName"": ""Clyde"",
-        ""emails"": [
-          {
-            ""id"": 1,
-            ""address"": ""hclyde@landmarkhw.com""
-          }
-        ],
-        ""phones"": [],
-        ""supervisor"": null,
-        ""careerCounselor"": null
-      },
-      {
-        ""id"": 2,
-        ""firstName"": ""Doug"",
-        ""lastName"": ""Day"",
-        ""emails"": [
-          {
-            ""id"": 2,
-            ""address"": ""dday@landmarkhw.com""
-          },
-          {
-            ""id"": 3,
-            ""address"": ""dougrday@gmail.com""
-          }
-        ],
-        ""phones"": [
-          {
-            ""id"": 1,
-            ""number"": ""8011234567"",
-            ""type"": 3
-          }
-        ],
-        ""supervisor"": null,
-        ""careerCounselor"": {
-          ""id"": 1,
-          ""firstName"": ""Hyrum"",
-          ""lastName"": ""Clyde""
-        }
-      },
-      {
-        ""id"": 3,
-        ""firstName"": ""Kevin"",
-        ""lastName"": ""Russon"",
-        ""emails"": [
-          {
-            ""id"": 4,
-            ""address"": ""krusson@landmarkhw.com""
-          }
-        ],
-        ""phones"": [
-          {
-            ""id"": 2,
-            ""number"": ""8019876543"",
-            ""type"": 3
-          },
-          {
-            ""id"": 3,
-            ""number"": ""8011111111"",
-            ""type"": 1
-          }
-        ],
-        ""supervisor"": {
-          ""id"": 1,
-          ""firstName"": ""Hyrum"",
-          ""lastName"": ""Clyde""
-        },
-        ""careerCounselor"": {
-          ""id"": 2,
-          ""firstName"": ""Doug"",
-          ""lastName"": ""Day""
-        }
-      }
-    ]
-  }
+    ""data"": {
+        ""people"": [{
+                ""id"": 1,
+                ""firstName"": ""Hyrum"",
+                ""lastName"": ""Clyde"",
+                ""emails"": [{
+                    ""id"": 1,
+                    ""address"": ""hclyde@landmarkhw.com""
+                }],
+                ""phones"": [],
+                ""supervisor"": null,
+                ""careerCounselor"": null
+            },
+            {
+                ""id"": 2,
+                ""firstName"": ""Doug"",
+                ""lastName"": ""Day"",
+                ""emails"": [{
+                        ""id"": 2,
+                        ""address"": ""dday@landmarkhw.com""
+                    },
+                    {
+                        ""id"": 3,
+                        ""address"": ""dougrday@gmail.com""
+                    }
+                ],
+                ""phones"": [{
+                    ""id"": 1,
+                    ""number"": ""8011234567"",
+                    ""type"": 3
+                }],
+                ""supervisor"": null,
+                ""careerCounselor"": {
+                    ""id"": 1,
+                    ""firstName"": ""Hyrum"",
+                    ""lastName"": ""Clyde"",
+                    ""emails"": [{
+                        ""id"": 1,
+                        ""address"": ""hclyde@landmarkhw.com""
+                    }],
+                    ""phones"": []
+                }
+            },
+            {
+                ""id"": 3,
+                ""firstName"": ""Kevin"",
+                ""lastName"": ""Russon"",
+                ""emails"": [{
+                    ""id"": 4,
+                    ""address"": ""krusson@landmarkhw.com""
+                }],
+                ""phones"": [{
+                        ""id"": 2,
+                        ""number"": ""8019876543"",
+                        ""type"": 3
+                    },
+                    {
+                        ""id"": 3,
+                        ""number"": ""8011111111"",
+                        ""type"": 1
+                    }
+                ],
+                ""supervisor"": {
+                    ""id"": 1,
+                    ""firstName"": ""Hyrum"",
+                    ""lastName"": ""Clyde"",
+                    ""emails"": [{
+                        ""id"": 1,
+                        ""address"": ""hclyde@landmarkhw.com""
+                    }],
+                    ""phones"": []
+                },
+                ""careerCounselor"": {
+                    ""id"": 2,
+                    ""firstName"": ""Doug"",
+                    ""lastName"": ""Day"",
+                    ""emails"": [{
+                        ""id"": 3,
+                        ""address"": ""dougrday@gmail.com""
+                    }],
+                    ""phones"": [{
+                        ""id"": 1,
+                        ""number"": ""8011234567"",
+                        ""type"": 3
+                    }]
+                }
+            }
+        ]
+    }
 }";
 
             Assert.True(fixture.JsonEquals(expectedJson, json));
@@ -163,85 +191,76 @@ query {
 
             var expectedJson = @"
 {
-  ""data"": {
-    ""peopleAsync"": [
-      {
-        ""id"": 1,
-        ""firstName"": ""Hyrum"",
-        ""lastName"": ""Clyde"",
-        ""emails"": [
-          {
-            ""id"": 1,
-            ""address"": ""hclyde@landmarkhw.com""
-          }
-        ],
-        ""phones"": [],
-        ""supervisor"": null,
-        ""careerCounselor"": null
-      },
-      {
-        ""id"": 2,
-        ""firstName"": ""Doug"",
-        ""lastName"": ""Day"",
-        ""emails"": [
-          {
-            ""id"": 2,
-            ""address"": ""dday@landmarkhw.com""
-          },
-          {
-            ""id"": 3,
-            ""address"": ""dougrday@gmail.com""
-          }
-        ],
-        ""phones"": [
-          {
-            ""id"": 1,
-            ""number"": ""8011234567"",
-            ""type"": 3
-          }
-        ],
-        ""supervisor"": null,
-        ""careerCounselor"": {
-          ""id"": 1,
-          ""firstName"": ""Hyrum"",
-          ""lastName"": ""Clyde""
-        }
-      },
-      {
-        ""id"": 3,
-        ""firstName"": ""Kevin"",
-        ""lastName"": ""Russon"",
-        ""emails"": [
-          {
-            ""id"": 4,
-            ""address"": ""krusson@landmarkhw.com""
-          }
-        ],
-        ""phones"": [
-          {
-            ""id"": 2,
-            ""number"": ""8019876543"",
-            ""type"": 3
-          },
-          {
-            ""id"": 3,
-            ""number"": ""8011111111"",
-            ""type"": 1
-          }
-        ],
-        ""supervisor"": {
-          ""id"": 1,
-          ""firstName"": ""Hyrum"",
-          ""lastName"": ""Clyde""
-        },
-        ""careerCounselor"": {
-          ""id"": 2,
-          ""firstName"": ""Doug"",
-          ""lastName"": ""Day""
-        }
-      }
-    ]
-  }
+    ""data"": {
+        ""peopleAsync"": [{
+                ""id"": 1,
+                ""firstName"": ""Hyrum"",
+                ""lastName"": ""Clyde"",
+                ""emails"": [{
+                    ""id"": 1,
+                    ""address"": ""hclyde@landmarkhw.com""
+                }],
+                ""phones"": [],
+                ""supervisor"": null,
+                ""careerCounselor"": null
+            },
+            {
+                ""id"": 2,
+                ""firstName"": ""Doug"",
+                ""lastName"": ""Day"",
+                ""emails"": [{
+                        ""id"": 2,
+                        ""address"": ""dday@landmarkhw.com""
+                    },
+                    {
+                        ""id"": 3,
+                        ""address"": ""dougrday@gmail.com""
+                    }
+                ],
+                ""phones"": [{
+                    ""id"": 1,
+                    ""number"": ""8011234567"",
+                    ""type"": 3
+                }],
+                ""supervisor"": null,
+                ""careerCounselor"": {
+                    ""id"": 1,
+                    ""firstName"": ""Hyrum"",
+                    ""lastName"": ""Clyde""                   
+                }
+            },
+            {
+                ""id"": 3,
+                ""firstName"": ""Kevin"",
+                ""lastName"": ""Russon"",
+                ""emails"": [{
+                    ""id"": 4,
+                    ""address"": ""krusson@landmarkhw.com""
+                }],
+                ""phones"": [{
+                        ""id"": 2,
+                        ""number"": ""8019876543"",
+                        ""type"": 3
+                    },
+                    {
+                        ""id"": 3,
+                        ""number"": ""8011111111"",
+                        ""type"": 1
+                    }
+                ],
+                ""supervisor"": {
+                    ""id"": 1,
+                    ""firstName"": ""Hyrum"",
+                    ""lastName"": ""Clyde""
+                },
+                ""careerCounselor"": {
+                    ""id"": 2,
+                    ""firstName"": ""Doug"",
+                    ""lastName"": ""Day""
+                }
+            }
+        ]
+    }
 }";
 
             Assert.True(fixture.JsonEquals(expectedJson, json));
