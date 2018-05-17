@@ -76,8 +76,26 @@ namespace Dapper.GraphQL.Test
                     .SplitOn<Phone>("Id")
                     .Where("person.Id = @id", new { id = personId });
 
+                var graphql = @"
+{
+    person {
+        firstName
+        lastName
+        emails {
+            id
+            address
+        }
+        phones {
+            id
+            number
+        }
+    }
+}";
+
+                var selection = fixture.BuildGraphQLSelection(graphql);
+
                 person = query
-                    .Execute(db, personMapper)
+                    .Execute(db, personMapper, selection)
                     .FirstOrDefault();
             }
 
@@ -158,8 +176,24 @@ namespace Dapper.GraphQL.Test
                     .SplitOn<Phone>("Id")
                     .Where("person.Id = @id", new { id = personId });
 
-                var people = await query
-                    .ExecuteAsync(db, personMapper);
+                var graphql = @"
+{
+    person {
+        firstName
+        lastName
+        emails {
+            id
+            address
+        }
+        phones {
+            id
+            number
+        }
+    }
+}";
+                var selection = fixture.BuildGraphQLSelection(graphql);
+
+                var people = await query.ExecuteAsync(db, personMapper, selection);
                 person = people
                     .FirstOrDefault();
             }

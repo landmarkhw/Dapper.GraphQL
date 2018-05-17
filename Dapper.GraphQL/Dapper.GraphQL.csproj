@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>netcoreapp1.1</TargetFramework>
+    <TargetFramework>netstandard1.3</TargetFramework>
     <Version>0.2.2-beta</Version>
     <Authors>Doug Day, Kevin Russon, Ben McCallum</Authors>
     <Company>Landmark Home Warranty</Company>
@@ -22,6 +22,7 @@
     <PackageReference Include="Dapper.SqlBuilder" Version="1.50.4" />
     <PackageReference Include="GraphQL" Version="0.17.3" />
     <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="1.1.1" />
+    <PackageReference Include="System.ValueTuple" Version="4.4.0" />
   </ItemGroup>
 
 </Project>

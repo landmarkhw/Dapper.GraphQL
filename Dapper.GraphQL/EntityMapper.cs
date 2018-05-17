@@ -13,21 +13,10 @@ namespace Dapper.GraphQL
         where TEntityType : class
     {
         /// <summary>
-        /// Resolves the entity object to be mapped.  Given that GraphQL may return multiple rows that
-        /// represent the same object instance, this function will resolve two or more objects to a single instance.
-        /// </summary>
-        public Func<TEntityType, TEntityType> ResolveEntity { get; set; }
-
-        /// <summary>
         /// Maps a row of data to an entity.
         /// </summary>
-        /// <param name="objs">A row objects to be mapped.</param>
-        /// <param name="selectionSet">The GraphQL selection set (optional).</param>
-        /// <param name="splitOn">The types the query is split on.</param>
+        /// <param name="context">A context that contains information used to map Dapper objects.</param>
         /// <returns>The mapped entity, or null if the entity has previously been returned.</returns>
-        public abstract TEntityType Map(
-            object[] objs, 
-            IHaveSelectionSet selectionSet = null,
-            List<Type> splitOn = null);
+        public abstract TEntityType Map(EntityMapContext<TEntityType> context);
     }
 }

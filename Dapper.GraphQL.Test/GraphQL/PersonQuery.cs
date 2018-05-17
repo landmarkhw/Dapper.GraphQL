@@ -26,15 +26,11 @@ namespace Dapper.GraphQL.Test.GraphQL
                     query = personQueryBuilder.Build(query, context.FieldAst, alias);
 
                     // Create a mapper that understands how to uniquely identify the 'Person' class.
-                    var personMapper = entityMapperFactory.Build<Person>(
-                        person => person.Id,
-                        context.FieldAst,
-                        query.GetSplitOnTypes()
-                    );
+                    var personMapper = entityMapperFactory.Build<Person>(person => person.Id);
 
                     using (var connection = serviceProvider.GetRequiredService<IDbConnection>())
                     {
-                        var results = query.Execute(connection, personMapper);
+                        var results = query.Execute(connection, personMapper, context.FieldAst);
                         return results;
                     }
                 }
@@ -50,17 +46,13 @@ namespace Dapper.GraphQL.Test.GraphQL
                     query = personQueryBuilder.Build(query, context.FieldAst, alias);
 
                     // Create a mapper that understands how to uniquely identify the 'Person' class.
-                    var personMapper = entityMapperFactory.Build<Person>(
-                        person => person.Id,
-                        context.FieldAst,
-                        query.GetSplitOnTypes()
-                    );
+                    var personMapper = entityMapperFactory.Build<Person>(person => person.Id);
 
                     using (var connection = serviceProvider.GetRequiredService<IDbConnection>())
                     {
                         connection.Open();
 
-                        var results = await query.ExecuteAsync(connection, personMapper);
+                        var results = await query.ExecuteAsync(connection, personMapper, context.FieldAst);
                         return results;
                     }
                 }
@@ -83,15 +75,11 @@ namespace Dapper.GraphQL.Test.GraphQL
                     query = personQueryBuilder.Build(query, context.FieldAst, alias);
 
                     // Create a mapper that understands how to uniquely identify the 'Person' class.
-                    var personMapper = entityMapperFactory.Build<Person>(
-                        person => person.Id,
-                        context.FieldAst,
-                        query.GetSplitOnTypes()
-                    );
+                    var personMapper = entityMapperFactory.Build<Person>(person => person.Id);
 
                     using (var connection = serviceProvider.GetRequiredService<IDbConnection>())
                     {
-                        var results = query.Execute(connection, personMapper);
+                        var results = query.Execute(connection, personMapper, context.FieldAst);
                         return results.FirstOrDefault();
                     }
                 }

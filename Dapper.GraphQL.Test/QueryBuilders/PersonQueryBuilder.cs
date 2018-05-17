@@ -27,31 +27,26 @@ namespace Dapper.GraphQL.Test.QueryBuilders
 
             var fields = context.GetSelectedFields();
 
-            foreach (var kvp in fields)
+            if (fields.ContainsKey("firstName"))
             {
-                switch (kvp.Key)
-                {
-                    case "firstName": query.Select($"{alias}.FirstName"); break;
-                    case "lastName": query.Select($"{alias}.LastName"); break;
-
-                    case "emails":
-                        {
-                            var emailAlias = $"{alias}Email";
-                            query.LeftJoin($"Email {emailAlias} ON {alias}.Id = {emailAlias}.PersonId");
-                            query = emailQueryBuilder.Build(query, kvp.Value, emailAlias);
-                        }
-                        break;
-
-                    case "phones":
-                        {
-                            var phoneAlias = $"{alias}Phone";
-                            query.LeftJoin($"Phone {phoneAlias} ON {alias}.Id = {phoneAlias}.PersonId");
-                            query = phoneQueryBuilder.Build(query, kvp.Value, phoneAlias);
-                        }
-                        break;
-                }
+                query.Select($"{alias}.FirstName");
             }
-
+            if (fields.ContainsKey("lastName"))
+            {
+                query.Select($"{alias}.LastName");
+            }
+            if (fields.ContainsKey("emails"))
+            {
+                var emailAlias = $"{alias}Email";
+                query.LeftJoin($"Email {emailAlias} ON {alias}.Id = {emailAlias}.PersonId");
+                query = emailQueryBuilder.Build(query, fields["emails"], emailAlias);
+            }
+            if (fields.ContainsKey("phones"))
+            {
+                var phoneAlias = $"{alias}Phone";
+                query.LeftJoin($"Phone {phoneAlias} ON {alias}.Id = {phoneAlias}.PersonId");
+                query = phoneQueryBuilder.Build(query, fields["phones"], phoneAlias);
+            }
             if (fields.ContainsKey("supervisor"))
             {
                 var supervisorAlias = $"{alias}Supervisor";
