@@ -12,13 +12,17 @@ namespace GraphQL.Language.AST
         /// <returns>A dictionary whose key is the field name, and value is the field contents.</returns>
         public static IDictionary<string, Field> GetSelectedFields(this IHaveSelectionSet selectionSet)
         {
-            var fields = selectionSet
-                .SelectionSet
-                .Selections
-                .OfType<Field>()
-                .ToDictionary(field => field.Name);
+            if (selectionSet != null)
+            {
+                var fields = selectionSet
+                    .SelectionSet
+                    .Selections
+                    .OfType<Field>()
+                    .ToDictionary(field => field.Name);
 
-            return fields;
+                return fields;
+            }
+            return null;
         }
     }
 }

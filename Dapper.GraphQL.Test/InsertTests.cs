@@ -29,9 +29,15 @@ namespace Dapper.GraphQL.Test
             {
                 personId = SqlBuilder
                     .Insert(person)
-                    .ExecuteWithSqlIdentity<int>(db);
+                    .ExecuteWithSqlIdentity<int>(db); // supply the identifier's type yourself
 
                 Assert.True(personId > 0);
+
+                int anotherPersonId = SqlBuilder
+                    .Insert(person)
+                    .ExecuteWithSqlIdentity(db, p => p.Id); // use type and func selector to identifier
+
+                Assert.True(anotherPersonId > 1);
 
                 var email = new Email
                 {
@@ -69,8 +75,26 @@ namespace Dapper.GraphQL.Test
                     .SplitOn<Phone>("Id")
                     .Where("person.Id = @id", new { id = personId });
 
+                var graphql = @"
+{
+    person {
+        firstName
+        lastName
+        emails {
+            id
+            address
+        }
+        phones {
+            id
+            number
+        }
+    }
+}";
+
+                var selection = fixture.BuildGraphQLSelection(graphql);
+
                 person = query
-                    .Execute(db, personMapper)
+                    .Execute(db, personMapper, selection)
                     .FirstOrDefault();
             }
 
@@ -108,6 +132,12 @@ namespace Dapper.GraphQL.Test
 
                 Assert.True(personId > 0);
 
+                int anotherPersonId = await SqlBuilder
+                    .Insert(person)
+                    .ExecuteWithSqlIdentityAsync<Person, int>(db, p => p.Id);
+
+                Assert.True(anotherPersonId > 1);
+
                 var email = new Email
                 {
                     Address = "srollman@landmarkhw.com",
@@ -144,8 +174,24 @@ namespace Dapper.GraphQL.Test
                     .SplitOn<Phone>("Id")
                     .Where("person.Id = @id", new { id = personId });
 
-                var people = await query
-                    .ExecuteAsync(db, personMapper);
+                var graphql = @"
+{
+    person {
+        firstName
+        lastName
+        emails {
+            id
+            address
+        }
+        phones {
+            id
+            number
+        }
+    }
+}";
+                var selection = fixture.BuildGraphQLSelection(graphql);
+
+                var people = await query.ExecuteAsync(db, personMapper, selection);
                 person = people
                     .FirstOrDefault();
             }

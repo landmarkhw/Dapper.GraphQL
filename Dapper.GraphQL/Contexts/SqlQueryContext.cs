@@ -1,9 +1,8 @@
-﻿using System;
+﻿using GraphQL.Language.AST;
+using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
-using System.Text;
-using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
 namespace Dapper.GraphQL
@@ -59,7 +58,7 @@ FROM {from}/**innerjoin**//**leftjoin**//**rightjoin**//**join**/
         ///     var customer = queryBuilder
         ///         // Execute using the database connection, and providing the primary key
         ///         // used to split entities.
-        ///         .Execute(dbConnection, customer => customer.Id);
+        ///         .Execute(dbConnection, customer => customer.Id, graphQLSelectionSet);
         ///         .FirstOrDefault();
         ///
         ///     // SELECT customer.id, customer.name
@@ -89,7 +88,7 @@ FROM {from}/**innerjoin**//**leftjoin**//**rightjoin**//**join**/
         ///     queryBuilder.Where("customer.id == @id");
         ///     queryBuilder.Parameters.Add("id", 1);
         ///     var customer = queryBuilder
-        ///         .Execute(dbConnection, objs => objs.OfType<Customer>())
+        ///         .Execute(dbConnection, objs => objs.OfType<Customer>(), graphQLSelectionSet)
         ///         .FirstOrDefault();
         ///
         ///     // SELECT customer.id, customer.name
@@ -98,15 +97,32 @@ FROM {from}/**innerjoin**//**leftjoin**//**rightjoin**//**join**/
         /// </example>
         /// <typeparam name="TEntityType">The entity type to be mapped.</typeparam>
         /// <param name="connection">The database connection.</param>
-        /// <param name="map">The dapper mapping function.</param>
+        /// <param name="mapper">The entity mapper.</param>
+        /// <param name="selectionSet">The GraphQL selection set (optional).</param>
         /// <returns>A list of entities returned by the query.</returns>
-        public IEnumerable<TEntityType> Execute<TEntityType>(IDbConnection connection, Func<object[], TEntityType> map)
+        public IEnumerable<TEntityType> Execute<TEntityType>(
+            IDbConnection connection, 
+            IEntityMapper<TEntityType> mapper,
+            IHaveSelectionSet selectionSet)
+            where TEntityType : class
         {
+            // Build function that uses a mapping context to map our entities
+            var fn = new Func<object[], TEntityType>(objs =>
+            {
+                var context = new EntityMapContext<TEntityType>
+                {
+                    Items = objs,
+                    SelectionSet = selectionSet,
+                    SplitOn = GetSplitOnTypes(),
+                };
+                return mapper.Map(context);
+            });
+
             var results = connection.Query<TEntityType>(
                 sql: this.ToString(),
                 types: this._types.ToArray(),
                 param: this.Parameters,
-                map: map,
+                map: fn,
                 splitOn: string.Join(",", this._splitOn)
             );
             return results.Where(e => e != null);
@@ -127,7 +143,7 @@ FROM {from}/**innerjoin**//**leftjoin**//**rightjoin**//**join**/
         ///     queryBuilder.Where("customer.id == @id");
         ///     queryBuilder.Parameters.Add("id", 1);
         ///     var customer = queryBuilder
-        ///         .Execute(dbConnection, objs => objs.OfType<Customer>())
+        ///         .Execute(dbConnection, objs => objs.OfType<Customer>(), graphQLSelectionSet)
         ///         .FirstOrDefault();
         ///
         ///     // SELECT customer.id, customer.name
@@ -136,15 +152,32 @@ FROM {from}/**innerjoin**//**leftjoin**//**rightjoin**//**join**/
         /// </example>
         /// <typeparam name="TEntityType">The entity type to be mapped.</typeparam>
         /// <param name="connection">The database connection.</param>
-        /// <param name="map">The dapper mapping function.</param>
+        /// <param name="mapper">The entity mapper.</param>
+        /// <param name="selectionSet">The GraphQL selection set (optional).</param>
         /// <returns>A list of entities returned by the query.</returns>
-        public async Task<IEnumerable<TEntityType>> ExecuteAsync<TEntityType>(IDbConnection connection, Func<object[], TEntityType> map)
+        public async Task<IEnumerable<TEntityType>> ExecuteAsync<TEntityType>(
+            IDbConnection connection, 
+            IEntityMapper<TEntityType> mapper,
+            IHaveSelectionSet selectionSet)
+            where TEntityType : class
         {
+            // Build function that uses a mapping context to map our entities
+            var fn = new Func<object[], TEntityType>(objs =>
+            {
+                var context = new EntityMapContext<TEntityType>
+                {
+                    Items = objs,
+                    SelectionSet = selectionSet,
+                    SplitOn = GetSplitOnTypes(),
+                };
+                return mapper.Map(context);
+            });
+
             var results = await connection.QueryAsync<TEntityType>(
                 sql: this.ToString(),
                 types: this._types.ToArray(),
                 param: this.Parameters,
-                map: map,
+                map: fn,
                 splitOn: string.Join(",", this._splitOn)
             );
             return results.Where(e => e != null);
@@ -180,7 +213,7 @@ FROM {from}/**innerjoin**//**leftjoin**//**rightjoin**//**join**/
         ///     var customer = queryBuilder
         ///         // Execute using the database connection, and providing the primary key
         ///         // used to split the primary entity.
-        ///         .Execute(dbConnection, customer => customer.Id);
+        ///         .Execute(dbConnection, customer => customer.Id, graphQLSelectionSet);
         ///         .FirstOrDefault();
         ///
         ///     // SELECT customer.id, account.id
@@ -222,7 +255,7 @@ FROM {from}/**innerjoin**//**leftjoin**//**rightjoin**//**join**/
         ///     var customer = queryBuilder
         ///         // Execute using the database connection, and providing the primary key
         ///         // used to split the primary entity.
-        ///         .Execute(dbConnection, customer => customer.Id);
+        ///         .Execute(dbConnection, customer => customer.Id, graphQLSelectionSet);
         ///         .FirstOrDefault();
         ///
         ///     // SELECT customer.id, account.id
@@ -263,7 +296,7 @@ FROM {from}/**innerjoin**//**leftjoin**//**rightjoin**//**join**/
         ///     var customer = queryBuilder
         ///         // Execute using the database connection, and providing the primary key
         ///         // used to split the primary entity.
-        ///         .Execute(dbConnection, customer => customer.Id);
+        ///         .Execute(dbConnection, customer => customer.Id, graphQLSelectionSet);
         ///         .FirstOrDefault();
         ///
         ///     // SELECT customer.id, customer.name
@@ -316,7 +349,7 @@ FROM {from}/**innerjoin**//**leftjoin**//**rightjoin**//**join**/
         ///         .WithParameter("id", 1)
         ///         // Execute using the database connection, and providing the primary key
         ///         // used to split entities.
-        ///         .Execute(dbConnection, customer => customer.Id);
+        ///         .Execute(dbConnection, customer => customer.Id, graphQLSelectionSet);
         ///         .FirstOrDefault();
         ///
         ///     // SELECT customer.id, customer.name
@@ -341,7 +374,7 @@ FROM {from}/**innerjoin**//**leftjoin**//**rightjoin**//**join**/
             }
             return this;
         }
-
+        
         /// <summary>
         /// Instructs dapper to deserialized data into a different type, beginning with the specified column.
         /// </summary>
@@ -351,10 +384,7 @@ FROM {from}/**innerjoin**//**leftjoin**//**rightjoin**//**join**/
         /// <returns>The query builder.</returns>
         public SqlQueryContext SplitOn<TEntityType>(string columnName)
         {
-            _splitOn.Add(columnName);
-            _types.Add(typeof(TEntityType));
-
-            return this;
+            return SplitOn(columnName, typeof(TEntityType));
         }
 
         /// <summary>
