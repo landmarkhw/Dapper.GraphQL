@@ -12,14 +12,6 @@ namespace Dapper.GraphQL
         private IEnumerator<object> ItemEnumerator { get; set; }
         private IEnumerator<Type> SplitOnEnumerator { get; set; }
 
-        //private int FindIndex<TItemType>(IEnumerable<TItemType> items, TItemType item)
-        //{
-        //    return items
-        //        .Select((i, index) => new { i, index })
-        //        .FirstOrDefault(i => object.Equals(i.i, item))?
-        //        .index ?? -1;
-        //}
-
         public IEnumerable<object> Items { get; set; }
         public int MappedCount { get; private set; } = 0;
         public IHaveSelectionSet SelectionSet { get; set; }

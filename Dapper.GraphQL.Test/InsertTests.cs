@@ -1,3 +1,4 @@
+using Dapper.GraphQL.Test.EntityMappers;
 using Dapper.GraphQL.Test.Models;
 using System.Linq;
 using System.Threading.Tasks;
@@ -62,8 +63,12 @@ namespace Dapper.GraphQL.Test
                 // Ensure both were inserted properly
                 Assert.Equal(2, insertedCount);
 
-                // Build an identity mapper for person
-                var personMapper = fixture.BuildMapper<Person>(p => p.Id);
+                // Build an entity mapper for person
+                var personMapper = new DeduplicatingEntityMapper<Person>
+                {
+                    Mapper = new PersonEntityMapper(),
+                    PrimaryKey = p => p.Id,
+                };
 
                 // Query the person from the database
                 var query = SqlBuilder
@@ -162,8 +167,12 @@ namespace Dapper.GraphQL.Test
                 // Ensure both were inserted properly
                 Assert.Equal(2, insertedCount);
 
-                // Build an identity mapper for person
-                var personMapper = fixture.BuildMapper<Person>(p => p.Id);
+                // Build an entity mapper for person
+                var personMapper = new DeduplicatingEntityMapper<Person>
+                {
+                    Mapper = new PersonEntityMapper(),
+                    PrimaryKey = p => p.Id,
+                };
 
                 // Query the person from the database
                 var query = SqlBuilder

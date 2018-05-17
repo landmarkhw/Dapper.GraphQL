@@ -1,4 +1,5 @@
-﻿using Dapper.GraphQL.Test.Models;
+﻿using Dapper.GraphQL.Test.EntityMappers;
+using Dapper.GraphQL.Test.Models;
 using GraphQL.Types;
 using Microsoft.Extensions.DependencyInjection;
 using System;
@@ -12,7 +13,6 @@ namespace Dapper.GraphQL.Test.GraphQL
         ObjectGraphType
     {
         public PersonQuery(
-            IEntityMapperFactory entityMapperFactory,
             IQueryBuilder<Person> personQueryBuilder,
             IServiceProvider serviceProvider)
         {
@@ -25,8 +25,13 @@ namespace Dapper.GraphQL.Test.GraphQL
                     var query = SqlBuilder.From($"Person {alias}");
                     query = personQueryBuilder.Build(query, context.FieldAst, alias);
 
-                    // Create a mapper that understands how to uniquely identify the 'Person' class.
-                    var personMapper = entityMapperFactory.Build<Person>(person => person.Id);
+                    // Create a mapper that understands how to uniquely identify the 'Person' class,
+                    // and will deduplicate people as they pass through it
+                    var personMapper = new DeduplicatingEntityMapper<Person>
+                    {
+                        Mapper = new PersonEntityMapper(),
+                        PrimaryKey = person => person.Id,
+                    };
 
                     using (var connection = serviceProvider.GetRequiredService<IDbConnection>())
                     {
@@ -45,8 +50,13 @@ namespace Dapper.GraphQL.Test.GraphQL
                     var query = SqlBuilder.From($"Person {alias}");
                     query = personQueryBuilder.Build(query, context.FieldAst, alias);
 
-                    // Create a mapper that understands how to uniquely identify the 'Person' class.
-                    var personMapper = entityMapperFactory.Build<Person>(person => person.Id);
+                    // Create a mapper that understands how to uniquely identify the 'Person' class,
+                    // and will deduplicate people as they pass through it
+                    var personMapper = new DeduplicatingEntityMapper<Person>
+                    {
+                        Mapper = new PersonEntityMapper(),
+                        PrimaryKey = p => p.Id,
+                    };
 
                     using (var connection = serviceProvider.GetRequiredService<IDbConnection>())
                     {
@@ -74,8 +84,13 @@ namespace Dapper.GraphQL.Test.GraphQL
 
                     query = personQueryBuilder.Build(query, context.FieldAst, alias);
 
-                    // Create a mapper that understands how to uniquely identify the 'Person' class.
-                    var personMapper = entityMapperFactory.Build<Person>(person => person.Id);
+                    // Create a mapper that understands how to uniquely identify the 'Person' class,
+                    // and will deduplicate people as they pass through it
+                    var personMapper = new DeduplicatingEntityMapper<Person>
+                    {
+                        Mapper = new PersonEntityMapper(),
+                        PrimaryKey = p => p.Id,
+                    };
 
                     using (var connection = serviceProvider.GetRequiredService<IDbConnection>())
                     {

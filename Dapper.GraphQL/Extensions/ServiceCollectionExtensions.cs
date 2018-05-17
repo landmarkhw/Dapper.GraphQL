@@ -13,9 +13,6 @@ namespace Dapper.GraphQL
         /// <returns>The service collection container.</returns>
         public static IServiceCollection AddDapperGraphQL(this IServiceCollection serviceCollection, Action<DapperGraphQLOptions> setup)
         {
-            // Inject the entity mapper factory
-            serviceCollection.AddSingleton<IEntityMapperFactory, EntityMapperFactory>();
-
             var options = new DapperGraphQLOptions(serviceCollection);
             setup(options);
 

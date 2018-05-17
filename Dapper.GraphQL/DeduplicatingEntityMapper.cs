@@ -14,19 +14,19 @@ namespace Dapper.GraphQL
         where TEntityType : class
     {
         /// <summary>
-        /// Deduplicates the entity, comparing it to the previous entity that was seen by the entity mapper.
+        /// A cache used to hold previous entities that this mapper has seen.
         /// </summary>
-        public Func<TEntityType, TEntityType, TEntityType> Deduplicate { get; set; } = (previous, current) => current;
+        private IDictionary<object, TEntityType> KeyCache { get; set; } = new Dictionary<object, TEntityType>();
+
+        /// <summary>
+        /// Sets a function that returns the primary key used to uniquely identify the entity.
+        /// </summary>
+        public Func<TEntityType, object> PrimaryKey { get; set; }
 
         /// <summary>
         /// The entity mapper.
         /// </summary>
         public IEntityMapper<TEntityType> Mapper { get; set; }
-
-        /// <summary>
-        /// The previous entity that was mapped using this entity mapper.
-        /// </summary>
-        protected TEntityType Previous { get; set; }
 
         /// <summary>
         /// Maps a row of data to an entity.
@@ -35,36 +35,53 @@ namespace Dapper.GraphQL
         /// <returns>The mapped entity, or null if the entity has previously been returned.</returns>
         public virtual TEntityType Map(EntityMapContext<TEntityType> context)
         {
+            if (PrimaryKey == null)
+            {
+                throw new InvalidOperationException("PrimaryKey selector is not defined, but is required to use DeduplicatingEntityMapper.");
+            }
+
             // Deduplicate the top object (entity) in the list
             if (context.Items != null &&
                 context.Items.Any())
             {
-                if (Previous != null &&
-                    context.Items.First() is TEntityType entity)
+                if (context.Items.First() is TEntityType entity)
                 {
-                    entity = Deduplicate(Previous, entity);
-                    if (entity == Previous)
+                    var previous = entity;
+
+                    var primaryKey = PrimaryKey(entity);
+                    if (primaryKey == null)
                     {
-                        context.Items = new[] { entity }.Concat(context.Items.Skip(1));
+                        throw new InvalidOperationException("A null primary key was provided, which results in an unpredictable state.");
                     }
+
+                    if (KeyCache.ContainsKey(primaryKey))
+                    {
+                        entity = KeyCache[primaryKey];
+                        if (!object.ReferenceEquals(previous, entity))
+                        {
+                            context.Items = new[] { entity }.Concat(context.Items.Skip(1));
+                        }
+                    }
+
+                    // Map the object
+                    var next = Mapper.Map(context);
+                    
+                    // Return null if we are returning a duplicate object.
+                    // Queries can filter out null entries to prevent duplicates.
+                    if (KeyCache.ContainsKey(primaryKey))
+                    {
+                        return null;
+                    }
+
+                    // Cache a reference to the entity
+                    KeyCache[primaryKey] = next;
+
+                    // And, return it
+                    return next;
                 }
             }
 
-            // Map the object
-            var next = Mapper.Map(context);
-
-            // Return null if we are returning a duplicate object.
-            // Queries can filter out null entries to prevent duplicates.
-            if (object.ReferenceEquals(next, Previous))
-            {
-                return null;
-            }
-
-            // Save a reference to the entity
-            Previous = next;
-
-            // And, return it
-            return next;
+            return default(TEntityType);
         }
     }
 }

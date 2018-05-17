@@ -1,3 +1,4 @@
+using Dapper.GraphQL.Test.EntityMappers;
 using Dapper.GraphQL.Test.Models;
 using Microsoft.Extensions.DependencyInjection;
 using System.Data.SqlClient;
@@ -37,11 +38,7 @@ namespace Dapper.GraphQL.Test
                     .SplitOn<Person>("Id");
 
                 // Build a mapper that compares primary keys when building 'Person' objects
-                var personMapper = fixture
-                    .ServiceProvider
-                    .GetRequiredService<IEntityMapperFactory>()
-                    .Build<Person>(person => person.Id);
-
+                var personMapper = new PersonEntityMapper();
                 using (var db = fixture.GetDbConnection())
                 {
                     query.Execute<Person>(db, personMapper, null);

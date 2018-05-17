@@ -118,12 +118,6 @@ namespace Dapper.GraphQL.Test
                 .FirstOrDefault();
         }
 
-        public IEntityMapper<TEntityType> BuildMapper<TEntityType>(Func<TEntityType, object> mapper)
-            where TEntityType : class
-        {
-            return ServiceProvider.GetRequiredService<IEntityMapperFactory>().Build(mapper);
-        }
-
         public IDbConnection GetDbConnection()
         {
             // Generate a random db name

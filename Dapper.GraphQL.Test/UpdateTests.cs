@@ -1,3 +1,4 @@
+using Dapper.GraphQL.Test.EntityMappers;
 using Dapper.GraphQL.Test.Models;
 using Microsoft.Extensions.DependencyInjection;
 using System.Linq;
@@ -24,11 +25,6 @@ namespace Dapper.GraphQL.Test
             };
             Person previousPerson = null;
 
-            // Get an entity mapper factory
-            var entityMapperFactory = fixture
-                .ServiceProvider
-                .GetRequiredService<IEntityMapperFactory>();
-
             try
             {
                 // Update the person with Id = 2 with a new FirstName
@@ -38,7 +34,7 @@ namespace Dapper.GraphQL.Test
                         .From<Person>()
                         .Select("Id", "FirstName")
                         .Where("FirstName = @firstName", new { firstName = "Doug" })
-                        .Execute(db, entityMapperFactory.Build<Person>(p => p.Id), null)
+                        .Execute(db, new PersonEntityMapper(), null)
                         .FirstOrDefault();
 
                     SqlBuilder
@@ -51,7 +47,7 @@ namespace Dapper.GraphQL.Test
                         .From<Person>()
                         .Select("Id", "FirstName")
                         .Where("Id = @id", new { id = previousPerson.Id })
-                        .Execute(db, entityMapperFactory.Build<Person>(p => p.Id), null)
+                        .Execute(db, new PersonEntityMapper(), null)
                         .FirstOrDefault();
                 }
 
@@ -89,11 +85,6 @@ namespace Dapper.GraphQL.Test
             };
             Person previousPerson = null;
 
-            // Get an entity mapper factory
-            var entityMapperFactory = fixture
-                .ServiceProvider
-                .GetRequiredService<IEntityMapperFactory>();
-
             try
             {
                 // Update the person with Id = 2 with a new FirstName
@@ -105,7 +96,7 @@ namespace Dapper.GraphQL.Test
                         .From<Person>()
                         .Select("Id", "FirstName")
                         .Where("FirstName = @firstName", new { firstName = "Doug" })
-                        .ExecuteAsync(db, entityMapperFactory.Build<Person>(p => p.Id), null);
+                        .ExecuteAsync(db, new PersonEntityMapper(), null);
 
                     previousPerson = previousPeople.FirstOrDefault();
 
@@ -119,7 +110,7 @@ namespace Dapper.GraphQL.Test
                         .From<Person>()
                         .Select("Id", "FirstName")
                         .Where("Id = @id", new { id = previousPerson.Id })
-                        .ExecuteAsync(db, entityMapperFactory.Build<Person>(p => p.Id), null);
+                        .ExecuteAsync(db, new PersonEntityMapper(), null);
                     person = people
                         .FirstOrDefault();
                 }
