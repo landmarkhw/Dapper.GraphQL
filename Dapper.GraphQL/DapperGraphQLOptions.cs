@@ -16,20 +16,6 @@ namespace Dapper.GraphQL
         }
 
         /// <summary>
-        /// Adds a GraphQL entity mapper to the container.
-        /// </summary>
-        /// <typeparam name="TModelType">The model type to be mapped.</typeparam>
-        /// <typeparam name="TEntityMapper">The mapper class.</typeparam>
-        /// <returns>The GraphQLOptions object.</returns>
-        public DapperGraphQLOptions AddEntityMapper<TModelType, TEntityMapper>()
-            where TModelType : class
-            where TEntityMapper : class, IEntityMapper<TModelType>
-        {
-            serviceCollection.AddTransient<IEntityMapper<TModelType>, TEntityMapper>();
-            return this;
-        }
-
-        /// <summary>
         /// Adds a GraphQL query builder to the container.
         /// </summary>
         /// <typeparam name="TModelType">The model type to be queried.</typeparam>

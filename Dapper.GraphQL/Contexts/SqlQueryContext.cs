@@ -7,7 +7,9 @@ using System.Threading.Tasks;
 
 namespace Dapper.GraphQL
 {
-    public class SqlQueryContext<TEntityType> : SqlQueryContext
+    public class SqlQueryContext<TEntityType> : 
+        SqlQueryContext
+        where TEntityType : class
     {
         public SqlQueryContext(string alias = null, dynamic parameters = null)
             : base(alias == null ? typeof(TEntityType).Name : $"{typeof(TEntityType).Name} {alias}")
@@ -56,9 +58,7 @@ FROM {from}/**innerjoin**//**leftjoin**//**rightjoin**//**join**/
         ///     queryBuilder.Where("customer.id == @id");
         ///     queryBuilder.Parameters.Add("id", 1);
         ///     var customer = queryBuilder
-        ///         // Execute using the database connection, and providing the primary key
-        ///         // used to split entities.
-        ///         .Execute(dbConnection, customer => customer.Id, graphQLSelectionSet);
+        ///         .Execute<Customer>(dbConnection, graphQLSelectionSet);
         ///         .FirstOrDefault();
         ///
         ///     // SELECT customer.id, customer.name
@@ -88,7 +88,7 @@ FROM {from}/**innerjoin**//**leftjoin**//**rightjoin**//**join**/
         ///     queryBuilder.Where("customer.id == @id");
         ///     queryBuilder.Parameters.Add("id", 1);
         ///     var customer = queryBuilder
-        ///         .Execute(dbConnection, objs => objs.OfType<Customer>(), graphQLSelectionSet)
+        ///         .Execute<Customer>(dbConnection, graphQLSelectionSet)
         ///         .FirstOrDefault();
         ///
         ///     // SELECT customer.id, customer.name
@@ -101,11 +101,16 @@ FROM {from}/**innerjoin**//**leftjoin**//**rightjoin**//**join**/
         /// <param name="selectionSet">The GraphQL selection set (optional).</param>
         /// <returns>A list of entities returned by the query.</returns>
         public IEnumerable<TEntityType> Execute<TEntityType>(
-            IDbConnection connection, 
-            IEntityMapper<TEntityType> mapper,
-            IHaveSelectionSet selectionSet)
+            IDbConnection connection,
+            IHaveSelectionSet selectionSet,
+            IEntityMapper<TEntityType> mapper = null)
             where TEntityType : class
         {
+            if (mapper == null)
+            {
+                mapper = new EntityMapper<TEntityType>();
+            }
+
             // Build function that uses a mapping context to map our entities
             var fn = new Func<object[], TEntityType>(objs =>
             {
@@ -146,7 +151,7 @@ FROM {from}/**innerjoin**//**leftjoin**//**rightjoin**//**join**/
         ///     queryBuilder.Where("customer.id == @id");
         ///     queryBuilder.Parameters.Add("id", 1);
         ///     var customer = queryBuilder
-        ///         .Execute(dbConnection, objs => objs.OfType<Customer>(), graphQLSelectionSet)
+        ///         .Execute<Customer>(dbConnection, graphQLSelectionSet)
         ///         .FirstOrDefault();
         ///
         ///     // SELECT customer.id, customer.name
@@ -160,10 +165,15 @@ FROM {from}/**innerjoin**//**leftjoin**//**rightjoin**//**join**/
         /// <returns>A list of entities returned by the query.</returns>
         public async Task<IEnumerable<TEntityType>> ExecuteAsync<TEntityType>(
             IDbConnection connection, 
-            IEntityMapper<TEntityType> mapper,
-            IHaveSelectionSet selectionSet)
+            IHaveSelectionSet selectionSet,
+            IEntityMapper<TEntityType> mapper = null)
             where TEntityType : class
         {
+            if (mapper == null)
+            {
+                mapper = new EntityMapper<TEntityType>();
+            }
+
             // Build function that uses a mapping context to map our entities
             var fn = new Func<object[], TEntityType>(objs =>
             {
@@ -217,9 +227,7 @@ FROM {from}/**innerjoin**//**leftjoin**//**rightjoin**//**join**/
         ///     queryBuilder.Where("customer.id == @id");
         ///     queryBuilder.Parameters.Add("id", 1);
         ///     var customer = queryBuilder
-        ///         // Execute using the database connection, and providing the primary key
-        ///         // used to split the primary entity.
-        ///         .Execute(dbConnection, customer => customer.Id, graphQLSelectionSet);
+        ///         .Execute<Customer>(dbConnection, graphQLSelectionSet);
         ///         .FirstOrDefault();
         ///
         ///     // SELECT customer.id, account.id
@@ -259,9 +267,7 @@ FROM {from}/**innerjoin**//**leftjoin**//**rightjoin**//**join**/
         ///     queryBuilder.Where("customer.id == @id");
         ///     queryBuilder.Parameters.Add("id", 1);
         ///     var customer = queryBuilder
-        ///         // Execute using the database connection, and providing the primary key
-        ///         // used to split the primary entity.
-        ///         .Execute(dbConnection, customer => customer.Id, graphQLSelectionSet);
+        ///         .Execute<Customer>(dbConnection, graphQLSelectionSet);
         ///         .FirstOrDefault();
         ///
         ///     // SELECT customer.id, account.id
@@ -300,9 +306,7 @@ FROM {from}/**innerjoin**//**leftjoin**//**rightjoin**//**join**/
         ///     queryBuilder.Parameters.Add("id", 1);
         ///     queryBuilder.Orderby("customer.name");
         ///     var customer = queryBuilder
-        ///         // Execute using the database connection, and providing the primary key
-        ///         // used to split the primary entity.
-        ///         .Execute(dbConnection, customer => customer.Id, graphQLSelectionSet);
+        ///         .Execute<Customer>(dbConnection, graphQLSelectionSet);
         ///         .FirstOrDefault();
         ///
         ///     // SELECT customer.id, customer.name
@@ -353,9 +357,7 @@ FROM {from}/**innerjoin**//**leftjoin**//**rightjoin**//**join**/
         ///         .SplitOn<Customer>("id")
         ///         .Where("customer.id == @id")
         ///         .WithParameter("id", 1)
-        ///         // Execute using the database connection, and providing the primary key
-        ///         // used to split entities.
-        ///         .Execute(dbConnection, customer => customer.Id, graphQLSelectionSet);
+        ///         .Execute<Customer>(dbConnection, graphQLSelectionSet);
         ///         .FirstOrDefault();
         ///
         ///     // SELECT customer.id, customer.name

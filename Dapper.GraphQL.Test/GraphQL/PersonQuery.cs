@@ -35,7 +35,7 @@ namespace Dapper.GraphQL.Test.GraphQL
 
                     using (var connection = serviceProvider.GetRequiredService<IDbConnection>())
                     {
-                        var results = query.Execute(connection, personMapper, context.FieldAst);
+                        var results = query.Execute(connection, context.FieldAst, personMapper);
                         return results;
                     }
                 }
@@ -62,7 +62,7 @@ namespace Dapper.GraphQL.Test.GraphQL
                     {
                         connection.Open();
 
-                        var results = await query.ExecuteAsync(connection, personMapper, context.FieldAst);
+                        var results = await query.ExecuteAsync(connection, context.FieldAst, personMapper);
                         return results;
                     }
                 }
@@ -94,7 +94,7 @@ namespace Dapper.GraphQL.Test.GraphQL
 
                     using (var connection = serviceProvider.GetRequiredService<IDbConnection>())
                     {
-                        var results = query.Execute(connection, personMapper, context.FieldAst);
+                        var results = query.Execute(connection, context.FieldAst, personMapper);
                         return results.FirstOrDefault();
                     }
                 }

@@ -44,7 +44,7 @@ namespace Dapper.GraphQL.Test
                         .From<Person>()
                         .Select("Id", "FirstName")
                         .Where("FirstName = @firstName", new { firstName = "Doug" })
-                        .Execute(db, new PersonEntityMapper(), selectionSet)
+                        .Execute<Person>(db, selectionSet)
                         .FirstOrDefault();
 
                     SqlBuilder
@@ -57,7 +57,7 @@ namespace Dapper.GraphQL.Test
                         .From<Person>()
                         .Select("Id", "FirstName")
                         .Where("Id = @id", new { id = previousPerson.Id })
-                        .Execute(db, new PersonEntityMapper(), selectionSet)
+                        .Execute<Person>(db, selectionSet)
                         .FirstOrDefault();
                 }
 
@@ -116,7 +116,7 @@ namespace Dapper.GraphQL.Test
                         .From<Person>()
                         .Select("Id", "FirstName")
                         .Where("FirstName = @firstName", new { firstName = "Doug" })
-                        .ExecuteAsync(db, new PersonEntityMapper(), selectionSet);
+                        .ExecuteAsync<Person>(db, selectionSet);
 
                     previousPerson = previousPeople.FirstOrDefault();
 
@@ -130,7 +130,7 @@ namespace Dapper.GraphQL.Test
                         .From<Person>()
                         .Select("Id", "FirstName")
                         .Where("Id = @id", new { id = previousPerson.Id })
-                        .ExecuteAsync(db, new PersonEntityMapper(), selectionSet);
+                        .ExecuteAsync<Person>(db, selectionSet);                        
                     person = people
                         .FirstOrDefault();
                 }

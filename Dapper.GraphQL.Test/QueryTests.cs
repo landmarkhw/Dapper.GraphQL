@@ -37,11 +37,12 @@ namespace Dapper.GraphQL.Test
                     .Select("person.Id", "notAnAlias.Id")
                     .SplitOn<Person>("Id");
 
-                // Build a mapper that compares primary keys when building 'Person' objects
-                var personMapper = new PersonEntityMapper();
+                var graphql = "{ person { id } }";
+                var selectionSet = fixture.BuildGraphQLSelection(graphql);
+
                 using (var db = fixture.GetDbConnection())
                 {
-                    query.Execute<Person>(db, personMapper, null);
+                    query.Execute<Person>(db, selectionSet);
                 }
             });
         }

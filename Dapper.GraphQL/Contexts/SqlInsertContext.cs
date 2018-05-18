@@ -7,7 +7,9 @@ using System.Threading.Tasks;
 
 namespace Dapper.GraphQL
 {
-    public class SqlInsertContext<TEntityType> : SqlInsertContext
+    public class SqlInsertContext<TEntityType> : 
+        SqlInsertContext
+        where TEntityType : class
     {
         private List<SqlInsertContext<TEntityType>> Inserts { get; set; }
 
@@ -91,6 +93,7 @@ namespace Dapper.GraphQL
         /// <param name="obj">The data to be inserted.</param>
         /// <returns>The context of the INSERT statement.</returns>
         public virtual SqlInsertContext Insert<TEntityType>(TEntityType obj)
+            where TEntityType : class
         {
             if (Inserts == null)
             {

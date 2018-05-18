@@ -183,9 +183,6 @@ namespace Dapper.GraphQL.Test
                 options.AddQueryBuilder<Email, EmailQueryBuilder>();
                 options.AddQueryBuilder<Person, PersonQueryBuilder>();
                 options.AddQueryBuilder<Phone, PhoneQueryBuilder>();
-
-                // Add entity mappers
-                options.AddEntityMapper<Person, PersonEntityMapper>();
             });
         }
 

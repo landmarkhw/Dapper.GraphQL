@@ -9,6 +9,7 @@ namespace Dapper.GraphQL
     public static class SqlInsertContextExtensions
     {
         public static TIdentityType ExecuteWithSqlIdentity<TEntityType, TIdentityType>(this SqlInsertContext<TEntityType> context, IDbConnection dbConnection, Func<TEntityType, TIdentityType> identityTypeSelector)
+            where TEntityType : class
         {
             return ExecuteWithSqlIdentity<TIdentityType>(context, dbConnection);
         }
@@ -22,7 +23,8 @@ namespace Dapper.GraphQL
                 .Single();
         }
 
-        public static async Task<TIdentityType> ExecuteWithSqlIdentityAsync<TEntity, TIdentityType>(this SqlInsertContext context, IDbConnection dbConnection, Func<TEntity, TIdentityType> identityTypeSelector)
+        public static async Task<TIdentityType> ExecuteWithSqlIdentityAsync<TEntityType, TIdentityType>(this SqlInsertContext context, IDbConnection dbConnection, Func<TEntityType, TIdentityType> identityTypeSelector)
+            where TEntityType : class
         {
             return await ExecuteWithSqlIdentityAsync<TIdentityType>(context, dbConnection);
         }
