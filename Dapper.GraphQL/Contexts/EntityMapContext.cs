@@ -76,7 +76,10 @@ namespace Dapper.GraphQL
         /// <param name="fieldNames">The names of one or more GraphQL fields associated with the item.</param>
         /// <param name="entityMapper">An optional entity mapper.  This is used to map complex objects from Dapper mapping results.</param>
         /// <returns>The mapped item.</returns>
-        public TItemType Next<TItemType>(IEnumerable<string> fieldNames, IEntityMapper<TItemType> entityMapper = null)
+        public TItemType Next<TItemType>(
+            IEnumerable<string> fieldNames, 
+            IEntityMapper<TItemType> entityMapper = null,
+            Func<IHaveSelectionSet, IHaveSelectionSet> selectionSetSelector = null)
             where TItemType : class
         {
             if (fieldNames == null)
@@ -111,10 +114,21 @@ namespace Dapper.GraphQL
 
                     if (entityMapper != null)
                     {
+                        // Determine where the next entity mapper will get its selection set from
+                        IHaveSelectionSet selectionSet = null;
+                        if (selectionSetSelector == null)
+                        {
+                            selectionSet = selectionSetSelector(SelectionSet);
+                        }
+                        else
+                        {
+                            selectionSet = CurrentSelectionSet[keys.First()];
+                        }
+
                         var nextContext = new EntityMapContext
                         {
                             Items = Items.Skip(MappedCount),
-                            SelectionSet = CurrentSelectionSet[keys.First()],
+                            SelectionSet = selectionSet,
                             SplitOn = SplitOn.Skip(MappedCount),
                         };
                         using (nextContext)
