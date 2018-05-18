@@ -168,14 +168,19 @@ Field<ListGraphType<PersonType>>(
         // Build the query, using the GraphQL query and SQL table alias.
         query = personQueryBuilder.Build(query, context.FieldAst, alias);
 
-        // Create a mapper that understands how to uniquely identify the 'Person' class.
-        var personMapper = entityMapperFactory.Build<Person>(person => person.Id);
+        // Create a mapper that understands how to uniquely identify the 'Person' class,
+        // and will deduplicate people as they pass through it
+        var personMapper = new DeduplicatingEntityMapper<Person>
+        {
+            Mapper = new PersonEntityMapper(),
+            PrimaryKey = person => person.Id,
+        };
 
         // Open a connection to the database
         using (var connection = serviceProvider.GetRequiredService<IDbConnection>())
         {
             // Execute the query with the person mapper
-            var results = query.Execute(connection, personMapper);
+            var results = query.Execute(connection, personMapper, context.FieldAst);
             
             // `results` contains a list of people.
             return results;
