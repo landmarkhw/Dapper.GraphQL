@@ -33,7 +33,7 @@ namespace Dapper.GraphQL
         /// </summary>
         /// <param name="context">A context that contains information used to map Dapper objects.</param>
         /// <returns>The mapped entity, or null if the entity has previously been returned.</returns>
-        public virtual TEntityType Map(EntityMapContext<TEntityType> context)
+        public virtual TEntityType Map(EntityMapContext context)
         {
             if (PrimaryKey == null)
             {

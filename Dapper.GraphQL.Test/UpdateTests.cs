@@ -27,6 +27,16 @@ namespace Dapper.GraphQL.Test
 
             try
             {
+                var graphql = @"
+{
+    person {
+        id
+        firstName
+    }
+}";
+
+                var selectionSet = fixture.BuildGraphQLSelection(graphql);
+
                 // Update the person with Id = 2 with a new FirstName
                 using (var db = fixture.GetDbConnection())
                 {
@@ -34,7 +44,7 @@ namespace Dapper.GraphQL.Test
                         .From<Person>()
                         .Select("Id", "FirstName")
                         .Where("FirstName = @firstName", new { firstName = "Doug" })
-                        .Execute(db, new PersonEntityMapper(), null)
+                        .Execute(db, new PersonEntityMapper(), selectionSet)
                         .FirstOrDefault();
 
                     SqlBuilder
@@ -47,7 +57,7 @@ namespace Dapper.GraphQL.Test
                         .From<Person>()
                         .Select("Id", "FirstName")
                         .Where("Id = @id", new { id = previousPerson.Id })
-                        .Execute(db, new PersonEntityMapper(), null)
+                        .Execute(db, new PersonEntityMapper(), selectionSet)
                         .FirstOrDefault();
                 }
 
@@ -92,11 +102,21 @@ namespace Dapper.GraphQL.Test
                 {
                     db.Open();
 
+                    var graphql = @"
+{
+    person {
+        id
+        firstName
+    }
+}";
+
+                    var selectionSet = fixture.BuildGraphQLSelection(graphql);
+
                     var previousPeople = await SqlBuilder
                         .From<Person>()
                         .Select("Id", "FirstName")
                         .Where("FirstName = @firstName", new { firstName = "Doug" })
-                        .ExecuteAsync(db, new PersonEntityMapper(), null);
+                        .ExecuteAsync(db, new PersonEntityMapper(), selectionSet);
 
                     previousPerson = previousPeople.FirstOrDefault();
 
@@ -110,7 +130,7 @@ namespace Dapper.GraphQL.Test
                         .From<Person>()
                         .Select("Id", "FirstName")
                         .Where("Id = @id", new { id = previousPerson.Id })
-                        .ExecuteAsync(db, new PersonEntityMapper(), null);
+                        .ExecuteAsync(db, new PersonEntityMapper(), selectionSet);
                     person = people
                         .FirstOrDefault();
                 }

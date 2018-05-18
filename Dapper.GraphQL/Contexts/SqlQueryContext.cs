@@ -109,13 +109,16 @@ FROM {from}/**innerjoin**//**leftjoin**//**rightjoin**//**join**/
             // Build function that uses a mapping context to map our entities
             var fn = new Func<object[], TEntityType>(objs =>
             {
-                var context = new EntityMapContext<TEntityType>
+                var context = new EntityMapContext
                 {
                     Items = objs,
                     SelectionSet = selectionSet,
                     SplitOn = GetSplitOnTypes(),
                 };
-                return mapper.Map(context);
+                using (context)
+                {
+                    return mapper.Map(context);
+                }
             });
 
             var results = connection.Query<TEntityType>(
@@ -164,13 +167,16 @@ FROM {from}/**innerjoin**//**leftjoin**//**rightjoin**//**join**/
             // Build function that uses a mapping context to map our entities
             var fn = new Func<object[], TEntityType>(objs =>
             {
-                var context = new EntityMapContext<TEntityType>
+                var context = new EntityMapContext
                 {
                     Items = objs,
                     SelectionSet = selectionSet,
                     SplitOn = GetSplitOnTypes(),
                 };
-                return mapper.Map(context);
+                using (context)
+                {
+                    return mapper.Map(context);
+                }
             });
 
             var results = await connection.QueryAsync<TEntityType>(

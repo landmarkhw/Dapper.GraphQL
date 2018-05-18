@@ -15,6 +15,6 @@ namespace Dapper.GraphQL
         /// </summary>
         /// <param name="context">A context that contains information used to map Dapper objects.</param>
         /// <returns>The mapped entity, or null if the entity has previously been returned.</returns>
-        TEntityType Map(EntityMapContext<TEntityType> context);
+        TEntityType Map(EntityMapContext context);
     }
 }
