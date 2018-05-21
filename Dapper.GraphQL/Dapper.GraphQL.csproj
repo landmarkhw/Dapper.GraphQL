@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <TargetFramework>netstandard1.3</TargetFramework>
-    <Version>0.3.3-beta</Version>
+    <Version>0.3.4-beta</Version>
     <Authors>Doug Day, Kevin Russon, Ben McCallum</Authors>
     <Company>Landmark Home Warranty</Company>
     <Description>A library designed to integrate the Dapper and graphql-dotnet projects with ease-of-use in mind and performance as the primary concern.</Description>
@@ -19,8 +19,8 @@ See https://github.com/landmarkhw/Dapper.GraphQL/blob/master/Dapper.GraphQL.Test
 Also, the Execute() method for queries has changed to require the selection set for GraphQL, to facilitate proper object mapping after the query is executed. See https://github.com/landmarkhw/Dapper.GraphQL/blob/master/Dapper.GraphQL.Test/InsertTests.cs#L98 for an example.
 
 Also note that IEntityMapperFactory was removed.  Entity mappers can now be created directly (e.g. new PersonEntityMapper()), or if special feature are required, using a wrapping mapper (e.g. new DeduplicatingEntityMapper&lt;Person&gt;).</PackageReleaseNotes>
-    <AssemblyVersion>0.3.3.0</AssemblyVersion>
-    <FileVersion>0.3.3.0</FileVersion>
+    <AssemblyVersion>0.3.4.0</AssemblyVersion>
+    <FileVersion>0.3.4.0</FileVersion>
   </PropertyGroup>
 
   <ItemGroup>
