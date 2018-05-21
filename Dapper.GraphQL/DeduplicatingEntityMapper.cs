@@ -34,6 +34,21 @@ namespace Dapper.GraphQL
         public bool ReturnsNullWithDuplicates { get; set; } = true;
 
         /// <summary>
+        /// Resolves the deduplicated entity.
+        /// </summary>
+        /// <param name="entity">The entity to deduplicate.</param>
+        /// <param name="primaryKey">The primary key of the entity.</param>
+        /// <returns>The deduplicated entity.</returns>
+        protected virtual TEntityType Deduplicate(TEntityType entity, object primaryKey)
+        {
+            if (KeyCache.ContainsKey(primaryKey))
+            {
+                return KeyCache[primaryKey];
+            }
+            return entity;
+        }
+
+        /// <summary>
         /// Maps a row of data to an entity.
         /// </summary>
         /// <param name="context">A context that contains information used to map Dapper objects.</param>
@@ -59,13 +74,11 @@ namespace Dapper.GraphQL
                         throw new InvalidOperationException("A null primary key was provided, which results in an unpredictable state.");
                     }
 
-                    if (KeyCache.ContainsKey(primaryKey))
+                    // Deduplicate the entity using available information
+                    entity = Deduplicate(entity, primaryKey);
+                    if (!object.ReferenceEquals(previous, entity))
                     {
-                        entity = KeyCache[primaryKey];
-                        if (!object.ReferenceEquals(previous, entity))
-                        {
-                            context.Items = new[] { entity }.Concat(context.Items.Skip(1));
-                        }
+                        context.Items = new[] { entity }.Concat(context.Items.Skip(1));
                     }
 
                     // Map the object
