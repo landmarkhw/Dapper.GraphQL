@@ -78,8 +78,7 @@ namespace Dapper.GraphQL
         /// <returns>The mapped item.</returns>
         public TItemType Next<TItemType>(
             IEnumerable<string> fieldNames, 
-            IEntityMapper<TItemType> entityMapper = null,
-            Func<IHaveSelectionSet, IHaveSelectionSet> selectionSetSelector = null)
+            IEntityMapper<TItemType> entityMapper = null)
             where TItemType : class
         {
             if (fieldNames == null)
@@ -116,12 +115,14 @@ namespace Dapper.GraphQL
                     {
                         // Determine where the next entity mapper will get its selection set from
                         IHaveSelectionSet selectionSet = null;
-                        if (selectionSetSelector == null)
+                        if (fieldNames.Count() > 1)
                         {
-                            selectionSet = selectionSetSelector(SelectionSet);
+                            // More than one field was selected, re-use the existing selection set
+                            selectionSet = SelectionSet;
                         }
                         else
                         {
+                            // Only one field was selected, use the selection set for that field
                             selectionSet = CurrentSelectionSet[keys.First()];
                         }
 
