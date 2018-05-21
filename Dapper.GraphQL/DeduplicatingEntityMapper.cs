@@ -16,7 +16,7 @@ namespace Dapper.GraphQL
         /// <summary>
         /// A cache used to hold previous entities that this mapper has seen.
         /// </summary>
-        private IDictionary<object, TEntityType> KeyCache { get; set; } = new Dictionary<object, TEntityType>();
+        protected IDictionary<object, TEntityType> KeyCache { get; set; } = new Dictionary<object, TEntityType>();
 
         /// <summary>
         /// The entity mapper.
