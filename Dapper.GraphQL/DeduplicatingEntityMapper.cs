@@ -19,14 +19,19 @@ namespace Dapper.GraphQL
         private IDictionary<object, TEntityType> KeyCache { get; set; } = new Dictionary<object, TEntityType>();
 
         /// <summary>
+        /// The entity mapper.
+        /// </summary>
+        public IEntityMapper<TEntityType> Mapper { get; set; }
+
+        /// <summary>
         /// Sets a function that returns the primary key used to uniquely identify the entity.
         /// </summary>
         public Func<TEntityType, object> PrimaryKey { get; set; }
 
         /// <summary>
-        /// The entity mapper.
+        /// True if this mapper should return null when duplicates are encountered.
         /// </summary>
-        public IEntityMapper<TEntityType> Mapper { get; set; }
+        public bool ReturnsNullWithDuplicates { get; set; } = true;
 
         /// <summary>
         /// Maps a row of data to an entity.
@@ -68,7 +73,7 @@ namespace Dapper.GraphQL
                     
                     // Return null if we are returning a duplicate object.
                     // Queries can filter out null entries to prevent duplicates.
-                    if (KeyCache.ContainsKey(primaryKey))
+                    if (ReturnsNullWithDuplicates && KeyCache.ContainsKey(primaryKey))
                     {
                         return null;
                     }
