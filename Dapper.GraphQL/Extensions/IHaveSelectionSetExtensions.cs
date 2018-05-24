@@ -24,5 +24,21 @@ namespace GraphQL.Language.AST
             }
             return null;
         }
+
+        /// <summary>
+        /// Returns the inline fragment for the specified entity within the GraphQL selection.
+        /// </summary>
+        /// <typeparam name="TEntityType">The type of entity to retrieve.</typeparam>
+        /// <param name="selectionSet">The GraphQL selection set.</param>
+        /// <returns>The inline framgent associated with the entity.</returns>
+        public static InlineFragment GetInlineFragment<TEntityType>(this IHaveSelectionSet selectionSet)
+        {
+            return selectionSet
+                .SelectionSet?
+                .Selections?
+                .OfType<InlineFragment>()
+                .Where(f => f.Type?.Name == typeof(TEntityType).Name)
+                .FirstOrDefault();
+        }
     }
 }
