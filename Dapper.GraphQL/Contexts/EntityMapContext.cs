@@ -77,9 +77,9 @@ namespace Dapper.GraphQL
         /// <param name="entityMapper">An optional entity mapper.  This is used to map complex objects from Dapper mapping results.</param>
         /// <returns>The mapped item.</returns>
         public TItemType Next<TItemType>(
-            IEnumerable<string> fieldNames, 
-            IEntityMapper<TItemType> entityMapper = null,
-            Func<IDictionary<string, Field>, IHaveSelectionSet, IHaveSelectionSet> getSelectionSet = null)
+            IEnumerable<string> fieldNames,
+            Func<IDictionary<string, Field>, IHaveSelectionSet, IHaveSelectionSet> getSelectionSet,
+            IEntityMapper<TItemType> entityMapper = null)
             where TItemType : class
         {
             if (fieldNames == null)

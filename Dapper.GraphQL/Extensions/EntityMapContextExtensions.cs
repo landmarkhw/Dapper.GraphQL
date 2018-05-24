@@ -24,8 +24,8 @@ namespace Dapper.GraphQL
         {
             return context.Next<TItemType>(
                 new[] { fieldName }, 
-                entityMapper,
-                (currentSelectionSet, selectionSet) => currentSelectionSet[fieldName]
+                (currentSelectionSet, selectionSet) => currentSelectionSet[fieldName],
+                entityMapper
             );
         }
 
@@ -45,8 +45,8 @@ namespace Dapper.GraphQL
         {
             return context.Next<TItemType>(
                 fieldNames,
-                entityMapper,
-                (currentSelectionSet, selectionSet) => selectionSet
+                (currentSelectionSet, selectionSet) => selectionSet,
+                entityMapper
             );
         }
 
@@ -66,13 +66,13 @@ namespace Dapper.GraphQL
         {
             return context.Next<TItemType>(
                 new[] { fieldName },
-                entityMapper,
                 (currentSelectionSet, selectionSet) => currentSelectionSet[fieldName]
                     .SelectionSet
                     .Selections
                     .OfType<InlineFragment>()
                     .Where(f => f.Type.Name == typeof(TItemType).Name)
-                    .FirstOrDefault()
+                    .FirstOrDefault(),
+                entityMapper
             );
         }
     }
