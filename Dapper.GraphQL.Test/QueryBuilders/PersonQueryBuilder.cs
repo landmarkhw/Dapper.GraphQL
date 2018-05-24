@@ -35,16 +35,31 @@ namespace Dapper.GraphQL.Test.QueryBuilders
             {
                 query.Select($"{alias}.LastName");
             }
+            if (fields.ContainsKey("companies"))
+            {
+                var personCompanies = $"{alias}PersonCompany";
+                var companyAlias = $"{alias}Company";
+                query
+                    .LeftJoin($"PersonCompany {personCompanies} ON {alias}.Id = {personCompanies}.PersonId")
+                    .LeftJoin($"Company {companyAlias} ON {personCompanies}.CompanyId = {companyAlias}.Id");
+                query = emailQueryBuilder.Build(query, fields["companies"], companyAlias);
+            }
             if (fields.ContainsKey("emails"))
             {
+                var personEmailAlias = $"{alias}PersonEmail";
                 var emailAlias = $"{alias}Email";
-                query.LeftJoin($"Email {emailAlias} ON {alias}.Id = {emailAlias}.PersonId");
+                query
+                    .LeftJoin($"PersonEmail {personEmailAlias} ON {alias}.Id = {personEmailAlias}.PersonId")
+                    .LeftJoin($"Email {emailAlias} ON {personEmailAlias}.EmailId = {emailAlias}.Id");
                 query = emailQueryBuilder.Build(query, fields["emails"], emailAlias);
             }
             if (fields.ContainsKey("phones"))
             {
+                var personPhoneAlias = $"{alias}PersonPhone";
                 var phoneAlias = $"{alias}Phone";
-                query.LeftJoin($"Phone {phoneAlias} ON {alias}.Id = {phoneAlias}.PersonId");
+                query
+                    .LeftJoin($"PersonPhone {personPhoneAlias} ON {alias}.Id = {personPhoneAlias}.PersonId")
+                    .LeftJoin($"Phone {phoneAlias} ON {personPhoneAlias}.PhoneId = {phoneAlias}.Id");
                 query = phoneQueryBuilder.Build(query, fields["phones"], phoneAlias);
             }
             if (fields.ContainsKey("supervisor"))

@@ -8,6 +8,5 @@ namespace Dapper.GraphQL.Test.Models
     {
         public string Address { get; set; }
         public int Id { get; set; }
-        public int PersonId { get; set; }
     }
 }

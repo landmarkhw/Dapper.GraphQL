@@ -171,6 +171,7 @@ namespace Dapper.GraphQL.Test
             serviceCollection.AddDapperGraphQL(options =>
             {
                 // Add GraphQL types
+                options.AddType<CompanyType>();
                 options.AddType<EmailType>();
                 options.AddType<PersonType>();
                 options.AddType<GraphQL.PhoneType>();
@@ -180,6 +181,7 @@ namespace Dapper.GraphQL.Test
                 options.AddSchema<PersonSchema>();
 
                 // Add query builders for dapper
+                options.AddQueryBuilder<Company, CompanyQueryBuilder>();
                 options.AddQueryBuilder<Email, EmailQueryBuilder>();
                 options.AddQueryBuilder<Person, PersonQueryBuilder>();
                 options.AddQueryBuilder<Phone, PhoneQueryBuilder>();

@@ -32,6 +32,12 @@ namespace Dapper.GraphQL.Test.GraphQL
                 resolve: context => context.Source?.LastName
             );
 
+            Field<ListGraphType<CompanyType>>(
+                "companies",
+                description: "A list of companies for this person.",
+                resolve: context => context.Source?.Companies
+            );
+
             Field<ListGraphType<EmailType>>(
                 "emails",
                 description: "A list of email addresses for the person.",

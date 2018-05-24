@@ -35,21 +35,18 @@ namespace Dapper.GraphQL.Test
             {
                 Address = "dday@landmarkhw.com",
                 Id = 2,
-                PersonId = 2,
             };
 
             var email2 = new Email
             {
                 Address = "dougrday@gmail.com",
                 Id = 3,
-                PersonId = 2,
             };
 
             var phone = new Phone
             {
                 Id = 1,
                 Number = "8011234567",
-                PersonId = 2,
                 Type = PhoneType.Mobile,
             };
 

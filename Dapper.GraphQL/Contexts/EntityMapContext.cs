@@ -129,10 +129,10 @@ namespace Dapper.GraphQL
 
                             // Update enumerators to skip past items already mapped
                             var mappedCount = nextContext.MappedCount;
-                            MappedCount += nextContext.MappedCount;
+                            MappedCount += nextContext.MappedCount - 1;
                             int i = 0;
                             while (
-                                i < mappedCount &&
+                                i < mappedCount - 1 &&
                                 ItemEnumerator.MoveNext() &&
                                 SplitOnEnumerator.MoveNext())
                             {

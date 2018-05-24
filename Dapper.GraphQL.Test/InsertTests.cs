@@ -43,14 +43,12 @@ namespace Dapper.GraphQL.Test
                 var email = new Email
                 {
                     Address = "srollman@landmarkhw.com",
-                    PersonId = personId,
                 };
 
                 var phone = new Phone
                 {
                     Number = "8011115555",
                     Type = PhoneType.Mobile,
-                    PersonId = personId,
                 };
 
                 // Add email and phone number to the person
@@ -111,10 +109,8 @@ namespace Dapper.GraphQL.Test
             Assert.Equal("Rollman", person.LastName);
             Assert.Equal(1, person.Emails.Count);
             Assert.Equal("srollman@landmarkhw.com", person.Emails[0].Address);
-            Assert.Equal(personId, person.Emails[0].PersonId);
             Assert.Equal(1, person.Phones.Count);
             Assert.Equal("8011115555", person.Phones[0].Number);
-            Assert.Equal(personId, person.Phones[0].PersonId);
         }
 
         [Fact(DisplayName = "INSERT person asynchronously succeeds")]
@@ -147,14 +143,12 @@ namespace Dapper.GraphQL.Test
                 var email = new Email
                 {
                     Address = "srollman@landmarkhw.com",
-                    PersonId = personId,
                 };
 
                 var phone = new Phone
                 {
                     Number = "8011115555",
                     Type = PhoneType.Mobile,
-                    PersonId = personId,
                 };
 
                 // Add email and phone number to the person
@@ -214,10 +208,8 @@ namespace Dapper.GraphQL.Test
             Assert.Equal("Rollman", person.LastName);
             Assert.Equal(1, person.Emails.Count);
             Assert.Equal("srollman@landmarkhw.com", person.Emails[0].Address);
-            Assert.Equal(personId, person.Emails[0].PersonId);
             Assert.Equal(1, person.Phones.Count);
             Assert.Equal("8011115555", person.Phones[0].Number);
-            Assert.Equal(personId, person.Phones[0].PersonId);
         }
     }
 }

@@ -17,7 +17,6 @@ namespace Dapper.GraphQL.Test.Models
     {
         public int Id { get; set; }
         public string Number { get; set; }
-        public int PersonId { get; set; }
         public PhoneType Type { get; set; }
     }
 }
