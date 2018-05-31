@@ -5,29 +5,39 @@ using System.Linq;
 namespace Dapper.GraphQL.Test.EntityMappers
 {
     public class PersonEntityMapper :
-        EntityMapper<Person>
+        DeduplicatingEntityMapper<Person>
     {
-        private readonly CompanyEntityMapper companyEntityMapper;
-        private readonly DeduplicatingEntityMapper<Person> personEntityMapper;
+        private CompanyEntityMapper companyEntityMapper;
+        private PersonEntityMapper personEntityMapper;
 
         public PersonEntityMapper()
         {
-            companyEntityMapper = new CompanyEntityMapper();
-
-            // FIXME: DeduplicatingEntityMapper is broken here, why?
-            personEntityMapper = new DeduplicatingEntityMapper<Person>
-            {
-                Mapper = this,
-                PrimaryKey = p => p.Id,
-                ReturnsNullWithDuplicates = false,
-            };
+            Mapper = new EntityMapper<Person>();
+            PrimaryKey = p => p.Id;
+            ReturnsNullWithDuplicates = true;
         }
 
         public override Person Map(EntityMapContext context)
         {
+            // Avoid creating the mappers until they're used
+            // NOTE: this avoids an infinite loop (had these been created in the ctor)
+            if (companyEntityMapper == null)
+            {
+                companyEntityMapper = new CompanyEntityMapper();
+            }
+            if (personEntityMapper == null)
+            {
+                personEntityMapper = new PersonEntityMapper
+                {
+                    ReturnsNullWithDuplicates = false
+                };
+            }
+
             // NOTE: Order is very important here.  We must map the objects in
             // the same order they were queried in the QueryBuilder.
-            var person = context.Start<Person>();
+
+            // Start with the person, and deduplicate
+            var person = Deduplicate(context.Start<Person>());
             var company = context.Next<Company>("companies", companyEntityMapper);
             var email = context.Next<Email>("emails");
             var phone = context.Next<Phone>("phones");
@@ -50,8 +60,8 @@ namespace Dapper.GraphQL.Test.EntityMappers
                     person.Phones.Add(phone);
                 }
 
-                person.Supervisor = supervisor;
-                person.CareerCounselor = careerCounselor;
+                person.Supervisor = person.Supervisor ?? supervisor;
+                person.CareerCounselor = person.CareerCounselor ?? careerCounselor;
             }
 
             return person;

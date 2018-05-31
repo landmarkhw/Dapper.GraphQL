@@ -22,18 +22,22 @@ namespace Dapper.GraphQL.Test.QueryBuilders
 
         public SqlQueryContext Build(SqlQueryContext query, IHaveSelectionSet context, string alias)
         {
-            query.Select($"{alias}.Id");
+            var mergedPersonAlias = $"{alias}Merged";
+
+            // Deduplicate
+            query.LeftJoin($"Person {mergedPersonAlias} ON {alias}.MergedToPersonId = {mergedPersonAlias}.MergedToPersonId");
+            query.Select($"{mergedPersonAlias}.Id");
             query.SplitOn<Person>("Id");
 
             var fields = context.GetSelectedFields();
 
             if (fields.ContainsKey("firstName"))
             {
-                query.Select($"{alias}.FirstName");
+                query.Select($"{mergedPersonAlias}.FirstName");
             }
             if (fields.ContainsKey("lastName"))
             {
-                query.Select($"{alias}.LastName");
+                query.Select($"{mergedPersonAlias}.LastName");
             }
             if (fields.ContainsKey("companies"))
             {

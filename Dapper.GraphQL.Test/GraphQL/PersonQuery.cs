@@ -22,16 +22,12 @@ namespace Dapper.GraphQL.Test.GraphQL
                 resolve: context =>
                 {
                     var alias = "person";
-                    var query = SqlBuilder.From($"Person {alias}");
+                    var query = SqlBuilder.From<Person>(alias);
                     query = personQueryBuilder.Build(query, context.FieldAst, alias);
 
                     // Create a mapper that understands how to uniquely identify the 'Person' class,
                     // and will deduplicate people as they pass through it
-                    var personMapper = new DeduplicatingEntityMapper<Person>
-                    {
-                        Mapper = new PersonEntityMapper(),
-                        PrimaryKey = person => person.Id,
-                    };
+                    var personMapper = new PersonEntityMapper();
 
                     using (var connection = serviceProvider.GetRequiredService<IDbConnection>())
                     {
@@ -52,11 +48,7 @@ namespace Dapper.GraphQL.Test.GraphQL
 
                     // Create a mapper that understands how to uniquely identify the 'Person' class,
                     // and will deduplicate people as they pass through it
-                    var personMapper = new DeduplicatingEntityMapper<Person>
-                    {
-                        Mapper = new PersonEntityMapper(),
-                        PrimaryKey = p => p.Id,
-                    };
+                    var personMapper = new PersonEntityMapper();
 
                     using (var connection = serviceProvider.GetRequiredService<IDbConnection>())
                     {
@@ -86,15 +78,12 @@ namespace Dapper.GraphQL.Test.GraphQL
 
                     // Create a mapper that understands how to uniquely identify the 'Person' class,
                     // and will deduplicate people as they pass through it
-                    var personMapper = new DeduplicatingEntityMapper<Person>
-                    {
-                        Mapper = new PersonEntityMapper(),
-                        PrimaryKey = p => p.Id,
-                    };
+                    var personMapper = new PersonEntityMapper();
 
                     using (var connection = serviceProvider.GetRequiredService<IDbConnection>())
                     {
-                        var results = query.Execute(connection, context.FieldAst, personMapper);
+                        var results = query
+                            .Execute(connection, context.FieldAst, personMapper);
                         return results.FirstOrDefault();
                     }
                 }

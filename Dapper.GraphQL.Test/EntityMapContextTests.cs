@@ -21,13 +21,13 @@ namespace Dapper.GraphQL.Test
             var person1 = new Person
             {
                 FirstName = "Doug",
-                Id = 2,
+                Id = 4,
                 LastName = "Day",
             };
             var person2 = new Person
             {
                 FirstName = "Douglas",
-                Id = 2,
+                Id = 4,
                 LastName = "Day",
             };
 
@@ -57,11 +57,7 @@ namespace Dapper.GraphQL.Test
                 typeof(Phone),
             };
 
-            var deduplicatingPersonMapper = new DeduplicatingEntityMapper<Person>
-            {
-                Mapper = new PersonEntityMapper(),
-                PrimaryKey = p => p.Id,
-            };
+            var personEntityMapper = new PersonEntityMapper();
 
             var graphql = @"
 {
@@ -94,7 +90,7 @@ namespace Dapper.GraphQL.Test
                 SplitOn = splitOn,
             };
 
-            person1 = deduplicatingPersonMapper.Map(context1);
+            person1 = personEntityMapper.Map(context1);
             Assert.Equal(3, context1.MappedCount);
 
             Assert.Equal(2, person1.Id);
@@ -114,16 +110,17 @@ namespace Dapper.GraphQL.Test
                 SplitOn = splitOn,
             };
 
-            person2 = deduplicatingPersonMapper.Map(context2);
+            person2 = personEntityMapper.Map(context2);
             Assert.Equal(3, context2.MappedCount);
 
-            // Duplicate is detected
-            Assert.Null(person2);
+            // Different objects found
+            Assert.False(person1 == person2);
+
+            Assert.Equal(3, person2.Id);
+            Assert.Equal("Douglas", person2.FirstName);
 
             // 2nd email added to person
-            Assert.Equal(2, person1.Id);
-            Assert.Equal("Doug", person1.FirstName);
-            Assert.Equal(2, person1.Emails.Count);
+            Assert.Equal(2, person2.Emails.Count);
         }
     }
 }

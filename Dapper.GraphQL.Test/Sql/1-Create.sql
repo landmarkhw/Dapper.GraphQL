@@ -1,11 +1,15 @@
 ﻿CREATE TABLE Person (
 	Id INTEGER NOT NULL PRIMARY KEY IDENTITY(1, 1),
+	-- Used to identify the person that this has been merged with
+	-- (for deduplicating person entities in the db)
+	MergedToPersonId INTEGER,
 	FirstName NVARCHAR(50),
 	LastName NVARCHAR(50),
 	-- Known issue with FK reference to non-null numeric types
 	-- https://github.com/StackExchange/Dapper/issues/917
 	SupervisorId INTEGER,
 	CareerCounselorId INTEGER,
+	FOREIGN KEY (MergedToPersonId) REFERENCES Person(Id),
 	FOREIGN KEY (SupervisorId) REFERENCES Person(Id),
 	FOREIGN KEY (CareerCounselorId) REFERENCES Person(Id)
 );

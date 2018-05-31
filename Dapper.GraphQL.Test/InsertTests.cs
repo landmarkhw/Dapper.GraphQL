@@ -62,11 +62,7 @@ namespace Dapper.GraphQL.Test
                 Assert.Equal(2, insertedCount);
 
                 // Build an entity mapper for person
-                var personMapper = new DeduplicatingEntityMapper<Person>
-                {
-                    Mapper = new PersonEntityMapper(),
-                    PrimaryKey = p => p.Id,
-                };
+                var personMapper = new PersonEntityMapper();
 
                 // Query the person from the database
                 var query = SqlBuilder
@@ -162,11 +158,7 @@ namespace Dapper.GraphQL.Test
                 Assert.Equal(2, insertedCount);
 
                 // Build an entity mapper for person
-                var personMapper = new DeduplicatingEntityMapper<Person>
-                {
-                    Mapper = new PersonEntityMapper(),
-                    PrimaryKey = p => p.Id,
-                };
+                var personMapper = new PersonEntityMapper();
 
                 // Query the person from the database
                 var query = SqlBuilder

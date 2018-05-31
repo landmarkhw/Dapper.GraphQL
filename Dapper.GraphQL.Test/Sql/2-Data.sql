@@ -1,8 +1,14 @@
 ﻿SET IDENTITY_INSERT Person ON
-INSERT INTO Person (Id, FirstName, LastName, SupervisorId, CareerCounselorId) VALUES (1, 'Hyrum', 'Clyde', NULL, NULL);
-INSERT INTO Person (Id, FirstName, LastName, SupervisorId, CareerCounselorId) VALUES (2, 'Doug', 'Day', NULL, 1);
-INSERT INTO Person (Id, FirstName, LastName, SupervisorId, CareerCounselorId) VALUES (3, 'Kevin', 'Russon', 1, 2);
+INSERT INTO Person (Id, MergedToPersonId, FirstName, LastName, SupervisorId, CareerCounselorId) VALUES (1, 1, 'Hyrum', 'Clyde', NULL, NULL);
+INSERT INTO Person (Id, MergedToPersonId, FirstName, LastName, SupervisorId, CareerCounselorId) VALUES (2, 2, 'Doug', 'Day', NULL, NULL);
+INSERT INTO Person (Id, MergedToPersonId, FirstName, LastName, SupervisorId, CareerCounselorId) VALUES (3, 3, 'Kevin', 'Russon', 1, 2);
+INSERT INTO Person (Id, MergedToPersonId, FirstName, LastName, SupervisorId, CareerCounselorId) VALUES (4, 4, 'Douglas', 'Day', NULL, 1);
 SET IDENTITY_INSERT Person OFF
+
+-- Merge people (Doug == Douglas)
+UPDATE Person
+SET MergedToPersonId = 4
+WHERE Id = 2;
 
 SET IDENTITY_INSERT Company ON
 INSERT INTO Company (Id, Name) VALUES (1, 'Landmark Home Warranty, LLC');
@@ -13,7 +19,7 @@ SET IDENTITY_INSERT PersonCompany ON
 INSERT INTO PersonCompany (Id, PersonId, CompanyId, StartDate, EndDate) VALUES (1, 1, 1, '2016-01-01', NULL);
 INSERT INTO PersonCompany (Id, PersonId, CompanyId, StartDate, EndDate) VALUES (2, 2, 1, '2016-05-16', NULL);
 INSERT INTO PersonCompany (Id, PersonId, CompanyId, StartDate, EndDate) VALUES (3, 3, 1, '2016-10-05', NULL);
-INSERT INTO PersonCompany (Id, PersonId, CompanyId, StartDate, EndDate) VALUES (4, 2, 2, '2011-04-06', '2016-05-13');
+INSERT INTO PersonCompany (Id, PersonId, CompanyId, StartDate, EndDate) VALUES (4, 4, 2, '2011-04-06', '2016-05-13');
 INSERT INTO PersonCompany (Id, PersonId, CompanyId, StartDate, EndDate) VALUES (4, 3, 2, '2011-08-15', '2016-10-02');
 SET IDENTITY_INSERT PersonCompany OFF
 
@@ -29,7 +35,7 @@ SET IDENTITY_INSERT Email OFF
 SET IDENTITY_INSERT PersonEmail ON
 INSERT INTO PersonEmail (Id, EmailId, PersonId) VALUES (1, 1, 1);
 INSERT INTO PersonEmail (Id, EmailId, PersonId) VALUES (2, 2, 2);
-INSERT INTO PersonEmail (Id, EmailId, PersonId) VALUES (3, 3, 2);
+INSERT INTO PersonEmail (Id, EmailId, PersonId) VALUES (3, 3, 4);
 INSERT INTO PersonEmail (Id, EmailId, PersonId) VALUES (4, 4, 3);
 SET IDENTITY_INSERT PersonEmail OFF
 

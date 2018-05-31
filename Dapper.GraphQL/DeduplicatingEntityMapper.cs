@@ -9,15 +9,10 @@ namespace Dapper.GraphQL
     /// <summary>
     /// A wrapper for an entity mapper.
     /// </summary>
-    public class DeduplicatingEntityMapper<TEntityType> :
+    public abstract class DeduplicatingEntityMapper<TEntityType> :
         IEntityMapper<TEntityType>
         where TEntityType : class
     {
-        /// <summary>
-        /// A cache used to hold previous entities that this mapper has seen.
-        /// </summary>
-        protected IDictionary<object, TEntityType> KeyCache { get; set; } = new Dictionary<object, TEntityType>();
-
         /// <summary>
         /// The entity mapper.
         /// </summary>
@@ -34,72 +29,58 @@ namespace Dapper.GraphQL
         public bool ReturnsNullWithDuplicates { get; set; } = true;
 
         /// <summary>
-        /// Resolves the deduplicated entity.
+        /// A cache used to hold previous entities that this mapper has seen.
         /// </summary>
-        /// <param name="entity">The entity to deduplicate.</param>
-        /// <param name="primaryKey">The primary key of the entity.</param>
-        /// <returns>The deduplicated entity.</returns>
-        protected virtual TEntityType Deduplicate(TEntityType entity, object primaryKey)
-        {
-            if (KeyCache.ContainsKey(primaryKey))
-            {
-                return KeyCache[primaryKey];
-            }
-            return entity;
-        }
+        protected IDictionary<object, TEntityType> KeyCache { get; set; } = new Dictionary<object, TEntityType>();
 
         /// <summary>
         /// Maps a row of data to an entity.
         /// </summary>
         /// <param name="context">A context that contains information used to map Dapper objects.</param>
         /// <returns>The mapped entity, or null if the entity has previously been returned.</returns>
-        public virtual TEntityType Map(EntityMapContext context)
+        public abstract TEntityType Map(EntityMapContext context);
+
+        /// <summary>
+        /// Resolves the deduplicated entity.
+        /// </summary>
+        /// <param name="entity">The entity to deduplicate.</param>
+        /// <returns>The deduplicated entity.</returns>
+        protected virtual TEntityType Deduplicate(TEntityType entity)
         {
+            if (entity == default(TEntityType))
+            {
+                return default(TEntityType);
+            }
+
             if (PrimaryKey == null)
             {
                 throw new InvalidOperationException("PrimaryKey selector is not defined, but is required to use DeduplicatingEntityMapper.");
             }
 
-            // Deduplicate the top object (entity) in the list
-            if (context.Items != null &&
-                context.Items.Any())
+            var previous = entity;
+
+            var primaryKey = PrimaryKey(entity);
+            if (primaryKey == null)
             {
-                if (context.Items.First() is TEntityType entity)
-                {
-                    var previous = entity;
-
-                    var primaryKey = PrimaryKey(entity);
-                    if (primaryKey == null)
-                    {
-                        throw new InvalidOperationException("A null primary key was provided, which results in an unpredictable state.");
-                    }
-
-                    // Deduplicate the entity using available information
-                    entity = Deduplicate(entity, primaryKey);
-                    if (!object.ReferenceEquals(previous, entity))
-                    {
-                        context.Items = new[] { entity }.Concat(context.Items.Skip(1));
-                    }
-
-                    // Map the object
-                    var next = Mapper.Map(context);
-                    
-                    // Return null if we are returning a duplicate object.
-                    // Queries can filter out null entries to prevent duplicates.
-                    if (ReturnsNullWithDuplicates && KeyCache.ContainsKey(primaryKey))
-                    {
-                        return null;
-                    }
-
-                    // Cache a reference to the entity
-                    KeyCache[primaryKey] = next;
-
-                    // And, return it
-                    return next;
-                }
+                throw new InvalidOperationException("A null primary key was provided, which results in an unpredictable state.");
             }
 
-            return default(TEntityType);
+            // Deduplicate the entity using available information
+            if (KeyCache.ContainsKey(primaryKey))
+            {
+                if (ReturnsNullWithDuplicates)
+                {
+                    return null;
+                }
+                entity = KeyCache[primaryKey];
+            }
+            else
+            {
+                // Cache a reference to the entity
+                KeyCache[primaryKey] = entity;
+            }
+
+            return entity;
         }
     }
 }

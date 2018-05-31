@@ -10,10 +10,6 @@ namespace Dapper.GraphQL
         private bool IsDisposing = false;
         private object LockObject = new object();
 
-        protected IDictionary<string, Field> CurrentSelectionSet { get; set; }
-        protected IEnumerator<object> ItemEnumerator { get; set; }
-        protected IEnumerator<Type> SplitOnEnumerator { get; set; }
-
         /// <summary>
         /// A list of objects to be mapped.
         /// </summary>
@@ -34,38 +30,36 @@ namespace Dapper.GraphQL
         /// </summary>
         public IEnumerable<Type> SplitOn { get; set; }
 
+        protected IDictionary<string, Field> CurrentSelectionSet { get; set; }
+        protected IEnumerator<object> ItemEnumerator { get; set; }
+        protected IEnumerator<Type> SplitOnEnumerator { get; set; }
+
+        public void Dispose()
+        {
+            lock (LockObject)
+            {
+                if (!IsDisposing)
+                {
+                    IsDisposing = true;
+
+                    if (ItemEnumerator != null &&
+                        SplitOnEnumerator != null)
+                    {
+                        ItemEnumerator.Dispose();
+                        ItemEnumerator = null;
+                        SplitOnEnumerator.Dispose();
+                        SplitOnEnumerator = null;
+                    }
+                }
+            }
+        }
+
         /// <summary>
         /// Returns a map of selected GraphQL fields.
         /// </summary>
         public IDictionary<string, Field> GetSelectedFields()
         {
             return SelectionSet.GetSelectedFields();
-        }
-
-        /// <summary>
-        /// Begins mapping objects from Dapper.
-        /// </summary>
-        /// <typeparam name="TEntityType">The entity type to be mapped.</typeparam>
-        /// <returns>The mapped entity.</returns>
-        public TEntityType Start<TEntityType>()
-            where TEntityType : class
-        {
-            lock (LockObject)
-            {
-                ItemEnumerator = Items.GetEnumerator();
-                SplitOnEnumerator = SplitOn.GetEnumerator();
-                CurrentSelectionSet = SelectionSet.GetSelectedFields();
-                MappedCount = 0;
-
-                if (ItemEnumerator.MoveNext() &&
-                    SplitOnEnumerator.MoveNext())
-                {
-                    var entity = ItemEnumerator.Current as TEntityType;
-                    MappedCount++;
-                    return entity;
-                }
-                return default(TEntityType);
-            }
         }
 
         /// <summary>
@@ -129,10 +123,10 @@ namespace Dapper.GraphQL
 
                             // Update enumerators to skip past items already mapped
                             var mappedCount = nextContext.MappedCount;
-                            MappedCount += nextContext.MappedCount - 1;
+                            MappedCount += nextContext.MappedCount;
                             int i = 0;
                             while (
-                                i < mappedCount - 1 &&
+                                i < mappedCount &&
                                 ItemEnumerator.MoveNext() &&
                                 SplitOnEnumerator.MoveNext())
                             {
@@ -150,24 +144,30 @@ namespace Dapper.GraphQL
             return default(TItemType);
         }
 
-        public void Dispose()
+        /// <summary>
+        /// Begins mapping objects from Dapper.
+        /// </summary>
+        /// <typeparam name="TEntityType">The entity type to be mapped.</typeparam>
+        /// <returns>The mapped entity.</returns>
+        public TEntityType Start<TEntityType>()
+            where TEntityType : class
         {
             lock (LockObject)
             {
-                if (!IsDisposing)
-                {
-                    IsDisposing = true;
+                ItemEnumerator = Items.GetEnumerator();
+                SplitOnEnumerator = SplitOn.GetEnumerator();
+                CurrentSelectionSet = SelectionSet.GetSelectedFields();
+                MappedCount = 0;
 
-                    if (ItemEnumerator != null &&
-                        SplitOnEnumerator != null)
-                    {
-                        ItemEnumerator.Dispose();
-                        ItemEnumerator = null;
-                        SplitOnEnumerator.Dispose();
-                        SplitOnEnumerator = null;
-                    }
+                if (ItemEnumerator.MoveNext() &&
+                    SplitOnEnumerator.MoveNext())
+                {
+                    var entity = ItemEnumerator.Current as TEntityType;
+                    MappedCount++;
+                    return entity;
                 }
+                return default(TEntityType);
             }
         }
-    }    
+    }
 }
