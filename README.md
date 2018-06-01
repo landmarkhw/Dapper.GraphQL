@@ -194,6 +194,19 @@ The test project contains an example of how to handle this scenario.  See [Perso
 
 See the Dapper.GraphQL.Test project for a full set of examples, including how *query builders* and *entity mappers* are designed.
 
+# Development & Testing
+
+To run unit tests, you must have PostgreSQL running locally on your machine.  The easiest way to
+accomplish this is to install Docker and run PostgreSQL from the official Docker container:
+
+From a command line, run a Postgres image from docker as follows:
+
+```
+docker run --name dapper-graphql-test -e POSTGRES_PASSWORD=dapper-graphql -d -p 5432:5432 postgres
+```
+
+Then, unit tests should function as expected.
+
 # Roadmap
 
 * Fluent-style pagination

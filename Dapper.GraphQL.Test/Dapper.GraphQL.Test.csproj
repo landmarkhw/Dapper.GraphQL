@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>netcoreapp1.1</TargetFramework>
+    <TargetFramework>netcoreapp2.0</TargetFramework>
 
     <IsPackable>false</IsPackable>
 
@@ -27,12 +27,12 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="dbup-core" Version="4.0.0-beta0004" />
-    <PackageReference Include="dbup-sqlserver" Version="4.0.0-beta0004" />
-    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="15.5.0" />
-    <PackageReference Include="System.Data.SqlClient" Version="4.4.3" />
+    <PackageReference Include="dbup-core" Version="4.1.0" />
+    <PackageReference Include="dbup-postgresql" Version="4.1.0" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="15.7.2" />
+    <PackageReference Include="Npgsql" Version="4.0.0" />
     <PackageReference Include="xunit" Version="2.3.1" />
-    <PackageReference Include="xunit.analyzers" Version="0.7.0" />
+    <PackageReference Include="xunit.analyzers" Version="0.9.0" />
     <PackageReference Include="xunit.runner.visualstudio" Version="2.3.1" />
     <DotNetCliToolReference Include="dotnet-xunit" Version="2.3.0-rc1-build3809" />
   </ItemGroup>

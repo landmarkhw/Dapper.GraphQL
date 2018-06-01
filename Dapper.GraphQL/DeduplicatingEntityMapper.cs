@@ -7,26 +7,20 @@ using System.Text;
 namespace Dapper.GraphQL
 {
     /// <summary>
-    /// A wrapper for an entity mapper.
+    /// An entity mapper that deduplicates as it maps.
     /// </summary>
+    /// <remarks>
+    /// The first entity found for each PrimaryKey is the object reference that will be returned.  All
+    /// other entities that match the primary key will be ignored.
+    /// </remarks>
     public abstract class DeduplicatingEntityMapper<TEntityType> :
         IEntityMapper<TEntityType>
         where TEntityType : class
     {
         /// <summary>
-        /// The entity mapper.
-        /// </summary>
-        public IEntityMapper<TEntityType> Mapper { get; set; }
-
-        /// <summary>
         /// Sets a function that returns the primary key used to uniquely identify the entity.
         /// </summary>
         public Func<TEntityType, object> PrimaryKey { get; set; }
-
-        /// <summary>
-        /// True if this mapper should return null when duplicates are encountered.
-        /// </summary>
-        public bool ReturnsNullWithDuplicates { get; set; } = true;
 
         /// <summary>
         /// A cache used to hold previous entities that this mapper has seen.
@@ -59,6 +53,7 @@ namespace Dapper.GraphQL
 
             var previous = entity;
 
+            // Get the primary key for this entity
             var primaryKey = PrimaryKey(entity);
             if (primaryKey == null)
             {
@@ -68,10 +63,7 @@ namespace Dapper.GraphQL
             // Deduplicate the entity using available information
             if (KeyCache.ContainsKey(primaryKey))
             {
-                if (ReturnsNullWithDuplicates)
-                {
-                    return null;
-                }
+                // Get the duplicate entity
                 entity = KeyCache[primaryKey];
             }
             else
@@ -79,7 +71,6 @@ namespace Dapper.GraphQL
                 // Cache a reference to the entity
                 KeyCache[primaryKey] = entity;
             }
-
             return entity;
         }
     }

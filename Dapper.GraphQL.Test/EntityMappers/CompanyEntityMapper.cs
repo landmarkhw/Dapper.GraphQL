@@ -7,13 +7,18 @@ using System.Text;
 namespace Dapper.GraphQL.Test.EntityMappers
 {
     public class CompanyEntityMapper :
-        IEntityMapper<Company>
+        DeduplicatingEntityMapper<Company>
     {
-        public Company Map(EntityMapContext context)
+        public CompanyEntityMapper()
+        {
+            PrimaryKey = c => c.Id;
+        }
+
+        public override Company Map(EntityMapContext context)
         {
             // NOTE: Order is very important here.  We must map the objects in
             // the same order they were queried in the QueryBuilder.
-            var company = context.Start<Company>();
+            var company = Deduplicate(context.Start<Company>());
             var email = context.Next<Email>("emails");
             var phone = context.Next<Phone>("phones");
 

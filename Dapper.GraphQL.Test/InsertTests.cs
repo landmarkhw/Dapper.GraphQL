@@ -30,15 +30,9 @@ namespace Dapper.GraphQL.Test
             {
                 personId = SqlBuilder
                     .Insert(person)
-                    .ExecuteWithSqlIdentity<int>(db); // supply the identifier's type yourself
+                    .ExecuteWithPostgreSqlIdentity(db, p => p.Id);
 
                 Assert.True(personId > 0);
-
-                int anotherPersonId = SqlBuilder
-                    .Insert(person)
-                    .ExecuteWithSqlIdentity(db, p => p.Id); // use type and func selector to identifier
-
-                Assert.True(anotherPersonId > 1);
 
                 var email = new Email
                 {
@@ -126,15 +120,9 @@ namespace Dapper.GraphQL.Test
 
                 personId = await SqlBuilder
                     .Insert(person)
-                    .ExecuteWithSqlIdentityAsync<int>(db);
+                    .ExecuteWithPostgreSqlIdentityAsync(db, p => p.Id);
 
                 Assert.True(personId > 0);
-
-                int anotherPersonId = await SqlBuilder
-                    .Insert(person)
-                    .ExecuteWithSqlIdentityAsync<Person, int>(db, p => p.Id);
-
-                Assert.True(anotherPersonId > 1);
 
                 var email = new Email
                 {

@@ -22,7 +22,9 @@ namespace Dapper.GraphQL.Test.GraphQL
                 resolve: context =>
                 {
                     var alias = "person";
-                    var query = SqlBuilder.From<Person>(alias);
+                    var query = SqlBuilder
+                        .From<Person>(alias)
+                        .OrderBy($"{alias}.Id");
                     query = personQueryBuilder.Build(query, context.FieldAst, alias);
 
                     // Create a mapper that understands how to uniquely identify the 'Person' class,
@@ -31,7 +33,9 @@ namespace Dapper.GraphQL.Test.GraphQL
 
                     using (var connection = serviceProvider.GetRequiredService<IDbConnection>())
                     {
-                        var results = query.Execute(connection, context.FieldAst, personMapper);
+                        var results = query
+                            .Execute(connection, context.FieldAst, personMapper)
+                            .Distinct();
                         return results;
                     }
                 }
@@ -43,7 +47,9 @@ namespace Dapper.GraphQL.Test.GraphQL
                 resolve: async context =>
                 {
                     var alias = "person";
-                    var query = SqlBuilder.From($"Person {alias}");
+                    var query = SqlBuilder
+                        .From($"Person {alias}")
+                        .OrderBy($"{alias}.Id");
                     query = personQueryBuilder.Build(query, context.FieldAst, alias);
 
                     // Create a mapper that understands how to uniquely identify the 'Person' class,
@@ -55,7 +61,7 @@ namespace Dapper.GraphQL.Test.GraphQL
                         connection.Open();
 
                         var results = await query.ExecuteAsync(connection, context.FieldAst, personMapper);
-                        return results;
+                        return results.Distinct();
                     }
                 }
             );
@@ -83,7 +89,8 @@ namespace Dapper.GraphQL.Test.GraphQL
                     using (var connection = serviceProvider.GetRequiredService<IDbConnection>())
                     {
                         var results = query
-                            .Execute(connection, context.FieldAst, personMapper);
+                            .Execute(connection, context.FieldAst, personMapper)
+                            .Distinct();
                         return results.FirstOrDefault();
                     }
                 }

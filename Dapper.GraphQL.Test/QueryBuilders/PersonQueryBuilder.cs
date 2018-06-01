@@ -9,13 +9,16 @@ namespace Dapper.GraphQL.Test.QueryBuilders
     public class PersonQueryBuilder :
         IQueryBuilder<Person>
     {
+        private readonly IQueryBuilder<Company> companyQueryBuilder;
         private readonly IQueryBuilder<Email> emailQueryBuilder;
         private readonly IQueryBuilder<Phone> phoneQueryBuilder;
 
         public PersonQueryBuilder(
+            IQueryBuilder<Company> companyQueryBuilder,
             IQueryBuilder<Email> emailQueryBuilder,
             IQueryBuilder<Phone> phoneQueryBuilder)
         {
+            this.companyQueryBuilder = companyQueryBuilder;
             this.emailQueryBuilder = emailQueryBuilder;
             this.phoneQueryBuilder = phoneQueryBuilder;
         }
@@ -26,7 +29,7 @@ namespace Dapper.GraphQL.Test.QueryBuilders
 
             // Deduplicate
             query.LeftJoin($"Person {mergedPersonAlias} ON {alias}.MergedToPersonId = {mergedPersonAlias}.MergedToPersonId");
-            query.Select($"{mergedPersonAlias}.Id");
+            query.Select($"{alias}.Id", $"{alias}.MergedToPersonId");
             query.SplitOn<Person>("Id");
 
             var fields = context.GetSelectedFields();
@@ -41,12 +44,12 @@ namespace Dapper.GraphQL.Test.QueryBuilders
             }
             if (fields.ContainsKey("companies"))
             {
-                var personCompanies = $"{alias}PersonCompany";
+                var personCompanyAlias = $"{alias}PersonCompany";
                 var companyAlias = $"{alias}Company";
                 query
-                    .LeftJoin($"PersonCompany {personCompanies} ON {alias}.Id = {personCompanies}.PersonId")
-                    .LeftJoin($"Company {companyAlias} ON {personCompanies}.CompanyId = {companyAlias}.Id");
-                query = emailQueryBuilder.Build(query, fields["companies"], companyAlias);
+                    .LeftJoin($"PersonCompany {personCompanyAlias} ON {alias}.Id = {personCompanyAlias}.PersonId")
+                    .LeftJoin($"Company {companyAlias} ON {personCompanyAlias}.CompanyId = {companyAlias}.Id");
+                query = companyQueryBuilder.Build(query, fields["companies"], companyAlias);
             }
             if (fields.ContainsKey("emails"))
             {

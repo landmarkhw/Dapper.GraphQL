@@ -9,9 +9,11 @@ using GraphQL.Http;
 using GraphQL.Language.AST;
 using Microsoft.Extensions.DependencyInjection;
 using Newtonsoft.Json.Linq;
+using Npgsql;
 using System;
 using System.Data;
 using System.Data.SqlClient;
+using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
@@ -47,7 +49,7 @@ namespace Dapper.GraphQL.Test
         {
             return dbConnection.BeginTransaction(il);
         }
-        
+
         public void ChangeDatabase(string databaseName)
         {
             dbConnection.ChangeDatabase(databaseName);
@@ -67,11 +69,11 @@ namespace Dapper.GraphQL.Test
         {
             if (!isDisposed)
             {
+                dbConnection.Dispose();
+
                 isDisposed = true;
                 onDispose();
             }
-
-            dbConnection.Dispose();
         }
 
         public void Open()
@@ -85,7 +87,7 @@ namespace Dapper.GraphQL.Test
         #region Statics
 
         private static string chars = "abcdefghijklmnopqrstuvwxyz0123456789";
-        private static Random random = new Random();
+        private static Random random = new Random((int)(DateTime.Now.Ticks << 32));
 
         #endregion Statics
 
@@ -123,26 +125,52 @@ namespace Dapper.GraphQL.Test
             // Generate a random db name
             var dbName = "test-" + new string(chars.OrderBy(c => random.Next()).ToArray());
 
-            var connectionString = $"Server=(localdb)\\mssqllocaldb;Integrated Security=true;MultipleActiveResultSets=true;Database={dbName}";
+            var connectionString = $"Server=localhost;Port=5432;Database={dbName};User Id=postgres;Password=dapper-graphql;";
 
             // Ensure the database exists
-            EnsureDatabase.For.SqlDatabase(connectionString);
+            EnsureDatabase.For.PostgresqlDatabase(connectionString);
 
             var upgrader = DeployChanges.To
-                .SqlDatabase(connectionString)
+                .PostgresqlDatabase(connectionString)
                 .WithScriptsEmbeddedInAssembly(typeof(Person).GetTypeInfo().Assembly)
                 .LogToConsole()
                 .Build();
 
             var upgradeResult = upgrader.PerformUpgrade();
-
-            var sqlConnection = new SqlConnection(connectionString);
-            var autoDroppingConnection = new DbConnectionWrapper(sqlConnection, () =>
+            if (!upgradeResult.Successful)
             {
-                // Drop the database when we're done with it
-                DropDatabase.For.SqlDatabase(connectionString);
+                throw new InvalidOperationException("The database upgrade did not succeed for unit testing.", upgradeResult.Error);
+            }
+
+            var sqlConnection = new NpgsqlConnection(connectionString);
+            var autoClosingConnection = new DbConnectionWrapper(sqlConnection, () =>
+            {
+                // Connect to a different database, so we can drop the one we were working with
+                var dropConnectionString = connectionString.Replace(dbName, "template1");
+                using (var connection = new NpgsqlConnection(dropConnectionString))
+                {
+                    connection.Open();
+                    var command = connection.CreateCommand();
+
+                    // NOTE: I'm not sure why there are active connections to the database at
+                    // this point, as we're the only ones using this database, and the connection
+                    // is closed at this point.  In any case, we need to take an extra step of
+                    // dropping all connections to the database before dropping it.
+                    //
+                    // See http://www.leeladharan.com/drop-a-postgresql-database-if-there-are-active-connections-to-it
+                    command.CommandText = $@"
+SELECT pg_terminate_backend(pg_stat_activity.pid)
+FROM pg_stat_activity
+WHERE pg_stat_activity.datname = '{dbName}' AND pid <> pg_backend_pid();
+
+DROP DATABASE ""{dbName}"";";
+                    command.CommandType = CommandType.Text;
+
+                    // Drop the database
+                    command.ExecuteNonQuery();
+                }
             });
-            return autoDroppingConnection;
+            return autoClosingConnection;
         }
 
         public bool JsonEquals(string expectedJson, string actualJson)

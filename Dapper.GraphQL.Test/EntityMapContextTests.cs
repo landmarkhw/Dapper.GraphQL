@@ -21,14 +21,16 @@ namespace Dapper.GraphQL.Test
             var person1 = new Person
             {
                 FirstName = "Doug",
-                Id = 4,
+                Id = 2,
                 LastName = "Day",
+                MergedToPersonId = 2,
             };
             var person2 = new Person
             {
                 FirstName = "Douglas",
-                Id = 4,
+                Id = 2,
                 LastName = "Day",
+                MergedToPersonId = 2,
             };
 
             var email1 = new Email
@@ -113,14 +115,11 @@ namespace Dapper.GraphQL.Test
             person2 = personEntityMapper.Map(context2);
             Assert.Equal(3, context2.MappedCount);
 
-            // Different objects found
-            Assert.False(person1 == person2);
+            // The same reference should have been returned
+            Assert.Same(person1, person2);
 
-            Assert.Equal(3, person2.Id);
-            Assert.Equal("Douglas", person2.FirstName);
-
-            // 2nd email added to person
-            Assert.Equal(2, person2.Emails.Count);
+            // A 2nd email was added to person
+            Assert.Equal(2, person1.Emails.Count);
         }
     }
 }

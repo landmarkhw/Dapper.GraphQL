@@ -126,7 +126,9 @@ namespace Dapper.GraphQL
                             MappedCount += nextContext.MappedCount;
                             int i = 0;
                             while (
-                                i < mappedCount &&
+                                // Less 1, the next time we iterate we
+                                // will advance by 1 as part of the iteration.
+                                i < mappedCount - 1 &&
                                 ItemEnumerator.MoveNext() &&
                                 SplitOnEnumerator.MoveNext())
                             {

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Data;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -21,6 +22,37 @@ namespace Dapper.GraphQL
             return dbConnection
                 .Query<TIdentityType>(sb.ToString(), context.Parameters)
                 .Single();
+        }
+
+        public static TIdentityType ExecuteWithPostgreSqlIdentity<TEntityType, TIdentityType>(this SqlInsertContext<TEntityType> context, IDbConnection dbConnection, Expression<Func<TEntityType, TIdentityType>> identityNameSelector)
+            where TEntityType : class
+        {
+            if (identityNameSelector.Body.NodeType != ExpressionType.MemberAccess)
+            {
+                throw new NotSupportedException("Cannot execute a PostgreSQL identity with an expression of type " + identityNameSelector.Body.NodeType);
+            }
+            var memberExpression = identityNameSelector.Body as MemberExpression;
+
+            var sb = BuildPostgreSqlIdentityQuery(context, memberExpression.Member.Name);
+
+            return dbConnection
+                .Query<TIdentityType>(sb.ToString(), context.Parameters)
+                .Single();
+        }
+
+        public static async Task<TIdentityType> ExecuteWithPostgreSqlIdentityAsync<TEntityType, TIdentityType>(this SqlInsertContext<TEntityType> context, IDbConnection dbConnection, Expression<Func<TEntityType, TIdentityType>> identityNameSelector)
+            where TEntityType : class
+        {
+            if (identityNameSelector.Body.NodeType != ExpressionType.MemberAccess)
+            {
+                throw new NotSupportedException("Cannot execute a PostgreSQL identity with an expression of type " + identityNameSelector.Body.NodeType);
+            }
+            var memberExpression = identityNameSelector.Body as MemberExpression;
+
+            var sb = BuildPostgreSqlIdentityQuery(context, memberExpression.Member.Name);
+
+            var result = await dbConnection.QueryAsync<TIdentityType>(sb.ToString(), context.Parameters);
+            return result.Single();
         }
 
         public static async Task<TIdentityType> ExecuteWithSqlIdentityAsync<TEntityType, TIdentityType>(this SqlInsertContext context, IDbConnection dbConnection, Func<TEntityType, TIdentityType> identityTypeSelector)
@@ -54,6 +86,13 @@ namespace Dapper.GraphQL
             }
             else throw new InvalidCastException($"Type {typeof(TIdentityType).Name} in not supported this SQL context.");
 
+            return sb;
+        }
+
+        private static StringBuilder BuildPostgreSqlIdentityQuery(SqlInsertContext context, string idName)
+        {
+            var sb = new StringBuilder();
+            sb.AppendLine($"SELECT currval(pg_get_serial_sequence('{context.Table}', '{idName}'));");
             return sb;
         }
 

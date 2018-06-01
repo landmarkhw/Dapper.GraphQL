@@ -12,11 +12,10 @@ namespace Dapper.GraphQL.Test.EntityMappers
 
         public PersonEntityMapper()
         {
-            Mapper = new EntityMapper<Person>();
-            PrimaryKey = p => p.Id;
-            ReturnsNullWithDuplicates = true;
+            // Deduplicate entities using MergedToPersonId instead of Id.
+            PrimaryKey = p => p.MergedToPersonId;
         }
-
+        
         public override Person Map(EntityMapContext context)
         {
             // Avoid creating the mappers until they're used
@@ -27,10 +26,7 @@ namespace Dapper.GraphQL.Test.EntityMappers
             }
             if (personEntityMapper == null)
             {
-                personEntityMapper = new PersonEntityMapper
-                {
-                    ReturnsNullWithDuplicates = false
-                };
+                personEntityMapper = new PersonEntityMapper();
             }
 
             // NOTE: Order is very important here.  We must map the objects in
@@ -46,6 +42,13 @@ namespace Dapper.GraphQL.Test.EntityMappers
 
             if (person != null)
             {
+                if (company != null &&
+                    // Eliminate duplicates
+                    !person.Companies.Any(c => c.Id == company.Id))
+                {
+                    person.Companies.Add(company);
+                }
+
                 if (email != null &&
                     // Eliminate duplicates
                     !person.Emails.Any(e => e.Address == email.Address))
