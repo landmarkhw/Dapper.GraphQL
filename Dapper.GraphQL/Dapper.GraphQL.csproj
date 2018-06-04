@@ -12,12 +12,13 @@
     <RepositoryUrl>https://github.com/landmarkhw/Dapper.GraphQL.git</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
     <PackageTags>Dapper Dapper.SqlBuilder GraphQL graphql-dotnet core coreclr .NET</PackageTags>
-    <PackageReleaseNotes>Added support for inline fragments, with the following methods:
+    <PackageReleaseNotes>Added more complex examples:
 
-IHaveSelectionSet.GetInlineFragment()
-EntityMapContext.NextFragment()</PackageReleaseNotes>
+- Entity deduplication at the database level (see MergedToPersonId in Person.cs and PersonQueryBuilder.cs).
+- Association tables that are not models, nor take part of the entity mapping process (see PersonQueryBuilder.cs).
+- Note that entity mapping has recently improved significantly (see PersonEntityMapper.cs).</PackageReleaseNotes>
     <AssemblyVersion>0.3.10.0</AssemblyVersion>
-    <FileVersion>0.3.9.0</FileVersion>
+    <FileVersion>0.3.10.0</FileVersion>
   </PropertyGroup>
 
   <ItemGroup>
