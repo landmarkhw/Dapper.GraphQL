@@ -30,7 +30,7 @@ namespace Dapper.GraphQL.Test
         [Fact(DisplayName = "SELECT without matching alias should throw")]
         public void SelectWithoutMatchingAliasShouldThrow()
         {
-            Assert.Throws<SqlException>(() =>
+            Assert.Throws<Npgsql.PostgresException>(() =>
             {
                 var query = SqlBuilder
                     .From("Person person")

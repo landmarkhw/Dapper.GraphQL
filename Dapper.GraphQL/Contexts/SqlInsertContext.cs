@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace Dapper.GraphQL
 {
-    public class SqlInsertContext<TEntityType> : 
+    public class SqlInsertContext<TEntityType> :
         SqlInsertContext
         where TEntityType : class
     {
@@ -16,7 +16,6 @@ namespace Dapper.GraphQL
         public SqlInsertContext(string table, TEntityType obj)
             : base(table, obj)
         {
-
         }
 
         /// <summary>

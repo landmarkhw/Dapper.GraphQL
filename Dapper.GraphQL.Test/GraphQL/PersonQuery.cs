@@ -78,7 +78,11 @@ namespace Dapper.GraphQL.Test.GraphQL
                     var alias = "person";
                     var query = SqlBuilder
                         .From($"Person {alias}")
-                        .Where($"{alias}.Id = @id", new { id });
+                        .Where($"{alias}.Id = @id", new { id })
+                        // Even though we're only getting a single person, the process of deduplication
+                        // may return several entities, so we sort by ID here for consistency
+                        // with test results.
+                        .OrderBy($"{alias}.Id");
 
                     query = personQueryBuilder.Build(query, context.FieldAst, alias);
 

@@ -144,12 +144,12 @@ query {
                     }
                 ],
                 ""companies"": [{
-                        ""id"": 1,
-                        ""name"": ""Landmark Home Warranty, LLC""
-                    },
-                    {
                         ""id"": 2,
                         ""name"": ""Navitaire, LLC""
+                    },
+                    {
+                        ""id"": 1,
+                        ""name"": ""Landmark Home Warranty, LLC""
                     }
                 ],
                 ""supervisor"": {
@@ -164,12 +164,17 @@ query {
                 },
                 ""careerCounselor"": {
                     ""id"": 2,
-                    ""firstName"": ""Douglas"",
+                    ""firstName"": ""Doug"",
                     ""lastName"": ""Day"",
                     ""emails"": [{
-                        ""id"": 2,
-                        ""address"": ""dday@landmarkhw.com""
-                    }],
+                            ""id"": 2,
+                            ""address"": ""dday@landmarkhw.com""
+                        },
+                        {
+                            ""id"": 3,
+                            ""address"": ""dougrday@gmail.com""
+                        }
+                    ],
                     ""phones"": [{
                         ""id"": 1,
                         ""number"": ""8011234567"",
@@ -222,9 +227,8 @@ query {
             Assert.True(fixture.JsonEquals(expectedJson, json));
         }
 
-
-        [Fact(DisplayName = "Full person query should succeed")]
-        public async Task FullPersonQuery()
+        [Fact(DisplayName = "Person query should succeed")]
+        public async Task PersonQuery()
         {
             var json = await fixture.QueryGraphQLAsync(@"
 query {
@@ -321,7 +325,7 @@ query {
     data: {
         person: {
             id: 2,
-            firstName: 'Doug',
+            firstName: 'Douglas',
             lastName: 'Day'
         }
     }
