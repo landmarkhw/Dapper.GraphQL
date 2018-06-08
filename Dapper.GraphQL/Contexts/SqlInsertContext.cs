@@ -59,13 +59,14 @@ namespace Dapper.GraphQL
         /// Executes the INSERT statements with Dapper, using the provided database connection.
         /// </summary>
         /// <param name="connection">The database connection.</param>
-        public int Execute(IDbConnection connection)
+        /// <param name="transaction">The transaction to execute under (optional).</param>
+        public int Execute(IDbConnection connection, IDbTransaction transaction = null)
         {
-            int result = connection.Execute(BuildSql(), Parameters);
+            int result = connection.Execute(BuildSql(), Parameters, transaction);
             if (Inserts != null)
             {
                 // Execute each insert and aggregate the results
-                result = Inserts.Aggregate(result, (current, insert) => current + insert.Execute(connection));
+                result = Inserts.Aggregate(result, (current, insert) => current + insert.Execute(connection, transaction));
             }
             return result;
         }
@@ -74,13 +75,14 @@ namespace Dapper.GraphQL
         /// Executes the INSERT statements with Dapper asynchronously, using the provided database connection.
         /// </summary>
         /// <param name="connection">The database connection.</param>
-        public async Task<int> ExecuteAsync(IDbConnection connection)
+        /// <param name="transaction">The transaction to execute under (optional).</param>
+        public async Task<int> ExecuteAsync(IDbConnection connection, IDbTransaction transaction = null)
         {
-            int result = await connection.ExecuteAsync(BuildSql(), Parameters);
+            int result = await connection.ExecuteAsync(BuildSql(), Parameters, transaction);
             if (Inserts != null)
             {
                 // Execute each insert and aggregate the results
-                result = await Inserts.AggregateAsync(result, async (current, insert) => current + await insert.ExecuteAsync(connection));
+                result = await Inserts.AggregateAsync(result, async (current, insert) => current + await insert.ExecuteAsync(connection, transaction));
             }
             return result;
         }
