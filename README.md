@@ -57,10 +57,9 @@ SELECT
   person.Id, person.firstName, person.lastName,
   email.id, email.address,
   phone.id, phone.number, phone.type  
-FROM 
-  Person person LEFT OUTER JOIN
-  Email email ON person.Id = email.PersonId LEFT OUTER JOIN
-  Phone phone ON person.Id = phone.PersonId
+FROM Person person 
+LEFT OUTER JOIN Email email ON person.Id = email.PersonId 
+LEFT OUTER JOIN Phone phone ON person.Id = phone.PersonId
 ```
 
 ## Entity Mappers
@@ -80,6 +79,7 @@ If you're developing in ASP.NET Core, you can add this to the ConfigureServices(
 serviceCollection.AddDapperGraphQL(options =>
 {
     // Add GraphQL types
+    options.AddType<CompanyType>();
     options.AddType<EmailType>();
     options.AddType<PersonType>();
     options.AddType<GraphQL.PhoneType>();
@@ -89,6 +89,7 @@ serviceCollection.AddDapperGraphQL(options =>
     options.AddSchema<PersonSchema>();
 
     // Add query builders for dapper
+    options.AddQueryBuilder<Company, CompanyQueryBuilder>();
     options.AddQueryBuilder<Email, EmailQueryBuilder>();
     options.AddQueryBuilder<Person, PersonQueryBuilder>();
     options.AddQueryBuilder<Phone, PhoneQueryBuilder>();
@@ -112,16 +113,15 @@ public class EmailQueryBuilder :
 {
     public SqlQueryContext Build(SqlQueryContext query, IHaveSelectionSet context, string alias)
     {
+        // Always get the ID of the email
         query.Select($"{alias}.Id");
+        // Tell Dapper where the Email class begins (at the Id we just selected)
         query.SplitOn<Email>("Id");
 
         var fields = context.GetSelectedFields();
-        foreach (var kvp in fields)
+        if (fields.ContainsKey("address"))
         {
-            switch (kvp.Key)
-            {
-                case "address": query.Select($"{alias}.Address"); break;
-            }
+            query.Select($"{alias}.Address");
         }
 
         return query;
@@ -165,13 +165,8 @@ Field<ListGraphType<PersonType>>(
         // Build the query, using the GraphQL query and SQL table alias.
         query = personQueryBuilder.Build(query, context.FieldAst, alias);
 
-        // Create a mapper that understands how to uniquely identify the 'Person' class,
-        // and will deduplicate people as they pass through it
-        var personMapper = new DeduplicatingEntityMapper<Person>
-        {
-            Mapper = new PersonEntityMapper(),
-            PrimaryKey = person => person.Id,
-        };
+        // Create a mapper that understands how to map the 'Person' class.
+        var personMapper = new PersonEntityMapper();
 
         // Open a connection to the database
         using (var connection = serviceProvider.GetRequiredService<IDbConnection>())
