@@ -99,11 +99,13 @@ FROM {from}/**innerjoin**//**leftjoin**//**rightjoin**//**join**/
         /// <param name="connection">The database connection.</param>
         /// <param name="mapper">The entity mapper.</param>
         /// <param name="selectionSet">The GraphQL selection set (optional).</param>
+        /// <param name="transaction">The transaction to execute under (optional).</param>
         /// <returns>A list of entities returned by the query.</returns>
         public IEnumerable<TEntityType> Execute<TEntityType>(
             IDbConnection connection,
             IHaveSelectionSet selectionSet,
-            IEntityMapper<TEntityType> mapper = null)
+            IEntityMapper<TEntityType> mapper = null,
+            IDbTransaction transaction = null)
             where TEntityType : class
         {
             if (mapper == null)
@@ -131,7 +133,8 @@ FROM {from}/**innerjoin**//**leftjoin**//**rightjoin**//**join**/
                 types: this._types.ToArray(),
                 param: this.Parameters,
                 map: fn,
-                splitOn: string.Join(",", this._splitOn)
+                splitOn: string.Join(",", this._splitOn),
+                transaction: transaction
             );
             return results.Where(e => e != null);
         }
@@ -162,11 +165,13 @@ FROM {from}/**innerjoin**//**leftjoin**//**rightjoin**//**join**/
         /// <param name="connection">The database connection.</param>
         /// <param name="mapper">The entity mapper.</param>
         /// <param name="selectionSet">The GraphQL selection set (optional).</param>
+        /// <param name="transaction">The transaction to execute under (optional).</param>
         /// <returns>A list of entities returned by the query.</returns>
         public async Task<IEnumerable<TEntityType>> ExecuteAsync<TEntityType>(
             IDbConnection connection, 
             IHaveSelectionSet selectionSet,
-            IEntityMapper<TEntityType> mapper = null)
+            IEntityMapper<TEntityType> mapper = null,
+            IDbTransaction transaction = null)
             where TEntityType : class
         {
             if (mapper == null)
@@ -194,7 +199,8 @@ FROM {from}/**innerjoin**//**leftjoin**//**rightjoin**//**join**/
                 types: this._types.ToArray(),
                 param: this.Parameters,
                 map: fn,
-                splitOn: string.Join(",", this._splitOn)
+                splitOn: string.Join(",", this._splitOn),
+                transaction: transaction
             );
             return results.Where(e => e != null);
         }
