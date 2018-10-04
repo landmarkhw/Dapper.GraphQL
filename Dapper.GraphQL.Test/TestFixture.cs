@@ -66,7 +66,7 @@ namespace Dapper.GraphQL.Test
             if (!IsDisposing)
             {
                 IsDisposing = true;
-                //TeardownDatabase();
+                TeardownDatabase();
             }
         }
 
