@@ -1,5 +1,8 @@
 using System.Threading.Tasks;
 using Xunit;
+using Dapper.GraphQL.Test.GraphQL;
+using Newtonsoft.Json.Linq;
+using Dapper.GraphQL.Test.Models;
 
 namespace Dapper.GraphQL.Test
 {
@@ -330,6 +333,36 @@ query {
         }
     }
 }";
+
+            Assert.True(fixture.JsonEquals(expectedJson, json));
+        }
+
+        [Fact(DisplayName = "Simple person insert should succeed")]
+        public async Task SimplePersonInsert()
+        {
+            GraphQlQuery graphQuery = new GraphQlQuery();
+            graphQuery.OperationName = "addPerson";
+            graphQuery.Variables = JObject.Parse(@"{""person"":{""firstName"":""Joe"",""lastName"":""Doe""}}");
+
+            graphQuery.Query = @"
+mutation ($person: PersonInput!) {
+  addPerson(person: $person) {
+    firstName
+    lastName
+  }
+}";
+
+            var json = await fixture.QueryGraphQLAsync(graphQuery);
+
+            var expectedJson = @"
+            {
+                data: {
+                    addPerson: {
+                        firstName: 'Joe',
+                        lastName: 'Doe'
+                    }
+                }
+            }";
 
             Assert.True(fixture.JsonEquals(expectedJson, json));
         }

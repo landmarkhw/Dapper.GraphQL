@@ -10,6 +10,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Newtonsoft.Json.Linq;
 using Npgsql;
 using System;
+using System.Collections.Generic;
 using System.Data;
 using System.Linq;
 using System.Reflection;
@@ -65,7 +66,7 @@ namespace Dapper.GraphQL.Test
             if (!IsDisposing)
             {
                 IsDisposing = true;
-                TeardownDatabase();
+                //TeardownDatabase();
             }
         }
 
@@ -89,6 +90,21 @@ namespace Dapper.GraphQL.Test
                 {
                     options.Schema = Schema;
                     options.Query = query;
+                })
+                .ConfigureAwait(false);
+
+            var json = new DocumentWriter(indent: true).Write(result);
+            return json;
+        }
+
+        public async Task<string> QueryGraphQLAsync(GraphQlQuery query)
+        {
+            var result = await DocumentExecuter
+                .ExecuteAsync(options =>
+                {
+                    options.Schema = Schema;
+                    options.Query = query.Query;
+                    options.Inputs = query.Variables != null ? new Inputs(StringExtensions.GetValue(query.Variables) as Dictionary<string, object>) : null;
                 })
                 .ConfigureAwait(false);
 
@@ -156,6 +172,8 @@ DROP DATABASE ""{DatabaseName}"";";
                 options.AddType<PersonType>();
                 options.AddType<GraphQL.PhoneType>();
                 options.AddType<PersonQuery>();
+                options.AddType<PersonMutation>();
+                options.AddType<PersonInputType>();
 
                 // Add the GraphQL schema
                 options.AddSchema<PersonSchema>();
