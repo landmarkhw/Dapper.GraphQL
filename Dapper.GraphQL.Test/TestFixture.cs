@@ -164,6 +164,8 @@ DROP DATABASE ""{DatabaseName}"";";
 
         private void SetupDapperGraphQL(IServiceCollection serviceCollection)
         {
+            serviceCollection.AddSingleton<IDependencyResolver>(s => new FuncDependencyResolver(s.GetRequiredService));
+
             serviceCollection.AddDapperGraphQL(options =>
             {
                 // Add GraphQL types
