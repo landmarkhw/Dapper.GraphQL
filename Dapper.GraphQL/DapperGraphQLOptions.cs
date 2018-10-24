@@ -1,4 +1,7 @@
-﻿using GraphQL.Types;
+﻿using System;
+using System.Reflection;
+using GraphQL;
+using GraphQL.Types;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Dapper.GraphQL
@@ -28,6 +31,18 @@ namespace Dapper.GraphQL
             return this;
         }
 
+        public DapperGraphQLOptions AddQueryBuilder(Type modelType, Type queryBuilderType)
+        {
+            var queryBuilderInterface = typeof(IQueryBuilder<>).MakeGenericType(modelType);
+            if (!queryBuilderType.IsConcrete() || !queryBuilderInterface.IsAssignableFrom(queryBuilderType))
+            {
+                throw new ArgumentException($"QueryBuilder type must be concrete and implement IQueryBuilder<{modelType.Name}>.");
+            }
+
+            serviceCollection.Add(new ServiceDescriptor(queryBuilderInterface, queryBuilderType, ServiceLifetime.Singleton));
+            return this;
+        }
+
         /// <summary>
         /// Adds a GraphQL schema to the container.
         /// </summary>
@@ -39,6 +54,17 @@ namespace Dapper.GraphQL
             return this;
         }
 
+        public DapperGraphQLOptions AddSchema(Type graphSchemaType)
+        {
+            if (!graphSchemaType.IsConcrete() || !typeof(ISchema).IsAssignableFrom(graphSchemaType))
+            {
+                throw new ArgumentException("Type must be concrete and implement ISchema.");
+            }
+
+            serviceCollection.Add(new ServiceDescriptor(graphSchemaType, graphSchemaType, ServiceLifetime.Singleton));
+            return this;
+        }
+
         /// <summary>
         /// Adds a GraphQL type to the container.
         /// </summary>
@@ -47,6 +73,17 @@ namespace Dapper.GraphQL
         public DapperGraphQLOptions AddType<TGraphType>() where TGraphType : class, IGraphType
         {
             serviceCollection.AddSingleton<TGraphType>();
+            return this;
+        }
+
+        public DapperGraphQLOptions AddType(Type type)
+        {
+            if (!type.IsConcrete() || !typeof(IGraphType).IsAssignableFrom(type))
+            {
+                throw new ArgumentException("Type must be concrete and implement IGraphType.");
+            }
+
+            serviceCollection.Add(new ServiceDescriptor(type, type, ServiceLifetime.Singleton));
             return this;
         }
     }
