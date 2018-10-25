@@ -9,7 +9,7 @@
 
     <FileVersion>0.3.10.0</FileVersion>
 
-    <Version>0.3.10-beta</Version>
+    <Version>0.4.0-beta</Version>
   </PropertyGroup>
 
   <ItemGroup>
