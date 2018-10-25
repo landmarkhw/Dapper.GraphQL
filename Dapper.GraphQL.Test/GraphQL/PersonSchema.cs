@@ -1,24 +1,14 @@
-﻿using Dapper.GraphQL.Test.EntityMappers;
-using Dapper.GraphQL.Test.Models;
-using Dapper.GraphQL.Test.QueryBuilders;
-using GraphQL.Types;
-using Microsoft.Extensions.DependencyInjection;
-using System;
-using System.Collections.Generic;
-using System.Text;
+﻿using GraphQL;
 
 namespace Dapper.GraphQL.Test.GraphQL
 {
     public class PersonSchema :
         global::GraphQL.Types.Schema
     {
-        public PersonSchema(
-            IServiceProvider serviceProvider,
-            PersonQuery personQuery)
+        public PersonSchema(IDependencyResolver resolver) : base(resolver)
         {
-            //Mutation = mutation;
-            ResolveType = type => serviceProvider.GetRequiredService(type) as GraphType;
-            Query = personQuery;
+            Query = resolver.Resolve<PersonQuery>();
+            Mutation = resolver.Resolve<PersonMutation>();
         }
     }
 }
