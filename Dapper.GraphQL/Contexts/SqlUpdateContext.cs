@@ -78,9 +78,13 @@ namespace Dapper.GraphQL
         /// </summary>
         /// <param name="connection">The database connection.</param>
         /// <param name="transaction">The transaction to execute under (optional).</param>
-        public int Execute(IDbConnection connection, IDbTransaction transaction = null)
+        public int Execute(IDbConnection connection, IDbTransaction transaction = null, SqlOptions options = null)
         {
-            var result = connection.Execute(BuildSql(), Parameters, transaction);
+            if (options == null) {
+                options = SqlOptions.DefaultOptions;
+            }
+
+            var result = connection.Execute(BuildSql(), Parameters, transaction, options.CommandTimeout, options.CommandType);
             return result;
         }
 
@@ -89,9 +93,13 @@ namespace Dapper.GraphQL
         /// </summary>
         /// <param name="connection">The database connection.</param>
         /// <param name="transaction">The transaction to execute under (optional).</param>
-        public async Task<int> ExecuteAsync(IDbConnection connection, IDbTransaction transaction = null)
+        public async Task<int> ExecuteAsync(IDbConnection connection, IDbTransaction transaction = null, SqlOptions options = null)
         {
-            var result = await connection.ExecuteAsync(BuildSql(), Parameters, transaction);
+            if (options == null) {
+                options = SqlOptions.DefaultOptions;
+            }
+
+            var result = await connection.ExecuteAsync(BuildSql(), Parameters, transaction, options.CommandTimeout, options.CommandType);
             return result;
         }
 

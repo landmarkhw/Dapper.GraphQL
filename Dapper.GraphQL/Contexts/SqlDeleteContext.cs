@@ -52,13 +52,17 @@ namespace Dapper.GraphQL
         /// </summary>
         /// <param name="connection">The database connection.</param>
         /// <param name="transaction">The transaction to execute under (optional).</param>
-        public int Execute(IDbConnection connection, IDbTransaction transaction = null)
+        public int Execute(IDbConnection connection, IDbTransaction transaction = null, SqlOptions options = null)
         {
-            int result = connection.Execute(BuildSql(), Parameters, transaction);
+            if (options == null) {
+                options = SqlOptions.DefaultOptions;
+            }
+
+            int result = connection.Execute(BuildSql(), Parameters, transaction, options.CommandTimeout, options.CommandType);
             if (Deletes != null)
             {
                 // Execute each delete and aggregate the results
-                result = Deletes.Aggregate(result, (current, delete) => current + delete.Execute(connection, transaction));
+                result = Deletes.Aggregate(result, (current, delete) => current + delete.Execute(connection, transaction, options));
             }
             return result;
         }
@@ -68,13 +72,17 @@ namespace Dapper.GraphQL
         /// </summary>
         /// <param name="connection">The database connection.</param>
         /// <param name="transaction">The transaction to execute under (optional).</param>
-        public async Task<int> ExecuteAsync(IDbConnection connection, IDbTransaction transaction = null)
+        public async Task<int> ExecuteAsync(IDbConnection connection, IDbTransaction transaction = null, SqlOptions options = null)
         {
-            int result = await connection.ExecuteAsync(BuildSql(), Parameters, transaction);
+            if (options == null) {
+                options = SqlOptions.DefaultOptions;
+            }
+
+            int result = await connection.ExecuteAsync(BuildSql(), Parameters, transaction, options.CommandTimeout, options.CommandType);
             if (Deletes != null)
             {
                 // Execute each delete and aggregate the results
-                result = await Deletes.AggregateAsync(result, async (current, delete) => current + await delete.ExecuteAsync(connection, transaction));
+                result = await Deletes.AggregateAsync(result, async (current, delete) => current + await delete.ExecuteAsync(connection, transaction, options));
             }
             return result;
         }

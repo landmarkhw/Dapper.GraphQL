@@ -60,13 +60,17 @@ namespace Dapper.GraphQL
         /// </summary>
         /// <param name="connection">The database connection.</param>
         /// <param name="transaction">The transaction to execute under (optional).</param>
-        public int Execute(IDbConnection connection, IDbTransaction transaction = null)
+        public int Execute(IDbConnection connection, IDbTransaction transaction = null, SqlOptions options = null)
         {
-            int result = connection.Execute(BuildSql(), Parameters, transaction);
+            if (options == null) {
+                options = SqlOptions.DefaultOptions;
+            }
+
+            int result = connection.Execute(BuildSql(), Parameters, transaction, options.CommandTimeout, options.CommandType);
             if (Inserts != null)
             {
                 // Execute each insert and aggregate the results
-                result = Inserts.Aggregate(result, (current, insert) => current + insert.Execute(connection, transaction));
+                result = Inserts.Aggregate(result, (current, insert) => current + insert.Execute(connection, transaction, options));
             }
             return result;
         }
@@ -76,13 +80,17 @@ namespace Dapper.GraphQL
         /// </summary>
         /// <param name="connection">The database connection.</param>
         /// <param name="transaction">The transaction to execute under (optional).</param>
-        public async Task<int> ExecuteAsync(IDbConnection connection, IDbTransaction transaction = null)
+        public async Task<int> ExecuteAsync(IDbConnection connection, IDbTransaction transaction = null, SqlOptions options = null)
         {
-            int result = await connection.ExecuteAsync(BuildSql(), Parameters, transaction);
+            if (options == null) {
+                options = SqlOptions.DefaultOptions;
+            }
+
+            int result = await connection.ExecuteAsync(BuildSql(), Parameters, transaction, options.CommandTimeout, options.CommandType);
             if (Inserts != null)
             {
                 // Execute each insert and aggregate the results
-                result = await Inserts.AggregateAsync(result, async (current, insert) => current + await insert.ExecuteAsync(connection, transaction));
+                result = await Inserts.AggregateAsync(result, async (current, insert) => current + await insert.ExecuteAsync(connection, transaction, options));
             }
             return result;
         }

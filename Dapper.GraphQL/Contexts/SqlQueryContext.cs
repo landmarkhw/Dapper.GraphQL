@@ -105,9 +105,14 @@ FROM {from}/**innerjoin**//**leftjoin**//**rightjoin**//**join**/
             IDbConnection connection,
             IHaveSelectionSet selectionSet,
             IEntityMapper<TEntityType> mapper = null,
-            IDbTransaction transaction = null)
+            IDbTransaction transaction = null,
+            SqlOptions options = null)
             where TEntityType : class
         {
+            if (options == null) {
+                options = SqlOptions.DefaultOptions;
+            }
+
             if (mapper == null)
             {
                 mapper = new EntityMapper<TEntityType>();
@@ -134,7 +139,10 @@ FROM {from}/**innerjoin**//**leftjoin**//**rightjoin**//**join**/
                 param: this.Parameters,
                 map: fn,
                 splitOn: string.Join(",", this._splitOn),
-                transaction: transaction
+                transaction: transaction,
+                commandTimeout: options.CommandTimeout,
+                commandType: options.CommandType,
+                buffered: options.Buffered
             );
             return results.Where(e => e != null);
         }
@@ -171,9 +179,14 @@ FROM {from}/**innerjoin**//**leftjoin**//**rightjoin**//**join**/
             IDbConnection connection, 
             IHaveSelectionSet selectionSet,
             IEntityMapper<TEntityType> mapper = null,
-            IDbTransaction transaction = null)
+            IDbTransaction transaction = null,
+            SqlOptions options = null)
             where TEntityType : class
         {
+            if (options == null) {
+                options = SqlOptions.DefaultOptions;
+            }
+
             if (mapper == null)
             {
                 mapper = new EntityMapper<TEntityType>();
@@ -200,7 +213,10 @@ FROM {from}/**innerjoin**//**leftjoin**//**rightjoin**//**join**/
                 param: this.Parameters,
                 map: fn,
                 splitOn: string.Join(",", this._splitOn),
-                transaction: transaction
+                transaction: transaction,
+                commandTimeout: options.CommandTimeout,
+                commandType: options.CommandType,
+                buffered: options.Buffered
             );
             return results.Where(e => e != null);
         }
