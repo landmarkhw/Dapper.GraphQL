@@ -31,6 +31,12 @@ namespace Dapper.GraphQL
             return this;
         }
 
+        /// <summary>
+        /// Adds a GraphQL query builder to the container.
+        /// </summary>
+        /// <param name="modelType">The model type to be queried.</param>
+        /// <param name="queryBuilderType">The query builder class, must implement IQueryBuilder<modelType></param>
+        /// <returns>The GraphQLOptions object.</returns>
         public DapperGraphQLOptions AddQueryBuilder(Type modelType, Type queryBuilderType)
         {
             var queryBuilderInterface = typeof(IQueryBuilder<>).MakeGenericType(modelType);
@@ -54,6 +60,11 @@ namespace Dapper.GraphQL
             return this;
         }
 
+        /// <summary>
+        /// Adds a GraphQL schema to the container.
+        /// </summary>
+        /// <param name="graphSchemaType">The schema type to be mapped, must implement ISchema.</param>
+        /// <returns>The GraphQLOptions object.</returns>
         public DapperGraphQLOptions AddSchema(Type graphSchemaType)
         {
             if (!graphSchemaType.IsConcrete() || !typeof(ISchema).IsAssignableFrom(graphSchemaType))
@@ -76,6 +87,11 @@ namespace Dapper.GraphQL
             return this;
         }
 
+        /// <summary>
+        /// Adds a GraphQL type to the container.
+        /// </summary>
+        /// <param name="type">The model type to be mapped, must implement IGraphType.</param>
+        /// <returns>The GraphQLOptions object.</returns>
         public DapperGraphQLOptions AddType(Type type)
         {
             if (!type.IsConcrete() || !typeof(IGraphType).IsAssignableFrom(type))
