@@ -100,17 +100,18 @@ FROM {from}/**innerjoin**//**leftjoin**//**rightjoin**//**join**/
         /// <param name="mapper">The entity mapper.</param>
         /// <param name="selectionSet">The GraphQL selection set (optional).</param>
         /// <param name="transaction">The transaction to execute under (optional).</param>
+        /// <param name="options">The options for the query (optional).</param>
         /// <returns>A list of entities returned by the query.</returns>
         public IEnumerable<TEntityType> Execute<TEntityType>(
             IDbConnection connection,
             IHaveSelectionSet selectionSet,
             IEntityMapper<TEntityType> mapper = null,
             IDbTransaction transaction = null,
-            SqlOptions options = null)
+            SqlMapperOptions options = null)
             where TEntityType : class
         {
             if (options == null) {
-                options = SqlOptions.DefaultOptions;
+                options = SqlMapperOptions.DefaultOptions;
             }
 
             if (mapper == null)
@@ -174,17 +175,18 @@ FROM {from}/**innerjoin**//**leftjoin**//**rightjoin**//**join**/
         /// <param name="mapper">The entity mapper.</param>
         /// <param name="selectionSet">The GraphQL selection set (optional).</param>
         /// <param name="transaction">The transaction to execute under (optional).</param>
+        /// <param name="options">The options for the query (optional).</param>
         /// <returns>A list of entities returned by the query.</returns>
         public async Task<IEnumerable<TEntityType>> ExecuteAsync<TEntityType>(
             IDbConnection connection, 
             IHaveSelectionSet selectionSet,
             IEntityMapper<TEntityType> mapper = null,
             IDbTransaction transaction = null,
-            SqlOptions options = null)
+            SqlMapperOptions options = null)
             where TEntityType : class
         {
             if (options == null) {
-                options = SqlOptions.DefaultOptions;
+                options = SqlMapperOptions.DefaultOptions;
             }
 
             if (mapper == null)
