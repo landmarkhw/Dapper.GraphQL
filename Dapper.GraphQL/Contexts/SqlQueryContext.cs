@@ -410,6 +410,8 @@ FROM {from}/**innerjoin**//**leftjoin**//**rightjoin**//**join**/
         /// <returns>The query builder.</returns>
         public SqlQueryContext SplitOn(string columnName, Type entityType)
         {
+            RemoveSingleTableQueryItems();
+
             _splitOn.Add(columnName);
             _types.Add(entityType);
 
