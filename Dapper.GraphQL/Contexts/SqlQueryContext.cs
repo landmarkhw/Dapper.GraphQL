@@ -100,14 +100,20 @@ FROM {from}/**innerjoin**//**leftjoin**//**rightjoin**//**join**/
         /// <param name="mapper">The entity mapper.</param>
         /// <param name="selectionSet">The GraphQL selection set (optional).</param>
         /// <param name="transaction">The transaction to execute under (optional).</param>
+        /// <param name="options">The options for the query (optional).</param>
         /// <returns>A list of entities returned by the query.</returns>
         public IEnumerable<TEntityType> Execute<TEntityType>(
             IDbConnection connection,
             IHaveSelectionSet selectionSet,
             IEntityMapper<TEntityType> mapper = null,
-            IDbTransaction transaction = null)
+            IDbTransaction transaction = null,
+            SqlMapperOptions options = null)
             where TEntityType : class
         {
+            if (options == null) {
+                options = SqlMapperOptions.DefaultOptions;
+            }
+
             if (mapper == null)
             {
                 mapper = new EntityMapper<TEntityType>();
@@ -134,7 +140,10 @@ FROM {from}/**innerjoin**//**leftjoin**//**rightjoin**//**join**/
                 param: this.Parameters,
                 map: fn,
                 splitOn: string.Join(",", this._splitOn),
-                transaction: transaction
+                transaction: transaction,
+                commandTimeout: options.CommandTimeout,
+                commandType: options.CommandType,
+                buffered: options.Buffered
             );
             return results.Where(e => e != null);
         }
@@ -166,14 +175,20 @@ FROM {from}/**innerjoin**//**leftjoin**//**rightjoin**//**join**/
         /// <param name="mapper">The entity mapper.</param>
         /// <param name="selectionSet">The GraphQL selection set (optional).</param>
         /// <param name="transaction">The transaction to execute under (optional).</param>
+        /// <param name="options">The options for the query (optional).</param>
         /// <returns>A list of entities returned by the query.</returns>
         public async Task<IEnumerable<TEntityType>> ExecuteAsync<TEntityType>(
             IDbConnection connection, 
             IHaveSelectionSet selectionSet,
             IEntityMapper<TEntityType> mapper = null,
-            IDbTransaction transaction = null)
+            IDbTransaction transaction = null,
+            SqlMapperOptions options = null)
             where TEntityType : class
         {
+            if (options == null) {
+                options = SqlMapperOptions.DefaultOptions;
+            }
+
             if (mapper == null)
             {
                 mapper = new EntityMapper<TEntityType>();
@@ -200,7 +215,10 @@ FROM {from}/**innerjoin**//**leftjoin**//**rightjoin**//**join**/
                 param: this.Parameters,
                 map: fn,
                 splitOn: string.Join(",", this._splitOn),
-                transaction: transaction
+                transaction: transaction,
+                commandTimeout: options.CommandTimeout,
+                commandType: options.CommandType,
+                buffered: options.Buffered
             );
             return results.Where(e => e != null);
         }
