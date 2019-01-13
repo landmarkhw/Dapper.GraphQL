@@ -366,5 +366,60 @@ mutation ($person: PersonInput!) {
 
             Assert.True(fixture.JsonEquals(expectedJson, json));
         }
+
+        [Fact(DisplayName = "People connection query should succeed")]
+        public async Task PeopleConnectionQuery()
+        {
+            var json = await fixture.QueryGraphQLAsync(@"
+query {
+    personConnection(first:2) {
+    edges {
+    node {
+            firstName
+            lastName
+        }
+        cursor
+    }
+    pageInfo {
+            hasNextPage
+    	    hasPreviousPage
+    	    endCursor
+    	    startCursor
+        }
+    }
+}");
+
+            var expectedJson = @"
+{
+  'data': {
+    'personConnection': {
+      'edges': [
+        {
+          'node': {
+            'firstName': 'Hyrum',
+            'lastName': 'Clyde'
+          },
+          'cursor': 'MS8xLzIwMTkgMTI6MDA6MDAgQU0='
+        },
+        {
+          'node': {
+            'firstName': 'Doug',
+            'lastName': 'Day'
+          },
+          'cursor': 'MS8yLzIwMTkgMTI6MDA6MDAgQU0='
+        }
+      ],
+      'pageInfo': {
+        'hasNextPage': true,
+        'hasPreviousPage': false,
+        'endCursor': 'MS8yLzIwMTkgMTI6MDA6MDAgQU0=',
+        'startCursor': 'MS8xLzIwMTkgMTI6MDA6MDAgQU0='
+      }
+    }
+  }
+}";
+
+            Assert.True(fixture.JsonEquals(expectedJson, json));
+        }
     }
 }

@@ -1,7 +1,7 @@
-﻿INSERT INTO Person (Id, MergedToPersonId, FirstName, LastName, SupervisorId, CareerCounselorId) VALUES (1, 1, 'Hyrum', 'Clyde', NULL, NULL);
-INSERT INTO Person (Id, MergedToPersonId, FirstName, LastName, SupervisorId, CareerCounselorId) VALUES (2, 2, 'Doug', 'Day', NULL, NULL);
-INSERT INTO Person (Id, MergedToPersonId, FirstName, LastName, SupervisorId, CareerCounselorId) VALUES (3, 3, 'Kevin', 'Russon', 1, 2);
-INSERT INTO Person (Id, MergedToPersonId, FirstName, LastName, SupervisorId, CareerCounselorId) VALUES (4, 4, 'Douglas', 'Day', NULL, 1);
+﻿INSERT INTO Person (Id, MergedToPersonId, FirstName, LastName, SupervisorId, CareerCounselorId, CreateDate) VALUES (1, 1, 'Hyrum', 'Clyde', NULL, NULL, '2019-01-01');
+INSERT INTO Person (Id, MergedToPersonId, FirstName, LastName, SupervisorId, CareerCounselorId, CreateDate) VALUES (2, 2, 'Doug', 'Day', NULL, NULL, '2019-01-02');
+INSERT INTO Person (Id, MergedToPersonId, FirstName, LastName, SupervisorId, CareerCounselorId, CreateDate) VALUES (3, 3, 'Kevin', 'Russon', 1, 2, '2019-01-03');
+INSERT INTO Person (Id, MergedToPersonId, FirstName, LastName, SupervisorId, CareerCounselorId, CreateDate) VALUES (4, 4, 'Douglas', 'Day', NULL, 1, '2019-01-04');
 -- Update the identity value
 SELECT setval(pg_get_serial_sequence('person', 'id'), (SELECT MAX(Id) FROM Person));
 

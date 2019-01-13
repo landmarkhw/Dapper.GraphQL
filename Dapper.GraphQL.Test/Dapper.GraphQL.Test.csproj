@@ -10,6 +10,8 @@
     <FileVersion>0.4.2.0</FileVersion>
 
     <Version>0.4.2-beta</Version>
+
+    <LangVersion>latest</LangVersion>
   </PropertyGroup>
 
   <ItemGroup>

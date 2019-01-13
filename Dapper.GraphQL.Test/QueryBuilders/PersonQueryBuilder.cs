@@ -32,7 +32,12 @@ namespace Dapper.GraphQL.Test.QueryBuilders
             query.Select($"{alias}.Id", $"{alias}.MergedToPersonId");
             query.SplitOn<Person>("Id");
 
-            var fields = context.GetSelectedFields();
+            var fields = QueryBuilderHelper.CollectFields(context.SelectionSet);
+
+            if (QueryBuilderHelper.IsConnection(context.SelectionSet))
+            {
+                query.Select($"{alias}.CreateDate");
+            }
 
             if (fields.ContainsKey("firstName"))
             {
