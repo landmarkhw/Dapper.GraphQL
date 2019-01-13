@@ -9,6 +9,7 @@
 	-- https://github.com/StackExchange/Dapper/issues/917
 	SupervisorId INTEGER,
 	CareerCounselorId INTEGER,
+	CreateDate DATE,
 	FOREIGN KEY (MergedToPersonId) REFERENCES Person(Id),
 	FOREIGN KEY (SupervisorId) REFERENCES Person(Id),
 	FOREIGN KEY (CareerCounselorId) REFERENCES Person(Id)

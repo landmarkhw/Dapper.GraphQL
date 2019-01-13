@@ -15,6 +15,7 @@ namespace Dapper.GraphQL.Test.Models
         public int MergedToPersonId { get; set; }
         public IList<Phone> Phones { get; set; }
         public Person Supervisor { get; set; }
+        public DateTime CreateDate { get; set; }
 
         public Person()
         {

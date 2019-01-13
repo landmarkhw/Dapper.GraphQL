@@ -1,11 +1,13 @@
 ﻿using Dapper.GraphQL.Test.GraphQL;
 using Dapper.GraphQL.Test.Models;
 using Dapper.GraphQL.Test.QueryBuilders;
+using Dapper.GraphQL.Test.Repositories;
 using DbUp;
 using GraphQL;
 using GraphQL.Execution;
 using GraphQL.Http;
 using GraphQL.Language.AST;
+using GraphQL.Types.Relay;
 using Microsoft.Extensions.DependencyInjection;
 using Newtonsoft.Json.Linq;
 using Npgsql;
@@ -15,6 +17,7 @@ using System.Data;
 using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
+
 
 namespace Dapper.GraphQL.Test
 {
@@ -186,6 +189,13 @@ DROP DATABASE ""{DatabaseName}"";";
                 options.AddQueryBuilder<Person, PersonQueryBuilder>();
                 options.AddQueryBuilder<Phone, PhoneQueryBuilder>();
             });
+
+            serviceCollection.AddSingleton<IPersonRepository, PersonRepository>();
+
+            // Support for GraphQL paging
+            serviceCollection.AddTransient(typeof(ConnectionType<>));
+            serviceCollection.AddTransient(typeof(EdgeType<>));
+            serviceCollection.AddTransient<PageInfoType>();
 
             serviceCollection.AddTransient<IDbConnection>(serviceProvider => GetDbConnection());
         }
