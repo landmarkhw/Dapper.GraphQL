@@ -29,6 +29,11 @@ namespace Dapper.GraphQL
             return new SqlQueryContext(from, parameters);
         }
 
+        public static SqlQueryContext RawSql(string sql, dynamic parameteres)
+        {
+            return new SqlQueryContext(sql, parameteres);            
+        }
+
         public static SqlQueryContext From<TEntityType>(string alias = null)
             where TEntityType : class
         {
