@@ -18,13 +18,13 @@ namespace Dapper.GraphQL
         }
     }
 
-    public class SqlQueryContext
+    public class SqlQueryContext 
     {
         protected List<string> _splitOn;
         protected List<Type> _types;
 
         public DynamicParameters Parameters { get; set; }
-        protected Dapper.SqlBuilder SqlBuilder { get; set; }
+        protected DapperSqlBuilder SqlBuilder { get; set; }
         protected Dapper.SqlBuilder.Template QueryTemplate { get; set; }
 
         public SqlQueryContext(string from, dynamic parameters = null)
@@ -32,13 +32,13 @@ namespace Dapper.GraphQL
             _splitOn = new List<string>();
             _types = new List<Type>();
             Parameters = new DynamicParameters(parameters);
-            SqlBuilder = new Dapper.SqlBuilder();
+            SqlBuilder = new DapperSqlBuilder();
 
             // See https://github.com/StackExchange/Dapper/blob/master/Dapper.SqlBuilder/SqlBuilder.cs
             QueryTemplate = SqlBuilder.AddTemplate($@"SELECT
 /**select**/
 FROM {from}/**innerjoin**//**leftjoin**//**rightjoin**//**join**/
-/**where**//**orderby**/");
+/**where**//**orderby**//**offset**//**top**/");
         }
 
         /// <summary>
@@ -178,7 +178,7 @@ FROM {from}/**innerjoin**//**leftjoin**//**rightjoin**//**join**/
         /// <param name="options">The options for the query (optional).</param>
         /// <returns>A list of entities returned by the query.</returns>
         public async Task<IEnumerable<TEntityType>> ExecuteAsync<TEntityType>(
-            IDbConnection connection, 
+            IDbConnection connection,
             IHaveSelectionSet selectionSet,
             IEntityMapper<TEntityType> mapper = null,
             IDbTransaction transaction = null,
@@ -345,6 +345,77 @@ FROM {from}/**innerjoin**//**leftjoin**//**rightjoin**//**join**/
         {
             Parameters.AddDynamicParams(parameters);
             SqlBuilder.OrderBy(orderBy);
+            return this;
+        }
+
+        /// <summary>
+        /// Adds an Offset clause to allow pagination (it will skip N rows)
+        /// </summary>
+        /// <remarks>
+        /// Order by clause is a must when using offset
+        /// </remarks>
+        /// <example>
+        ///     var queryBuilder = new SqlQueryBuilder();
+        ///     queryBuilder.From("Customer customer");
+        ///     queryBuilder.Select(
+        ///         "customer.id",
+        ///         "customer.name",
+        ///     );
+        ///     queryBuilder.SplitOn<Customer>("id");
+        ///     queryBuilder.Where("customer.id == @id");
+        ///     queryBuilder.Parameters.Add("id", 1);
+        ///     queryBuilder.Orderby("customer.name");
+        ///     queryBuilder.Offset(20);
+        ///     var customer = queryBuilder
+        ///         .Execute<Customer>(dbConnection, graphQLSelectionSet);
+        ///         .FirstOrDefault();
+        ///
+        ///     // SELECT customer.id, customer.name
+        ///     // FROM Customer customer
+        ///     // WHERE customer.id == @id
+        ///     // ORDER BY customer.name
+        /// </example>
+        /// <param name="rowsToSkip">total of rows to skip</param>
+        /// <returns>The query builder</returns>
+        public SqlQueryContext Offset(int rowsToSkip)
+        {
+            SqlBuilder.Offset(rowsToSkip);
+            return this;
+        }
+
+        /// <summary>
+        /// Adds a fetch clause to allow pagination
+        /// </summary>
+        /// <remarks>
+        /// Order by clause is a must when using fetch
+        /// </remarks>
+        /// <example>
+        ///     var queryBuilder = new SqlQueryBuilder();
+        ///     queryBuilder.From("Customer customer");
+        ///     queryBuilder.Select(
+        ///         "customer.id",
+        ///         "customer.name",
+        ///     );
+        ///     queryBuilder.SplitOn<Customer>("id");
+        ///     queryBuilder.Where("customer.id == @id");
+        ///     queryBuilder.Parameters.Add("id", 1);
+        ///     queryBuilder.Orderby("customer.name");
+        ///     queryBuilder.Offset(20);
+        ///     queryBuilder.Fetch(10);
+        ///     var customer = queryBuilder
+        ///         .Execute<Customer>(dbConnection, graphQLSelectionSet);
+        ///         .FirstOrDefault();
+        ///
+        ///     // SELECT customer.id, customer.name
+        ///     // FROM Customer customer
+        ///     // WHERE customer.id == @id
+        ///     // ORDER BY customer.name
+        /// </example>
+        /// <param name="rowsToReturn">total of rows to return</param>
+        /// <returns>The query builder.</returns>
+        public SqlQueryContext Fetch(int rowsToReturn)
+        {
+            SqlBuilder.Fetch(rowsToReturn);
             return this;
         }
 
