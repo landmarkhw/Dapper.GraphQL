@@ -1,5 +1,4 @@
-﻿using Dapper.GraphQL;
-using Dapper.GraphQL.Test.Models;
+﻿using Dapper.GraphQL.Test.Models;
 using System.Linq;
 
 namespace Dapper.GraphQL.Test.EntityMappers
@@ -7,8 +6,8 @@ namespace Dapper.GraphQL.Test.EntityMappers
     public class PersonEntityMapper :
         DeduplicatingEntityMapper<Person>
     {
-        private CompanyEntityMapper companyEntityMapper;
-        private PersonEntityMapper personEntityMapper;
+        private CompanyEntityMapper _companyEntityMapper;
+        private PersonEntityMapper _personEntityMapper;
 
         public PersonEntityMapper()
         {
@@ -20,13 +19,13 @@ namespace Dapper.GraphQL.Test.EntityMappers
         {
             // Avoid creating the mappers until they're used
             // NOTE: this avoids an infinite loop (had these been created in the ctor)
-            if (companyEntityMapper == null)
+            if (_companyEntityMapper == null)
             {
-                companyEntityMapper = new CompanyEntityMapper();
+                _companyEntityMapper = new CompanyEntityMapper();
             }
-            if (personEntityMapper == null)
+            if (_personEntityMapper == null)
             {
-                personEntityMapper = new PersonEntityMapper();
+                _personEntityMapper = new PersonEntityMapper();
             }
 
             // NOTE: Order is very important here.  We must map the objects in
@@ -34,11 +33,11 @@ namespace Dapper.GraphQL.Test.EntityMappers
 
             // Start with the person, and deduplicate
             var person = Deduplicate(context.Start<Person>());
-            var company = context.Next<Company>("companies", companyEntityMapper);
+            var company = context.Next<Company>("companies", _companyEntityMapper);
             var email = context.Next<Email>("emails");
             var phone = context.Next<Phone>("phones");
-            var supervisor = context.Next<Person>("supervisor", personEntityMapper);
-            var careerCounselor = context.Next<Person>("careerCounselor", personEntityMapper);
+            var supervisor = context.Next<Person>("supervisor", _personEntityMapper);
+            var careerCounselor = context.Next<Person>("careerCounselor", _personEntityMapper);
 
             if (person != null)
             {

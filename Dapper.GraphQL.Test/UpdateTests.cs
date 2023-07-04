@@ -1,6 +1,4 @@
-using Dapper.GraphQL.Test.EntityMappers;
 using Dapper.GraphQL.Test.Models;
-using Microsoft.Extensions.DependencyInjection;
 using System.Linq;
 using System.Threading.Tasks;
 using Xunit;
@@ -9,11 +7,11 @@ namespace Dapper.GraphQL.Test
 {
     public class UpdateTests : IClassFixture<TestFixture>
     {
-        private readonly TestFixture fixture;
+        private readonly TestFixture _fixture;
 
         public UpdateTests(TestFixture fixture)
         {
-            this.fixture = fixture;
+            this._fixture = fixture;
         }
 
         [Fact(DisplayName = "UPDATE person succeeds")]
@@ -35,10 +33,10 @@ namespace Dapper.GraphQL.Test
     }
 }";
 
-                var selectionSet = fixture.BuildGraphQLSelection(graphql);
+                var selectionSet = _fixture.BuildGraphQlSelection(graphql);
 
                 // Update the person with Id = 2 with a new FirstName
-                using (var db = fixture.GetDbConnection())
+                using (var db = _fixture.GetDbConnection())
                 {
                     previousPerson = SqlBuilder
                         .From<Person>()
@@ -69,7 +67,7 @@ namespace Dapper.GraphQL.Test
             {
                 if (previousPerson != null)
                 {
-                    using (var db = fixture.GetDbConnection())
+                    using (var db = _fixture.GetDbConnection())
                     {
                         person = new Person
                         {
@@ -98,7 +96,7 @@ namespace Dapper.GraphQL.Test
             try
             {
                 // Update the person with Id = 2 with a new FirstName
-                using (var db = fixture.GetDbConnection())
+                using (var db = _fixture.GetDbConnection())
                 {
                     db.Open();
 
@@ -110,7 +108,7 @@ namespace Dapper.GraphQL.Test
     }
 }";
 
-                    var selectionSet = fixture.BuildGraphQLSelection(graphql);
+                    var selectionSet = _fixture.BuildGraphQlSelection(graphql);
 
                     var previousPeople = await SqlBuilder
                         .From<Person>()
@@ -143,7 +141,7 @@ namespace Dapper.GraphQL.Test
             {
                 if (previousPerson != null)
                 {
-                    using (var db = fixture.GetDbConnection())
+                    using (var db = _fixture.GetDbConnection())
                     {
                         db.Open();
 

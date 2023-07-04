@@ -1,8 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Data;
 using System.Linq;
-using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -10,7 +8,7 @@ namespace Dapper.GraphQL
 {
     public class SqlUpdateContext
     {
-        private HashSet<string> UpdateParameterNames;
+        private HashSet<string> _updateParameterNames;
         public DynamicParameters Parameters { get; set; }
         private Dapper.SqlBuilder SqlBuilder { get; set; }
         public string Table { get; private set; }
@@ -29,7 +27,7 @@ namespace Dapper.GraphQL
             this.Table = table;
             this.Template = SqlBuilder.AddTemplate(@"
 /**where**/");
-            this.UpdateParameterNames = new HashSet<string>(Parameters.ParameterNames);
+            this._updateParameterNames = new HashSet<string>(Parameters.ParameterNames);
         }
 
         /// <summary>
@@ -150,7 +148,7 @@ namespace Dapper.GraphQL
         {
             var sb = new StringBuilder();
             sb.Append($"UPDATE {Table} SET ");
-            sb.Append(string.Join(", ", UpdateParameterNames.Select(name => $"{name} = @{name}")));
+            sb.Append(string.Join(", ", _updateParameterNames.Select(name => $"{name} = @{name}")));
             sb.Append(Template.RawSql);
             return sb.ToString();
         }

@@ -8,8 +8,8 @@ namespace Dapper.GraphQL
 {
     public static class ParameterHelper
     {
-        private static Dictionary<Type, PropertyInfo[]> PropertyCache = new Dictionary<Type, PropertyInfo[]>();
-        private static Dictionary<Type, TypeInfo> TypeInfoCache = new Dictionary<Type, TypeInfo>();
+        private static Dictionary<Type, PropertyInfo[]> _propertyCache = new Dictionary<Type, PropertyInfo[]>();
+        private static Dictionary<Type, TypeInfo> _typeInfoCache = new Dictionary<Type, TypeInfo>();
 
         /// <summary>
         /// Gets a list of flat properties that have been set on the object.
@@ -21,11 +21,11 @@ namespace Dapper.GraphQL
         {
             var type = obj.GetType();
             PropertyInfo[] properties;
-            if (!PropertyCache.ContainsKey(type))
+            if (!_propertyCache.ContainsKey(type))
             {
-                lock (PropertyCache)
+                lock (_propertyCache)
                 {
-                    if (!PropertyCache.ContainsKey(type))
+                    if (!_propertyCache.ContainsKey(type))
                     {
                         // Get a list of properties that are "flat" on this object, i.e. singular values
                         properties = type
@@ -60,17 +60,17 @@ namespace Dapper.GraphQL
                             .ToArray();
 
                         // Cache those properties
-                        PropertyCache[type] = properties;
+                        _propertyCache[type] = properties;
                     }
                     else
                     {
-                        properties = PropertyCache[type];
+                        properties = _propertyCache[type];
                     }
                 }
             }
             else
             {
-                properties = PropertyCache[type];
+                properties = _propertyCache[type];
             }
 
             // Convert the properties to a dictionary where:
@@ -102,17 +102,17 @@ namespace Dapper.GraphQL
 
         private static TypeInfo GetTypeInfo(Type type)
         {
-            if (!TypeInfoCache.ContainsKey(type))
+            if (!_typeInfoCache.ContainsKey(type))
             {
-                lock (TypeInfoCache)
+                lock (_typeInfoCache)
                 {
-                    if (!TypeInfoCache.ContainsKey(type))
+                    if (!_typeInfoCache.ContainsKey(type))
                     {
-                        TypeInfoCache[type] = type.GetTypeInfo();
+                        _typeInfoCache[type] = type.GetTypeInfo();
                     }
                 }
             }
-            return TypeInfoCache[type];
+            return _typeInfoCache[type];
         }
     }
 }

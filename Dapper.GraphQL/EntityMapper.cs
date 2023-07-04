@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace Dapper.GraphQL
+﻿namespace Dapper.GraphQL
 {
     public class EntityMapper<TEntityType> :
         IEntityMapper<TEntityType>

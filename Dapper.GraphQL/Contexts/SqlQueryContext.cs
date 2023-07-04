@@ -1,4 +1,4 @@
-﻿using GraphQL.Language.AST;
+using GraphQLParser.AST;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -104,7 +104,7 @@ FROM {from}/**innerjoin**//**leftjoin**//**rightjoin**//**join**/
         /// <returns>A list of entities returned by the query.</returns>
         public IEnumerable<TEntityType> Execute<TEntityType>(
             IDbConnection connection,
-            IHaveSelectionSet selectionSet,
+            IHasSelectionSetNode selectionSet,
             IEntityMapper<TEntityType> mapper = null,
             IDbTransaction transaction = null,
             SqlMapperOptions options = null)
@@ -178,8 +178,8 @@ FROM {from}/**innerjoin**//**leftjoin**//**rightjoin**//**join**/
         /// <param name="options">The options for the query (optional).</param>
         /// <returns>A list of entities returned by the query.</returns>
         public async Task<IEnumerable<TEntityType>> ExecuteAsync<TEntityType>(
-            IDbConnection connection, 
-            IHaveSelectionSet selectionSet,
+            IDbConnection connection,
+            IHasSelectionSetNode selectionSet,
             IEntityMapper<TEntityType> mapper = null,
             IDbTransaction transaction = null,
             SqlMapperOptions options = null)

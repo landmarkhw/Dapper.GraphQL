@@ -1,8 +1,5 @@
-﻿using Dapper.GraphQL.Test.Models;
+using Dapper.GraphQL.Test.Models;
 using GraphQL.Types;
-using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace Dapper.GraphQL.Test.GraphQL
 {
@@ -14,29 +11,21 @@ namespace Dapper.GraphQL.Test.GraphQL
             Name = "company";
             Description = "A company.";
 
-            Field<IntGraphType>(
-                "id",
-                description: "A unique identifier for the company.",
-                resolve: context => context.Source?.Id
-            );
+            Field<IntGraphType>("id")
+                .Description("A unique identifier for the company.")
+                .Resolve(context => context.Source?.Id);
 
-            Field<StringGraphType>(
-                "name",
-                description: "The name of the company.",
-                resolve: context => context.Source?.Name
-            );
+            Field<StringGraphType>("name")
+                .Description("The name of the company.")
+                .Resolve(context => context.Source?.Name);
 
-            Field<ListGraphType<EmailType>>(
-                "emails",
-                description: "A list of email addresses for the company.",
-                resolve: context => context.Source?.Emails
-            );
+            Field<ListGraphType<EmailType>>("emails")
+                .Description("A list of email addresses for the company.")
+                .Resolve(context => context.Source?.Emails);
 
-            Field<ListGraphType<PhoneType>>(
-                "phones",
-                description: "A list of phone numbers for the company.",
-                resolve: context => context.Source?.Phones
-            );
+            Field<ListGraphType<PhoneType>>("phones")
+                .Description("A list of phone numbers for the company.")
+                .Resolve(context => context.Source?.Phones);
         }
     }
 }

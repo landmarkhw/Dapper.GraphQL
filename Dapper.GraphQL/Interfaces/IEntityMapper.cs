@@ -1,8 +1,4 @@
-﻿using GraphQL.Language.AST;
-using System;
-using System.Collections.Generic;
-
-namespace Dapper.GraphQL
+﻿namespace Dapper.GraphQL
 {
     /// <summary>
     /// Maps a row of objects from Dapper into an entity.

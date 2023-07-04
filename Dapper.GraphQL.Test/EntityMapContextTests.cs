@@ -1,18 +1,16 @@
 using Dapper.GraphQL.Test.EntityMappers;
 using Dapper.GraphQL.Test.Models;
-using System.Linq;
-using System.Threading.Tasks;
 using Xunit;
 
 namespace Dapper.GraphQL.Test
 {
     public class EntityMapContextTests : IClassFixture<TestFixture>
     {
-        private readonly TestFixture fixture;
+        private readonly TestFixture _fixture;
 
         public EntityMapContextTests(TestFixture fixture)
         {
-            this.fixture = fixture;
+            this._fixture = fixture;
         }
 
         [Fact(DisplayName = "EntityMap properly deduplicates")]
@@ -79,7 +77,7 @@ namespace Dapper.GraphQL.Test
     }
 }";
 
-            var selectionSet = fixture.BuildGraphQLSelection(graphql);
+            var selectionSet = _fixture.BuildGraphQlSelection(graphql);
             var context1 = new EntityMapContext
             {
                 Items = new object[]

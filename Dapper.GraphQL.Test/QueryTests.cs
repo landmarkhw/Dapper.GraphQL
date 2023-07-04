@@ -1,18 +1,15 @@
-using Dapper.GraphQL.Test.EntityMappers;
 using Dapper.GraphQL.Test.Models;
-using Microsoft.Extensions.DependencyInjection;
-using System.Data.SqlClient;
 using Xunit;
 
 namespace Dapper.GraphQL.Test
 {
     public class QueryTests : IClassFixture<TestFixture>
     {
-        private readonly TestFixture fixture;
+        private readonly TestFixture _fixture;
 
         public QueryTests(TestFixture fixture)
         {
-            this.fixture = fixture;
+            this._fixture = fixture;
         }
 
         [Fact(DisplayName = "ORDER BY should work")]
@@ -38,9 +35,9 @@ namespace Dapper.GraphQL.Test
                     .SplitOn<Person>("Id");
 
                 var graphql = "{ person { id } }";
-                var selectionSet = fixture.BuildGraphQLSelection(graphql);
+                var selectionSet = _fixture.BuildGraphQlSelection(graphql);
 
-                using (var db = fixture.GetDbConnection())
+                using (var db = _fixture.GetDbConnection())
                 {
                     query.Execute<Person>(db, selectionSet);
                 }

@@ -1,5 +1,4 @@
-﻿using System;
-using System.Reflection;
+using System;
 using GraphQL;
 using GraphQL.Types;
 using Microsoft.Extensions.DependencyInjection;
@@ -40,7 +39,7 @@ namespace Dapper.GraphQL
         public DapperGraphQLOptions AddQueryBuilder(Type modelType, Type queryBuilderType)
         {
             var queryBuilderInterface = typeof(IQueryBuilder<>).MakeGenericType(modelType);
-            if (!queryBuilderType.IsConcrete() || !queryBuilderInterface.IsAssignableFrom(queryBuilderType))
+            if (queryBuilderType.IsAbstract || queryBuilderType.IsInterface || !queryBuilderInterface.IsAssignableFrom(queryBuilderType))
             {
                 throw new ArgumentException($"QueryBuilder type must be concrete and implement IQueryBuilder<{modelType.Name}>.");
             }
@@ -67,7 +66,7 @@ namespace Dapper.GraphQL
         /// <returns>The GraphQLOptions object.</returns>
         public DapperGraphQLOptions AddSchema(Type graphSchemaType)
         {
-            if (!graphSchemaType.IsConcrete() || !typeof(ISchema).IsAssignableFrom(graphSchemaType))
+            if (graphSchemaType.IsAbstract || graphSchemaType.IsInterface || !typeof(ISchema).IsAssignableFrom(graphSchemaType))
             {
                 throw new ArgumentException("Type must be concrete and implement ISchema.");
             }
@@ -94,7 +93,7 @@ namespace Dapper.GraphQL
         /// <returns>The GraphQLOptions object.</returns>
         public DapperGraphQLOptions AddType(Type type)
         {
-            if (!type.IsConcrete() || !typeof(IGraphType).IsAssignableFrom(type))
+            if (type.IsAbstract || type.IsInterface || !typeof(IGraphType).IsAssignableFrom(type))
             {
                 throw new ArgumentException("Type must be concrete and implement IGraphType.");
             }

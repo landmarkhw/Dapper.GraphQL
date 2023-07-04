@@ -1,9 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
+using GraphQL.Types;
 
 namespace Dapper.GraphQL.Test.Models
 {
+    [PascalCase]
     public enum PhoneType
     {
         Unknown = 0,

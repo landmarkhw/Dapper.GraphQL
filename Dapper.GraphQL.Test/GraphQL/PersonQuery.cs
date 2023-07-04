@@ -1,10 +1,9 @@
-﻿using Dapper.GraphQL.Test.EntityMappers;
+using Dapper.GraphQL.Test.EntityMappers;
 using Dapper.GraphQL.Test.Models;
 using GraphQL.Types;
 using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Data;
-using System.Data.Common;
 using System.Linq;
 
 namespace Dapper.GraphQL.Test.GraphQL
@@ -16,35 +15,32 @@ namespace Dapper.GraphQL.Test.GraphQL
             IQueryBuilder<Person> personQueryBuilder,
             IServiceProvider serviceProvider)
         {
-            Field<ListGraphType<PersonType>>(
-                "people",
-                description: "A list of people.",
-                resolve: context =>
-                {
-                    var alias = "person";
-                    var query = SqlBuilder
-                        .From<Person>(alias)
-                        .OrderBy($"{alias}.Id");
-                    query = personQueryBuilder.Build(query, context.FieldAst, alias);
-
-                    // Create a mapper that understands how to uniquely identify the 'Person' class,
-                    // and will deduplicate people as they pass through it
-                    var personMapper = new PersonEntityMapper();
-
-                    using (var connection = serviceProvider.GetRequiredService<IDbConnection>())
+            Field<ListGraphType<PersonType>>("people")
+                .Description("A list of people.")
+                .Resolve(context =>
                     {
-                        var results = query
-                            .Execute(connection, context.FieldAst, personMapper)
-                            .Distinct();
-                        return results;
-                    }
-                }
-            );
+                        var alias = "person";
+                        var query = SqlBuilder
+                            .From<Person>(alias)
+                            .OrderBy($"{alias}.Id");
+                        query = personQueryBuilder.Build(query, context.FieldAst, alias);
 
-            FieldAsync<ListGraphType<PersonType>>(
-                "peopleAsync",
-                description: "A list of people fetched asynchronously.",
-                resolve: async context =>
+                        // Create a mapper that understands how to uniquely identify the 'Person' class,
+                        // and will deduplicate people as they pass through it
+                        var personMapper = new PersonEntityMapper();
+
+                        using (var connection = serviceProvider.GetRequiredService<IDbConnection>())
+                        {
+                            var results = query
+                                .Execute(connection, context.FieldAst, personMapper)
+                                .Distinct();
+                            return results;
+                        }
+                    });
+
+            Field<ListGraphType<PersonType>>("peopleAsync")
+                .Description("A list of people fetched asynchronously.")
+                .ResolveAsync(async context =>
                 {
                     var alias = "person";
                     var query = SqlBuilder
@@ -63,18 +59,16 @@ namespace Dapper.GraphQL.Test.GraphQL
                         var results = await query.ExecuteAsync(connection, context.FieldAst, personMapper);
                         return results.Distinct();
                     }
-                }
-            );
+                });
 
-            Field<PersonType>(
-                "person",
-                description: "Gets a person by ID.",
-                arguments: new QueryArguments(
+            Field<PersonType>("person")
+                .Description("Gets a person by ID.")
+                .Arguments(new QueryArguments(
                     new QueryArgument<IntGraphType> { Name = "id", Description = "The ID of the person." }
-                ),
-                resolve: context =>
+                ))
+                .Resolve(context =>
                 {
-                    var id = context.Arguments["id"];
+                    var id = context.Arguments["id"].Value;
                     var alias = "person";
                     var query = SqlBuilder
                         .From($"Person {alias}")
@@ -97,8 +91,7 @@ namespace Dapper.GraphQL.Test.GraphQL
                             .Distinct();
                         return results.FirstOrDefault();
                     }
-                }
-            );
+                });
         }
     }
 }

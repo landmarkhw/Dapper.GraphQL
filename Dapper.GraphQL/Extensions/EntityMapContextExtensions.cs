@@ -1,8 +1,8 @@
-﻿using GraphQL.Language.AST;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
+using GraphQLParser;
+using GraphQLParser.AST;
 
 namespace Dapper.GraphQL
 {
@@ -22,9 +22,12 @@ namespace Dapper.GraphQL
             IEntityMapper<TItemType> entityMapper = null)
             where TItemType : class
         {
+            var charArray = new ReadOnlyMemory<char>(fieldName.ToCharArray());
+            var rom = new ROM(charArray);
+            var graphQlName = new GraphQLName(rom);
             return context.Next<TItemType>(
                 new[] { fieldName }, 
-                (currentSelectionSet, selectionSet) => currentSelectionSet[fieldName],
+                (currentSelectionSet, selectionSet) => currentSelectionSet[graphQlName],
                 entityMapper
             );
         }
@@ -64,13 +67,17 @@ namespace Dapper.GraphQL
             IEntityMapper<TItemType> entityMapper = null)
             where TItemType : class
         {
+            var charArray = new ReadOnlyMemory<char>(fieldName.ToCharArray());
+            var rom = new ROM(charArray);
+            var graphQlName = new GraphQLName(rom);
+
             return context.Next<TItemType>(
                 new[] { fieldName },
-                (currentSelectionSet, selectionSet) => currentSelectionSet[fieldName]
+                (currentSelectionSet, selectionSet) => currentSelectionSet[graphQlName]
                     .SelectionSet
                     .Selections
-                    .OfType<InlineFragment>()
-                    .Where(f => f.Type.Name == typeof(TItemType).Name)
+                    .OfType<GraphQLInlineFragment>()
+                    .Where(f => f.TypeCondition?.Type?.Name?.StringValue == typeof(TItemType).Name)
                     .FirstOrDefault(),
                 entityMapper
             );

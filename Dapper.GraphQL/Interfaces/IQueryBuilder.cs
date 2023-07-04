@@ -1,5 +1,4 @@
-﻿using Dapper.GraphQL;
-using GraphQL.Language.AST;
+using GraphQLParser.AST;
 
 namespace Dapper.GraphQL
 {
@@ -16,6 +15,6 @@ namespace Dapper.GraphQL
         /// <param name="context">The GraphQL selection set for the area being built.</param>
         /// <param name="alias">The alias of the entity within the query to use.</param>
         /// <returns>A query for the given type.</returns>
-        SqlQueryContext Build(SqlQueryContext query, IHaveSelectionSet context, string alias);
+        SqlQueryContext Build(SqlQueryContext query, IHasSelectionSetNode context, string alias);
     }
 }

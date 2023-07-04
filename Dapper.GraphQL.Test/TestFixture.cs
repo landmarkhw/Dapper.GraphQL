@@ -1,20 +1,19 @@
-﻿using Dapper.GraphQL.Test.GraphQL;
+using System;
+using System.Data;
+using System.Linq;
+using System.Reflection;
+using System.Threading.Tasks;
+using Dapper.GraphQL.Test.GraphQL;
 using Dapper.GraphQL.Test.Models;
 using Dapper.GraphQL.Test.QueryBuilders;
 using DbUp;
 using GraphQL;
 using GraphQL.Execution;
-using GraphQL.Http;
-using GraphQL.Language.AST;
+using GraphQL.NewtonsoftJson;
+using GraphQLParser.AST;
 using Microsoft.Extensions.DependencyInjection;
 using Newtonsoft.Json.Linq;
 using Npgsql;
-using System;
-using System.Collections.Generic;
-using System.Data;
-using System.Linq;
-using System.Reflection;
-using System.Threading.Tasks;
 
 namespace Dapper.GraphQL.Test
 {
@@ -22,13 +21,13 @@ namespace Dapper.GraphQL.Test
     {
         #region Statics
 
-        private static string chars = "abcdefghijklmnopqrstuvwxyz0123456789";
-        private static Random random = new Random((int)(DateTime.Now.Ticks << 32));
+        private static string _chars = "abcdefghijklmnopqrstuvwxyz0123456789";
+        private static Random _random = new Random((int)(DateTime.Now.Ticks << 32));
 
         #endregion Statics
 
-        private readonly string DatabaseName;
-        private readonly DocumentExecuter DocumentExecuter;
+        private readonly string _databaseName;
+        private readonly DocumentExecuter _documentExecuter;
         public PersonSchema Schema { get; set; }
         public IServiceProvider ServiceProvider { get; set; }
         private string ConnectionString { get; set; } = null;
@@ -36,28 +35,28 @@ namespace Dapper.GraphQL.Test
 
         public TestFixture()
         {
-            DatabaseName = "test-" + new string(chars.OrderBy(c => random.Next()).ToArray());
+            _databaseName = "test-" + new string(_chars.OrderBy(c => _random.Next()).ToArray());
 
-            DocumentExecuter = new DocumentExecuter();
+            _documentExecuter = new DocumentExecuter();
             var serviceCollection = new ServiceCollection();
 
             SetupDatabaseConnection();
-            SetupDapperGraphQL(serviceCollection);
+            SetupDapperGraphQl(serviceCollection);
 
             ServiceProvider = serviceCollection.BuildServiceProvider();
             Schema = ServiceProvider.GetRequiredService<PersonSchema>();
         }
 
-        public IHaveSelectionSet BuildGraphQLSelection(string body)
+        public IHasSelectionSetNode BuildGraphQlSelection(string body)
         {
             var document = new GraphQLDocumentBuilder().Build(body);
             return document
-                .Operations
-                .OfType<IHaveSelectionSet>()
+                .Definitions
+                .OfType<IHasSelectionSetNode>()
                 .First()?
                 .SelectionSet
                 .Selections
-                .OfType<Field>()
+                .OfType<GraphQLField>()
                 .FirstOrDefault();
         }
 
@@ -83,40 +82,42 @@ namespace Dapper.GraphQL.Test
             return JToken.DeepEquals(JObject.Parse(expectedJson), JObject.Parse(actualJson));
         }
 
-        public async Task<string> QueryGraphQLAsync(string query)
+        public async Task<string> QueryGraphQlAsync(string query)
         {
-            var result = await DocumentExecuter
+            var result = await _documentExecuter
                 .ExecuteAsync(options =>
                 {
                     options.Schema = Schema;
                     options.Query = query;
                 })
                 .ConfigureAwait(false);
-
-            var json = new DocumentWriter(indent: true).Write(result);
+            
+            var json = new GraphQLSerializer(indent: true).Serialize(result);
             return json;
         }
 
-        public async Task<string> QueryGraphQLAsync(GraphQlQuery query)
+        public async Task<string> QueryGraphQlAsync(GraphQlQuery query)
         {
-            var result = await DocumentExecuter
+            var serializer = new GraphQLSerializer();
+            var inputs = serializer.ReadNode<Inputs>(query.Variables) ?? Inputs.Empty;
+            var result = await _documentExecuter
                 .ExecuteAsync(options =>
                 {
                     options.Schema = Schema;
                     options.Query = query.Query;
-                    options.Inputs = query.Variables != null ? new Inputs(StringExtensions.GetValue(query.Variables) as Dictionary<string, object>) : null;
+                    options.Variables = inputs;
                 })
                 .ConfigureAwait(false);
 
-            var json = new DocumentWriter(indent: true).Write(result);
+            var json = new GraphQLSerializer(indent: true).Serialize(result);
             return json;
         }
 
         public void SetupDatabaseConnection()
         {
             // Generate a random db name
-
-            ConnectionString = $"Server=localhost;Port=5432;Database={DatabaseName};User Id=postgres;Password=dapper-graphql;";
+           
+            ConnectionString = $"Server=localhost;Port=5432;Database={_databaseName};User Id=postgres;Password=dapper-graphql;";
 
             // Ensure the database exists
             EnsureDatabase.For.PostgresqlDatabase(ConnectionString);
@@ -137,7 +138,7 @@ namespace Dapper.GraphQL.Test
         public void TeardownDatabase()
         {
             // Connect to a different database, so we can drop the one we were working with
-            var dropConnectionString = ConnectionString.Replace(DatabaseName, "template1");
+            var dropConnectionString = ConnectionString.Replace(_databaseName, "template1");
             using (var connection = new NpgsqlConnection(dropConnectionString))
             {
                 connection.Open();
@@ -148,13 +149,8 @@ namespace Dapper.GraphQL.Test
                 // is closed at this point.  In any case, we need to take an extra step of
                 // dropping all connections to the database before dropping it.
                 //
-                // See http://www.leeladharan.com/drop-a-postgresql-database-if-there-are-active-connections-to-it
-                command.CommandText = $@"
-SELECT pg_terminate_backend(pg_stat_activity.pid)
-FROM pg_stat_activity
-WHERE pg_stat_activity.datname = '{DatabaseName}' AND pid <> pg_backend_pid();
-
-DROP DATABASE ""{DatabaseName}"";";
+                // See https://stackoverflow.com/a/59021507
+                command.CommandText = $@"DROP DATABASE ""{_databaseName}"" WITH (FORCE);";
                 command.CommandType = CommandType.Text;
 
                 // Drop the database
@@ -162,16 +158,15 @@ DROP DATABASE ""{DatabaseName}"";";
             }
         }
 
-        private void SetupDapperGraphQL(IServiceCollection serviceCollection)
+        private void SetupDapperGraphQl(IServiceCollection serviceCollection)
         {
-            serviceCollection.AddSingleton<IDependencyResolver>(s => new FuncDependencyResolver(s.GetRequiredService));
-
-            serviceCollection.AddDapperGraphQL(options =>
+            serviceCollection.AddDapperGraphQl(options =>
             {
                 // Add GraphQL types
                 options.AddType<CompanyType>();
                 options.AddType<EmailType>();
                 options.AddType<PersonType>();
+                options.AddType<PhoneEnumType>();
                 options.AddType<GraphQL.PhoneType>();
                 options.AddType<PersonQuery>();
                 options.AddType<PersonMutation>();

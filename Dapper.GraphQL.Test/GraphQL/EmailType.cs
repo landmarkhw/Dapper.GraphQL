@@ -1,8 +1,5 @@
-﻿using Dapper.GraphQL.Test.Models;
+using Dapper.GraphQL.Test.Models;
 using GraphQL.Types;
-using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace Dapper.GraphQL.Test.GraphQL
 {
@@ -14,17 +11,13 @@ namespace Dapper.GraphQL.Test.GraphQL
             Name = "email";
             Description = "An email address.";
 
-            Field<IntGraphType>(
-                "id",
-                description: "A unique identifier for the email address.",
-                resolve: context => context.Source?.Id
-            );
+            Field<IntGraphType>("id")
+                .Description("A unique identifier for the email address.")
+                .Resolve(context => context.Source?.Id);
 
-            Field<StringGraphType>(
-                "address",
-                description: "The email address.",
-                resolve: context => context.Source?.Address
-            );
+            Field<StringGraphType>("address")
+                .Description("The email address.")
+                .Resolve(context => context.Source?.Address);
         }
     }
 }

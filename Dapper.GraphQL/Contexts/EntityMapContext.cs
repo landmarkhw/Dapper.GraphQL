@@ -1,4 +1,5 @@
-﻿using GraphQL.Language.AST;
+using GraphQL.Language.AST;
+using GraphQLParser.AST;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -7,8 +8,8 @@ namespace Dapper.GraphQL
 {
     public class EntityMapContext : IDisposable
     {
-        private bool IsDisposing = false;
-        private object LockObject = new object();
+        private bool _isDisposing = false;
+        private object _lockObject = new object();
 
         /// <summary>
         /// A list of objects to be mapped.
@@ -23,24 +24,24 @@ namespace Dapper.GraphQL
         /// <summary>
         /// The GraphQL selection criteria.
         /// </summary>
-        public IHaveSelectionSet SelectionSet { get; set; }
+        public IHasSelectionSetNode SelectionSet { get; set; }
 
         /// <summary>
         /// The types used to split the GraphQL query.
         /// </summary>
         public IEnumerable<Type> SplitOn { get; set; }
 
-        protected IDictionary<string, Field> CurrentSelectionSet { get; set; }
+        protected IDictionary<GraphQLName, GraphQLField> CurrentSelectionSet { get; set; }
         protected IEnumerator<object> ItemEnumerator { get; set; }
         protected IEnumerator<Type> SplitOnEnumerator { get; set; }
 
         public void Dispose()
         {
-            lock (LockObject)
+            lock (_lockObject)
             {
-                if (!IsDisposing)
+                if (!_isDisposing)
                 {
-                    IsDisposing = true;
+                    _isDisposing = true;
 
                     if (ItemEnumerator != null &&
                         SplitOnEnumerator != null)
@@ -57,7 +58,7 @@ namespace Dapper.GraphQL
         /// <summary>
         /// Returns a map of selected GraphQL fields.
         /// </summary>
-        public IDictionary<string, Field> GetSelectedFields()
+        public IDictionary<GraphQLName, GraphQLField> GetSelectedFields()
         {
             return SelectionSet.GetSelectedFields();
         }
@@ -72,7 +73,7 @@ namespace Dapper.GraphQL
         /// <returns>The mapped item.</returns>
         public TItemType Next<TItemType>(
             IEnumerable<string> fieldNames,
-            Func<IDictionary<string, Field>, IHaveSelectionSet, IHaveSelectionSet> getSelectionSet,
+            Func<IDictionary<GraphQLName, GraphQLField>, IHasSelectionSetNode, IHasSelectionSetNode> getSelectionSet,
             IEntityMapper<TItemType> entityMapper = null)
             where TItemType : class
         {
@@ -87,9 +88,9 @@ namespace Dapper.GraphQL
                 throw new NotSupportedException("Cannot call Next() before calling Start()");
             }
 
-            lock (LockObject)
+            lock (_lockObject)
             {
-                var keys = fieldNames.Intersect(CurrentSelectionSet.Keys);
+                var keys = fieldNames.Intersect(CurrentSelectionSet.Keys.Select(k => k.StringValue));
                 if (keys.Any())
                 {
                     TItemType item = default(TItemType);
@@ -109,7 +110,7 @@ namespace Dapper.GraphQL
                     if (entityMapper != null)
                     {
                         // Determine where the next entity mapper will get its selection set from
-                        IHaveSelectionSet selectionSet = getSelectionSet(CurrentSelectionSet, SelectionSet);
+                        IHasSelectionSetNode selectionSet = getSelectionSet(CurrentSelectionSet, SelectionSet);
 
                         var nextContext = new EntityMapContext
                         {
@@ -154,7 +155,7 @@ namespace Dapper.GraphQL
         public TEntityType Start<TEntityType>()
             where TEntityType : class
         {
-            lock (LockObject)
+            lock (_lockObject)
             {
                 ItemEnumerator = Items.GetEnumerator();
                 SplitOnEnumerator = SplitOn.GetEnumerator();

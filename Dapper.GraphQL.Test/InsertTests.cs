@@ -8,11 +8,11 @@ namespace Dapper.GraphQL.Test
 {
     public class InsertTests : IClassFixture<TestFixture>
     {
-        private readonly TestFixture fixture;
+        private readonly TestFixture _fixture;
 
         public InsertTests(TestFixture fixture)
         {
-            this.fixture = fixture;
+            this._fixture = fixture;
         }
 
         [Fact(DisplayName = "INSERT person succeeds")]
@@ -26,7 +26,7 @@ namespace Dapper.GraphQL.Test
 
             try
             {
-                using (var db = fixture.GetDbConnection())
+                using (var db = _fixture.GetDbConnection())
                 {
                     db.Open();
 
@@ -118,7 +118,7 @@ namespace Dapper.GraphQL.Test
         }
     }
 }";
-                    var selection = fixture.BuildGraphQLSelection(graphql);
+                    var selection = _fixture.BuildGraphQlSelection(graphql);
                     person = query
                         .Execute(db, selection, personMapper)
                         .Single();
@@ -137,7 +137,7 @@ namespace Dapper.GraphQL.Test
             finally
             {
                 // Ensure the changes here don't affect other unit tests
-                using (var db = fixture.GetDbConnection())
+                using (var db = _fixture.GetDbConnection())
                 {
                     if (emailId != default(int))
                     {
@@ -176,7 +176,7 @@ namespace Dapper.GraphQL.Test
 
             try
             {
-                using (var db = fixture.GetDbConnection())
+                using (var db = _fixture.GetDbConnection())
                 {
                     db.Open();
 
@@ -268,7 +268,7 @@ namespace Dapper.GraphQL.Test
         }
     }
 }";
-                    var selection = fixture.BuildGraphQLSelection(graphql);
+                    var selection = _fixture.BuildGraphQlSelection(graphql);
 
                     var people = await query.ExecuteAsync(db, selection, personMapper);
                     person = people
@@ -288,7 +288,7 @@ namespace Dapper.GraphQL.Test
             finally
             {
                 // Ensure the changes here don't affect other unit tests
-                using (var db = fixture.GetDbConnection())
+                using (var db = _fixture.GetDbConnection())
                 {
                     if (emailId != default(int))
                     {

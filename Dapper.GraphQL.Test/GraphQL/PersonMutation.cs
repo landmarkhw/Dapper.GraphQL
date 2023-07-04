@@ -1,8 +1,9 @@
-﻿using System;
+using System;
 using System.Data;
 using System.Linq;
 using Dapper.GraphQL.Test.EntityMappers;
 using Dapper.GraphQL.Test.Models;
+using GraphQL;
 using GraphQL.Types;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -13,13 +14,12 @@ namespace Dapper.GraphQL.Test.GraphQL
     {
         public PersonMutation(IQueryBuilder<Person> personQueryBuilder, IServiceProvider serviceProvider)
         {
-            Field<PersonType>(
-                "addPerson",
-                description: "Adds new person.",
-                arguments: new QueryArguments(
+            Field<PersonType>("addPerson")
+                .Description("Adds new person.")
+                .Arguments(new QueryArguments(
                     new QueryArgument<PersonInputType> { Name = "person" }
-                ),
-                resolve: context =>
+                ))
+                .Resolve(context =>
                 {
                     var person = context.GetArgument<Person>("person");
 
@@ -28,28 +28,27 @@ namespace Dapper.GraphQL.Test.GraphQL
                         person.Id = person.MergedToPersonId = PostgreSql.NextIdentity(connection, (Person p) => p.Id);
 
                         bool success = SqlBuilder
-                           .Insert(person)
-                           .Execute(connection) > 0;
+                            .Insert(person)
+                            .Execute(connection) > 0;
 
                         if (success)
                         {
                             var personMapper = new PersonEntityMapper();
 
                             var query = SqlBuilder
-                                            .From<Person>("Person")
-                                            .Select("FirstName, LastName")
-                                            .Where("ID = @personId", new { personId = person.Id });
+                                .From<Person>("Person")
+                                .Select("FirstName, LastName")
+                                .Where("ID = @personId", new { personId = person.Id });
 
                             var results = query
-                                   .Execute(connection, context.FieldAst, personMapper)
-                                   .Distinct();
+                                .Execute(connection, context.FieldAst, personMapper)
+                                .Distinct();
                             return results.FirstOrDefault();
                         }
 
                         return null;
                     }
-                }
-            );
+                });
         }
     }
 }

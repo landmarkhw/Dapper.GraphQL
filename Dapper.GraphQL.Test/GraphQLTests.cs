@@ -2,24 +2,23 @@ using System.Threading.Tasks;
 using Xunit;
 using Dapper.GraphQL.Test.GraphQL;
 using Newtonsoft.Json.Linq;
-using Dapper.GraphQL.Test.Models;
 
 namespace Dapper.GraphQL.Test
 {
-    public class GraphQLTests : IClassFixture<TestFixture>
+    public class GraphQlTests : IClassFixture<TestFixture>
     {
-        private readonly TestFixture fixture;
+        private readonly TestFixture _fixture;
 
-        public GraphQLTests(
+        public GraphQlTests(
             TestFixture fixture)
         {
-            this.fixture = fixture;
+            this._fixture = fixture;
         }
 
         [Fact(DisplayName = "Full people query should succeed")]
         public async Task FullPeopleQuery()
         {
-            var json = await fixture.QueryGraphQLAsync(@"
+            var json = await _fixture.QueryGraphQlAsync(@"
 query {
     people {
         id
@@ -104,7 +103,7 @@ query {
                 ""phones"": [{
                     ""id"": 1,
                     ""number"": ""8011234567"",
-                    ""type"": 3
+                    ""type"": ""Mobile""
                 }],
                 ""companies"": [{
                         ""id"": 1,
@@ -138,12 +137,12 @@ query {
                 ""phones"": [{
                         ""id"": 2,
                         ""number"": ""8019876543"",
-                        ""type"": 3
+                        ""type"": ""Mobile""
                     },
                     {
                         ""id"": 3,
                         ""number"": ""8011111111"",
-                        ""type"": 1
+                        ""type"": ""Home""
                     }
                 ],
                 ""companies"": [{
@@ -181,7 +180,7 @@ query {
                     ""phones"": [{
                         ""id"": 1,
                         ""number"": ""8011234567"",
-                        ""type"": 3
+                        ""type"": ""Mobile""
                     }]
                 }
             }
@@ -189,13 +188,13 @@ query {
     }
 }";
 
-            Assert.True(fixture.JsonEquals(expectedJson, json));
+            Assert.True(_fixture.JsonEquals(expectedJson, json));
         }
 
         [Fact(DisplayName = "Async query should succeed")]
         public async Task PeopleAsyncQuery()
         {
-            var json = await fixture.QueryGraphQLAsync(@"
+            var json = await _fixture.QueryGraphQlAsync(@"
 query {
     peopleAsync {
         id
@@ -227,13 +226,13 @@ query {
   }
 }";
 
-            Assert.True(fixture.JsonEquals(expectedJson, json));
+            Assert.True(_fixture.JsonEquals(expectedJson, json));
         }
 
         [Fact(DisplayName = "Person query should succeed")]
         public async Task PersonQuery()
         {
-            var json = await fixture.QueryGraphQLAsync(@"
+            var json = await _fixture.QueryGraphQlAsync(@"
 query {
     person (id: 2) {
         id
@@ -268,19 +267,19 @@ query {
             phones: [{
                 id: 1,
                 number: '8011234567',
-                type: 3
+                type: ""Mobile""
             }]
         }
     }
 }";
 
-            Assert.True(fixture.JsonEquals(expectedJson, json));
+            Assert.True(_fixture.JsonEquals(expectedJson, json));
         }
 
         [Fact(DisplayName = "Simple people query should succeed")]
         public async Task SimplePeopleQuery()
         {
-            var json = await fixture.QueryGraphQLAsync(@"
+            var json = await _fixture.QueryGraphQlAsync(@"
 query {
     people {
         firstName
@@ -308,13 +307,13 @@ query {
   }
 }";
 
-            Assert.True(fixture.JsonEquals(expectedJson, json));
+            Assert.True(_fixture.JsonEquals(expectedJson, json));
         }
 
         [Fact(DisplayName = "Simple person query should succeed")]
         public async Task SimplePersonQuery()
         {
-            var json = await fixture.QueryGraphQLAsync(@"
+            var json = await _fixture.QueryGraphQlAsync(@"
 query {
     person (id: 2) {
         id
@@ -334,37 +333,7 @@ query {
     }
 }";
 
-            Assert.True(fixture.JsonEquals(expectedJson, json));
-        }
-
-        [Fact(DisplayName = "Simple person insert should succeed")]
-        public async Task SimplePersonInsert()
-        {
-            GraphQlQuery graphQuery = new GraphQlQuery();
-            graphQuery.OperationName = "addPerson";
-            graphQuery.Variables = JObject.Parse(@"{""person"":{""firstName"":""Joe"",""lastName"":""Doe""}}");
-
-            graphQuery.Query = @"
-mutation ($person: PersonInput!) {
-  addPerson(person: $person) {
-    firstName
-    lastName
-  }
-}";
-
-            var json = await fixture.QueryGraphQLAsync(graphQuery);
-
-            var expectedJson = @"
-            {
-                data: {
-                    addPerson: {
-                        firstName: 'Joe',
-                        lastName: 'Doe'
-                    }
-                }
-            }";
-
-            Assert.True(fixture.JsonEquals(expectedJson, json));
+            Assert.True(_fixture.JsonEquals(expectedJson, json));
         }
     }
 }

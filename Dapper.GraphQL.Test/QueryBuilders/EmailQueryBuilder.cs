@@ -1,15 +1,15 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using GraphQL.Language.AST;
+using System;
+using System.Linq;
 using Dapper.GraphQL.Test.Models;
+using GraphQL.Language.AST;
+using GraphQLParser.AST;
 
 namespace Dapper.GraphQL.Test.QueryBuilders
 {
     public class EmailQueryBuilder :
         IQueryBuilder<Email>
     {
-        public SqlQueryContext Build(SqlQueryContext query, IHaveSelectionSet context, string alias)
+        public SqlQueryContext Build(SqlQueryContext query, IHasSelectionSetNode context, string alias)
         {
             // Always get the ID of the email
             query.Select($"{alias}.Id");
@@ -17,7 +17,7 @@ namespace Dapper.GraphQL.Test.QueryBuilders
             query.SplitOn<Email>("Id");
 
             var fields = context.GetSelectedFields();
-            if (fields.ContainsKey("address"))
+            if (fields.Keys.Any(k => k.StringValue.Equals("address", StringComparison.OrdinalIgnoreCase)))
             {
                 query.Select($"{alias}.Address");
             }

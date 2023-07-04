@@ -1,23 +1,24 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using System.Linq;
+using GraphQLParser.AST;
 
 namespace GraphQL.Language.AST
 {
-    public static class IHaveSelectionSetExtensions
+    public static class IHasSelectionSetNodeExtensions
     {
         /// <summary>
         /// Returns a map of selected fields, keyed by the field name.
         /// </summary>
         /// <param name="selectionSet">The GraphQL selection set container.</param>
         /// <returns>A dictionary whose key is the field name, and value is the field contents.</returns>
-        public static IDictionary<string, Field> GetSelectedFields(this IHaveSelectionSet selectionSet)
+        public static IDictionary<GraphQLName, GraphQLField> GetSelectedFields(this IHasSelectionSetNode selectionSet)
         {
             if (selectionSet != null)
             {
                 var fields = selectionSet
                     .SelectionSet
                     .Selections
-                    .OfType<Field>()
+                    .OfType<GraphQLField>()
                     .ToDictionary(field => field.Name);
 
                 return fields;
@@ -31,13 +32,13 @@ namespace GraphQL.Language.AST
         /// <typeparam name="TEntityType">The type of entity to retrieve.</typeparam>
         /// <param name="selectionSet">The GraphQL selection set.</param>
         /// <returns>The inline framgent associated with the entity.</returns>
-        public static InlineFragment GetInlineFragment<TEntityType>(this IHaveSelectionSet selectionSet)
+        public static GraphQLInlineFragment GetInlineFragment<TEntityType>(this IHasSelectionSetNode selectionSet)
         {
             return selectionSet
                 .SelectionSet?
                 .Selections?
-                .OfType<InlineFragment>()
-                .Where(f => f.Type?.Name == typeof(TEntityType).Name)
+                .OfType<GraphQLInlineFragment>()
+                .Where(f => f.TypeCondition?.Type?.Name.StringValue == typeof(TEntityType).Name)
                 .FirstOrDefault();
         }
     }

@@ -1,8 +1,5 @@
-﻿using Dapper.GraphQL.Test.Models;
+using Dapper.GraphQL.Test.Models;
 using GraphQL.Types;
-using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace Dapper.GraphQL.Test.GraphQL
 {
@@ -14,53 +11,37 @@ namespace Dapper.GraphQL.Test.GraphQL
             Name = "person";
             Description = "A person.";
 
-            Field<IntGraphType>(
-                "id",
-                description: "A unique identifier for the person.",
-                resolve: context => context.Source?.Id
-            );
+            Field<IntGraphType>("id")
+                .Description("A unique identifier for the person.")
+                .Resolve(context => context.Source?.Id);
 
-            Field<StringGraphType>(
-                "firstName",
-                description: "The first name of the person.",
-                resolve: context => context.Source?.FirstName
-            );
+            Field<StringGraphType>("firstName")
+                .Description("The first name of the person.")
+                .Resolve(context => context.Source?.FirstName);
 
-            Field<StringGraphType>(
-                "lastName",
-                description: "The last name of the person.",
-                resolve: context => context.Source?.LastName
-            );
+            Field<StringGraphType>("lastName")
+                .Description("The last name of the person.")
+                .Resolve(context => context.Source?.LastName);
 
-            Field<ListGraphType<CompanyType>>(
-                "companies",
-                description: "A list of companies for this person.",
-                resolve: context => context.Source?.Companies
-            );
+            Field<ListGraphType<CompanyType>>("companies")
+                .Description("A list of companies for this person.")
+                .Resolve(context => context.Source?.Companies);
 
-            Field<ListGraphType<EmailType>>(
-                "emails",
-                description: "A list of email addresses for the person.",
-                resolve: context => context.Source?.Emails
-            );
+            Field<ListGraphType<EmailType>>("emails")
+                .Description("A list of email addresses for the person.")
+                .Resolve(context => context.Source?.Emails);
 
-            Field<ListGraphType<PhoneType>>(
-                "phones",
-                description: "A list of phone numbers for the person.",
-                resolve: context => context.Source?.Phones
-            );
+            Field<ListGraphType<PhoneType>>("phones")
+                .Description("A list of phone numbers for the person.")
+                .Resolve(context => context.Source?.Phones);
 
-            Field<PersonType>(
-                "supervisor",
-                description: "This person's supervisor.",
-                resolve: context => context.Source?.Supervisor
-            );
+            Field<PersonType>("supervisor")
+                .Description("This person's supervisor.")
+                .Resolve(context => context.Source?.Supervisor);
 
-            Field<PersonType>(
-                "careerCounselor",
-                description: "This person's career counselor.",
-                resolve: context => context.Source?.CareerCounselor
-            );
+            Field<PersonType>("careerCounselor")
+                .Description("This person's career counselor.")
+                .Resolve(context => context.Source?.CareerCounselor);
         }
     }
 }

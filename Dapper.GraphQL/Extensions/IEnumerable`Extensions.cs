@@ -4,7 +4,7 @@ using System.Threading.Tasks;
 
 namespace Dapper.GraphQL
 {
-    public static class IEnumerable_Extensions
+    public static class EnumerableExtensions
     {
         /// <summary>
         /// An async version of the Aggregate with seed method found in dotnet/corefx

@@ -1,14 +1,17 @@
-﻿using GraphQL;
+using System;
+using GraphQL.Types;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace Dapper.GraphQL.Test.GraphQL
 {
     public class PersonSchema :
         global::GraphQL.Types.Schema
     {
-        public PersonSchema(IDependencyResolver resolver) : base(resolver)
+        public PersonSchema(IServiceProvider services)
+            : base(services)
         {
-            Query = resolver.Resolve<PersonQuery>();
-            Mutation = resolver.Resolve<PersonMutation>();
+            Query = services.GetService<PersonQuery>();
+            Mutation = services.GetService<PersonMutation>();
         }
     }
 }

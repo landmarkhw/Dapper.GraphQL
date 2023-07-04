@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>netstandard1.3</TargetFramework>
+    <TargetFramework>netstandard2.0</TargetFramework>
     <Version>0.4.2-beta</Version>
     <Authors>Doug Day, Kevin Russon, Ben McCallum, Natalya Arbit, Per Liedman, John Stovin</Authors>
     <Company>Landmark Home Warranty</Company>
@@ -22,10 +22,11 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Dapper" Version="1.50.4" />    
-    <PackageReference Include="Dapper.SqlBuilder" Version="1.50.4" />
-    <PackageReference Include="GraphQL" Version="2.3.0" />
-    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="1.1.1" />
+    <PackageReference Include="Dapper" Version="2.0.143" />    
+    <PackageReference Include="Dapper.SqlBuilder" Version="2.0.78" />
+    <PackageReference Include="GraphQL" Version="7.5.0" />
+    <PackageReference Include="GraphQL.NewtonsoftJson" Version="7.5.0" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="7.0.0" />
     <PackageReference Include="System.ValueTuple" Version="4.5.0" />
   </ItemGroup>
 

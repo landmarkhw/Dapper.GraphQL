@@ -1,12 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Data;
-using System.Data.Common;
-using System.Linq;
-using System.Text;
-using System.Text.RegularExpressions;
-
-namespace Dapper.GraphQL
+﻿namespace Dapper.GraphQL
 {
     /// <summary>
     /// A builder for SQL queries and statements.
