@@ -129,9 +129,9 @@ namespace Dapper.GraphQL.Test
                 Assert.Equal(personId, person.Id);
                 Assert.Equal("Steven", person.FirstName);
                 Assert.Equal("Rollman", person.LastName);
-                Assert.Equal(1, person.Emails.Count);
+                Assert.Single(person.Emails);
                 Assert.Equal("srollman@landmarkhw.com", person.Emails[0].Address);
-                Assert.Equal(1, person.Phones.Count);
+                Assert.Single(person.Phones);
                 Assert.Equal("8011115555", person.Phones[0].Number);
             }
             finally
@@ -280,9 +280,9 @@ namespace Dapper.GraphQL.Test
                 Assert.Equal(personId, person.Id);
                 Assert.Equal("Steven", person.FirstName);
                 Assert.Equal("Rollman", person.LastName);
-                Assert.Equal(1, person.Emails.Count);
+                Assert.Single(person.Emails);
                 Assert.Equal("srollman@landmarkhw.com", person.Emails[0].Address);
-                Assert.Equal(1, person.Phones.Count);
+                Assert.Single(person.Phones);
                 Assert.Equal("8011115555", person.Phones[0].Number);
             }
             finally

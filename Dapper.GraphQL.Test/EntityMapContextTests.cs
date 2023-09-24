@@ -95,8 +95,8 @@ namespace Dapper.GraphQL.Test
 
             Assert.Equal(2, person1.Id);
             Assert.Equal("Doug", person1.FirstName);
-            Assert.Equal(1, person1.Emails.Count);
-            Assert.Equal(1, person1.Phones.Count);
+            Assert.Single(person1.Emails);
+            Assert.Single(person1.Phones);
 
             var context2 = new EntityMapContext
             {
