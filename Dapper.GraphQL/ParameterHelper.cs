@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
@@ -8,8 +8,8 @@ namespace Dapper.GraphQL
 {
     public static class ParameterHelper
     {
-        private static Dictionary<Type, PropertyInfo[]> _propertyCache = new Dictionary<Type, PropertyInfo[]>();
-        private static Dictionary<Type, TypeInfo> _typeInfoCache = new Dictionary<Type, TypeInfo>();
+        private static readonly Dictionary<Type, PropertyInfo[]> _propertyCache = new Dictionary<Type, PropertyInfo[]>();
+        private static readonly Dictionary<Type, TypeInfo> _typeInfoCache = new Dictionary<Type, TypeInfo>();
 
         /// <summary>
         /// Gets a list of flat properties that have been set on the object.
@@ -45,6 +45,7 @@ namespace Dapper.GraphQL
                                 {
                                     return false;
                                 }
+
                                 if (p.PropertyType.IsConstructedGenericType)
                                 {
                                     var typeDef = p.PropertyType.GetGenericTypeDefinition();
@@ -55,6 +56,7 @@ namespace Dapper.GraphQL
                                         return false;
                                     }
                                 }
+
                                 return true;
                             })
                             .ToArray();
@@ -93,9 +95,10 @@ namespace Dapper.GraphQL
                                 return null;
                             }
                         }
+
                         return value;
-                    }
-                )
+                    })
+
                 // Then, filter out "unset" properties, or properties that are set to their default value
                 .Where(kvp => kvp.Value != null);
         }
@@ -112,6 +115,7 @@ namespace Dapper.GraphQL
                     }
                 }
             }
+
             return _typeInfoCache[type];
         }
     }

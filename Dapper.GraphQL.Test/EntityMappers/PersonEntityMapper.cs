@@ -1,5 +1,5 @@
-﻿using Dapper.GraphQL.Test.Models;
-using System.Linq;
+﻿using System.Linq;
+using Dapper.GraphQL.Test.Models;
 
 namespace Dapper.GraphQL.Test.EntityMappers
 {
@@ -14,7 +14,7 @@ namespace Dapper.GraphQL.Test.EntityMappers
             // Deduplicate entities using MergedToPersonId instead of Id.
             PrimaryKey = p => p.MergedToPersonId;
         }
-        
+
         public override Person Map(EntityMapContext context)
         {
             // Avoid creating the mappers until they're used
@@ -23,6 +23,7 @@ namespace Dapper.GraphQL.Test.EntityMappers
             {
                 _companyEntityMapper = new CompanyEntityMapper();
             }
+
             if (_personEntityMapper == null)
             {
                 _personEntityMapper = new PersonEntityMapper();
@@ -42,6 +43,7 @@ namespace Dapper.GraphQL.Test.EntityMappers
             if (person != null)
             {
                 if (company != null &&
+
                     // Eliminate duplicates
                     !person.Companies.Any(c => c.Id == company.Id))
                 {
@@ -49,6 +51,7 @@ namespace Dapper.GraphQL.Test.EntityMappers
                 }
 
                 if (email != null &&
+
                     // Eliminate duplicates
                     !person.Emails.Any(e => e.Address == email.Address))
                 {
@@ -56,6 +59,7 @@ namespace Dapper.GraphQL.Test.EntityMappers
                 }
 
                 if (phone != null &&
+
                     // Eliminate duplicates
                     !person.Phones.Any(p => p.Number == phone.Number))
                 {

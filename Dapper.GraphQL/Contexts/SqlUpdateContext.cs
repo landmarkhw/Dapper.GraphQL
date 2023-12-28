@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using System.Data;
 using System.Linq;
 using System.Text;
@@ -8,10 +8,14 @@ namespace Dapper.GraphQL
 {
     public class SqlUpdateContext
     {
-        private HashSet<string> _updateParameterNames;
+        private readonly HashSet<string> _updateParameterNames;
+
         public DynamicParameters Parameters { get; set; }
+
         private Dapper.SqlBuilder SqlBuilder { get; set; }
+
         public string Table { get; private set; }
+
         private Dapper.SqlBuilder.Template Template { get; set; }
 
         public SqlUpdateContext(
@@ -22,6 +26,7 @@ namespace Dapper.GraphQL
             {
                 parameters = ParameterHelper.GetSetFlatProperties(parameters);
             }
+
             this.Parameters = new DynamicParameters(parameters);
             this.SqlBuilder = new Dapper.SqlBuilder();
             this.Table = table;
@@ -48,7 +53,7 @@ namespace Dapper.GraphQL
         ///         "customer.id",
         ///         "customer.name",
         ///     );
-        ///     queryBuilder.SplitOn<Customer>("id");
+        ///     queryBuilder.SplitOn&lt;Customer&gt;("id");
         ///     queryBuilder.Where("customer.id == @id");
         ///     queryBuilder.Parameters.Add("id", 1);
         ///     var customer = queryBuilder
@@ -79,7 +84,8 @@ namespace Dapper.GraphQL
         /// <param name="options">The options for the command (optional).</param>
         public int Execute(IDbConnection connection, IDbTransaction transaction = null, SqlMapperOptions options = null)
         {
-            if (options == null) {
+            if (options == null)
+            {
                 options = SqlMapperOptions.DefaultOptions;
             }
 
@@ -95,7 +101,8 @@ namespace Dapper.GraphQL
         /// <param name="options">The options for the command (optional).</param>
         public async Task<int> ExecuteAsync(IDbConnection connection, IDbTransaction transaction = null, SqlMapperOptions options = null)
         {
-            if (options == null) {
+            if (options == null)
+            {
                 options = SqlMapperOptions.DefaultOptions;
             }
 

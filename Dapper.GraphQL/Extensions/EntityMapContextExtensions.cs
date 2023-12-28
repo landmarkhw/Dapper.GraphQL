@@ -17,8 +17,8 @@ namespace Dapper.GraphQL
         /// <param name="entityMapper">An optional entity mapper.  This is used to map complex objects from Dapper mapping results.</param>
         /// <returns>The mapped item.</returns>
         public static TItemType Next<TItemType>(
-            this EntityMapContext context, 
-            string fieldName, 
+            this EntityMapContext context,
+            string fieldName,
             IEntityMapper<TItemType> entityMapper = null)
             where TItemType : class
         {
@@ -26,10 +26,9 @@ namespace Dapper.GraphQL
             var rom = new ROM(charArray);
             var graphQlName = new GraphQLName(rom);
             return context.Next<TItemType>(
-                new[] { fieldName }, 
+                new[] { fieldName },
                 (currentSelectionSet, selectionSet) => currentSelectionSet[graphQlName],
-                entityMapper
-            );
+                entityMapper);
         }
 
         /// <summary>
@@ -49,8 +48,7 @@ namespace Dapper.GraphQL
             return context.Next<TItemType>(
                 fieldNames,
                 (currentSelectionSet, selectionSet) => selectionSet,
-                entityMapper
-            );
+                entityMapper);
         }
 
         /// <summary>
@@ -77,10 +75,8 @@ namespace Dapper.GraphQL
                     .SelectionSet
                     .Selections
                     .OfType<GraphQLInlineFragment>()
-                    .Where(f => f.TypeCondition?.Type?.Name?.StringValue == typeof(TItemType).Name)
-                    .FirstOrDefault(),
-                entityMapper
-            );
+                    .FirstOrDefault(f => f.TypeCondition?.Type?.Name?.StringValue == typeof(TItemType).Name),
+                entityMapper);
         }
     }
 }

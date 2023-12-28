@@ -1,8 +1,8 @@
 using System;
-using GraphQL.Language.AST;
-using Dapper.GraphQL.Test.Models;
-using GraphQLParser.AST;
 using System.Linq;
+using Dapper.GraphQL.Test.Models;
+using GraphQL.Language.AST;
+using GraphQLParser.AST;
 
 namespace Dapper.GraphQL.Test.QueryBuilders
 {
@@ -38,6 +38,7 @@ namespace Dapper.GraphQL.Test.QueryBuilders
             {
                 query.Select($"{mergedAlias}.FirstName");
             }
+
             if (fields.Keys.Any(k => k.StringValue.Equals("lastName", StringComparison.OrdinalIgnoreCase)))
             {
                 query.Select($"{mergedAlias}.LastName");

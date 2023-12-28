@@ -1,10 +1,11 @@
-﻿namespace Dapper.GraphQL
+namespace Dapper.GraphQL
 {
     /// <summary>
     /// Maps a row of objects from Dapper into an entity.
     /// </summary>
     /// <typeparam name="TEntityType">The type of entity to be mapped.</typeparam>
-    public interface IEntityMapper<TEntityType> where TEntityType : class
+    public interface IEntityMapper<out TEntityType>
+        where TEntityType : class
     {
         /// <summary>
         /// Maps a row of data to an entity.

@@ -23,6 +23,7 @@ namespace GraphQL.Language.AST
 
                 return fields;
             }
+
             return null;
         }
 
@@ -38,8 +39,7 @@ namespace GraphQL.Language.AST
                 .SelectionSet?
                 .Selections?
                 .OfType<GraphQLInlineFragment>()
-                .Where(f => f.TypeCondition?.Type?.Name.StringValue == typeof(TEntityType).Name)
-                .FirstOrDefault();
+                .FirstOrDefault(f => f.TypeCondition?.Type?.Name.StringValue == typeof(TEntityType).Name);
         }
     }
 }

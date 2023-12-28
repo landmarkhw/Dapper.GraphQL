@@ -9,7 +9,9 @@ namespace Dapper.GraphQL
     public class SqlDeleteContext
     {
         public DynamicParameters Parameters { get; set; }
+
         public string Table { get; private set; }
+
         private List<SqlDeleteContext> Deletes { get; set; }
 
         public SqlDeleteContext(
@@ -20,6 +22,7 @@ namespace Dapper.GraphQL
             {
                 parameters = ParameterHelper.GetSetFlatProperties(parameters);
             }
+
             this.Parameters = new DynamicParameters(parameters);
             this.Table = table;
         }
@@ -41,6 +44,7 @@ namespace Dapper.GraphQL
             {
                 Deletes = new List<SqlDeleteContext>();
             }
+
             var delete = SqlBuilder.Delete(table, parameters);
             Deletes.Add(delete);
             return this;
@@ -54,16 +58,18 @@ namespace Dapper.GraphQL
         /// <param name="options">The options for the command (optional).</param>
         public int Execute(IDbConnection connection, IDbTransaction transaction = null, SqlMapperOptions options = null)
         {
-            if (options == null) {
+            if (options == null)
+            {
                 options = SqlMapperOptions.DefaultOptions;
             }
 
-            int result = connection.Execute(BuildSql(), Parameters, transaction, options.CommandTimeout, options.CommandType);
+            var result = connection.Execute(BuildSql(), Parameters, transaction, options.CommandTimeout, options.CommandType);
             if (Deletes != null)
             {
                 // Execute each delete and aggregate the results
                 result = Deletes.Aggregate(result, (current, delete) => current + delete.Execute(connection, transaction, options));
             }
+
             return result;
         }
 
@@ -75,16 +81,18 @@ namespace Dapper.GraphQL
         /// <param name="options">The options for the command (optional).</param>
         public async Task<int> ExecuteAsync(IDbConnection connection, IDbTransaction transaction = null, SqlMapperOptions options = null)
         {
-            if (options == null) {
+            if (options == null)
+            {
                 options = SqlMapperOptions.DefaultOptions;
             }
 
-            int result = await connection.ExecuteAsync(BuildSql(), Parameters, transaction, options.CommandTimeout, options.CommandType);
+            var result = await connection.ExecuteAsync(BuildSql(), Parameters, transaction, options.CommandTimeout, options.CommandType);
             if (Deletes != null)
             {
                 // Execute each delete and aggregate the results
                 result = await Deletes.AggregateAsync(result, async (current, delete) => current + await delete.ExecuteAsync(connection, transaction, options));
             }
+
             return result;
         }
 

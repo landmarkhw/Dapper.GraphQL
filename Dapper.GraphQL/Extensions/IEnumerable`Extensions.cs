@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
@@ -28,8 +28,8 @@ namespace Dapper.GraphQL
                 throw new ArgumentNullException(nameof(funcAsync));
             }
 
-            TAccumulate result = seed;
-            foreach (TSource element in source)
+            var result = seed;
+            foreach (var element in source)
             {
                 result = await funcAsync(result, element);
             }

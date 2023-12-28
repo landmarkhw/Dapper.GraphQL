@@ -16,6 +16,7 @@ namespace Dapper.GraphQL
             {
                 throw new NotSupportedException("Cannot execute a PostgreSQL identity with an expression of type " + identityNameSelector.Body.NodeType);
             }
+
             var memberExpression = identityNameSelector.Body as MemberExpression;
 
             var sb = new StringBuilder();
@@ -33,6 +34,7 @@ namespace Dapper.GraphQL
             {
                 throw new NotSupportedException("Cannot execute a PostgreSQL identity with an expression of type " + identityNameSelector.Body.NodeType);
             }
+
             var memberExpression = identityNameSelector.Body as MemberExpression;
 
             var sb = new StringBuilder();

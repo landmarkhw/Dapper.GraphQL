@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using System.Data;
 using System.Linq;
 using System.Text;
@@ -28,6 +28,7 @@ namespace Dapper.GraphQL
             {
                 Inserts = new List<SqlInsertContext<TEntityType>>();
             }
+
             var insert = SqlBuilder.Insert(obj);
             Inserts.Add(insert);
             return this;
@@ -36,9 +37,12 @@ namespace Dapper.GraphQL
 
     public class SqlInsertContext
     {
-        private HashSet<string> InsertParameterNames;
+        private readonly HashSet<string> InsertParameterNames;
+
         public DynamicParameters Parameters { get; set; }
+
         public string Table { get; private set; }
+
         private List<SqlInsertContext> Inserts { get; set; }
 
         public SqlInsertContext(
@@ -49,6 +53,7 @@ namespace Dapper.GraphQL
             {
                 parameters = ParameterHelper.GetSetFlatProperties(parameters);
             }
+
             this.Parameters = new DynamicParameters(parameters);
             this.InsertParameterNames = new HashSet<string>(Parameters.ParameterNames);
             this.Table = table;
@@ -62,16 +67,18 @@ namespace Dapper.GraphQL
         /// <param name="options">The options for the command (optional).</param>
         public int Execute(IDbConnection connection, IDbTransaction transaction = null, SqlMapperOptions options = null)
         {
-            if (options == null) {
+            if (options == null)
+            {
                 options = SqlMapperOptions.DefaultOptions;
             }
 
-            int result = connection.Execute(BuildSql(), Parameters, transaction, options.CommandTimeout, options.CommandType);
+            var result = connection.Execute(BuildSql(), Parameters, transaction, options.CommandTimeout, options.CommandType);
             if (Inserts != null)
             {
                 // Execute each insert and aggregate the results
                 result = Inserts.Aggregate(result, (current, insert) => current + insert.Execute(connection, transaction, options));
             }
+
             return result;
         }
 
@@ -83,16 +90,18 @@ namespace Dapper.GraphQL
         /// <param name="options">The options for the command (optional).</param>
         public async Task<int> ExecuteAsync(IDbConnection connection, IDbTransaction transaction = null, SqlMapperOptions options = null)
         {
-            if (options == null) {
+            if (options == null)
+            {
                 options = SqlMapperOptions.DefaultOptions;
             }
 
-            int result = await connection.ExecuteAsync(BuildSql(), Parameters, transaction, options.CommandTimeout, options.CommandType);
+            var result = await connection.ExecuteAsync(BuildSql(), Parameters, transaction, options.CommandTimeout, options.CommandType);
             if (Inserts != null)
             {
                 // Execute each insert and aggregate the results
                 result = await Inserts.AggregateAsync(result, async (current, insert) => current + await insert.ExecuteAsync(connection, transaction, options));
             }
+
             return result;
         }
 
@@ -109,6 +118,7 @@ namespace Dapper.GraphQL
             {
                 Inserts = new List<SqlInsertContext>();
             }
+
             var insert = SqlBuilder.Insert(obj);
             Inserts.Add(insert);
             return this;
@@ -126,6 +136,7 @@ namespace Dapper.GraphQL
             {
                 Inserts = new List<SqlInsertContext>();
             }
+
             var insert = SqlBuilder.Insert(table, parameters);
             Inserts.Add(insert);
             return this;

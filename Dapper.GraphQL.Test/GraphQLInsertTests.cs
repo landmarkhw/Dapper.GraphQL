@@ -1,6 +1,6 @@
-using Newtonsoft.Json.Linq;
 using System.Threading.Tasks;
 using Dapper.GraphQL.Test.GraphQL;
+using Newtonsoft.Json.Linq;
 using Xunit;
 
 namespace Dapper.GraphQL.Test

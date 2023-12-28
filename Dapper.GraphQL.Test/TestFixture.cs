@@ -21,16 +21,20 @@ namespace Dapper.GraphQL.Test
     {
         #region Statics
 
-        private static string _chars = "abcdefghijklmnopqrstuvwxyz0123456789";
-        private static Random _random = new Random((int)(DateTime.Now.Ticks << 32));
+        private static readonly string _chars = "abcdefghijklmnopqrstuvwxyz0123456789";
+        private static readonly Random _random = new Random((int)(DateTime.Now.Ticks << 32));
 
         #endregion Statics
 
         private readonly string _databaseName;
         private readonly DocumentExecuter _documentExecuter;
+
         public PersonSchema Schema { get; set; }
+
         public IServiceProvider ServiceProvider { get; set; }
+
         private string ConnectionString { get; set; } = null;
+
         private bool IsDisposing { get; set; } = false;
 
         public TestFixture()
@@ -91,7 +95,7 @@ namespace Dapper.GraphQL.Test
                     options.Query = query;
                 })
                 .ConfigureAwait(false);
-            
+
             var json = new GraphQLSerializer(indent: true).Serialize(result);
             return json;
         }
@@ -116,7 +120,7 @@ namespace Dapper.GraphQL.Test
         public void SetupDatabaseConnection()
         {
             // Generate a random db name
-           
+
             ConnectionString = $"Server=localhost;Port=5432;Database={_databaseName};User Id=postgres;Password=dapper-graphql;";
 
             // Ensure the database exists

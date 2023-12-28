@@ -1,5 +1,5 @@
-﻿using Dapper.GraphQL.Test.Models;
-using System.Linq;
+﻿using System.Linq;
+using Dapper.GraphQL.Test.Models;
 
 namespace Dapper.GraphQL.Test.EntityMappers
 {
@@ -22,6 +22,7 @@ namespace Dapper.GraphQL.Test.EntityMappers
             if (company != null)
             {
                 if (email != null &&
+
                     // Eliminate duplicates
                     !company.Emails.Any(e => e.Address == email.Address))
                 {
@@ -29,6 +30,7 @@ namespace Dapper.GraphQL.Test.EntityMappers
                 }
 
                 if (phone != null &&
+
                     // Eliminate duplicates
                     !company.Phones.Any(p => p.Number == phone.Number))
                 {

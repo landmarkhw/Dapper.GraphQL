@@ -26,7 +26,7 @@ namespace Dapper.GraphQL.Test.QueryBuilders
             query.SplitOn<Company>("Id");
 
             var fields = context.GetSelectedFields();
-            
+
             if (fields.Keys.Any(k => k.StringValue.Equals("name", StringComparison.OrdinalIgnoreCase)))
             {
                 query.Select($"{alias}.Name");

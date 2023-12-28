@@ -7,7 +7,6 @@ using GraphQL;
 using GraphQL.Types;
 using Microsoft.Extensions.DependencyInjection;
 
-
 namespace Dapper.GraphQL.Test.GraphQL
 {
     public class PersonMutation : ObjectGraphType
@@ -17,8 +16,7 @@ namespace Dapper.GraphQL.Test.GraphQL
             Field<PersonType>("addPerson")
                 .Description("Adds new person.")
                 .Arguments(new QueryArguments(
-                    new QueryArgument<PersonInputType> { Name = "person" }
-                ))
+                    new QueryArgument<PersonInputType> { Name = "person" }))
                 .Resolve(context =>
                 {
                     var person = context.GetArgument<Person>("person");
@@ -27,7 +25,7 @@ namespace Dapper.GraphQL.Test.GraphQL
                     {
                         person.Id = person.MergedToPersonId = PostgreSql.NextIdentity(connection, (Person p) => p.Id);
 
-                        bool success = SqlBuilder
+                        var success = SqlBuilder
                             .Insert(person)
                             .Execute(connection) > 0;
 

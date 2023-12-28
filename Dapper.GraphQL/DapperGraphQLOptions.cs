@@ -34,7 +34,7 @@ namespace Dapper.GraphQL
         /// Adds a GraphQL query builder to the container.
         /// </summary>
         /// <param name="modelType">The model type to be queried.</param>
-        /// <param name="queryBuilderType">The query builder class, must implement IQueryBuilder<modelType></param>
+        /// <param name="queryBuilderType">The query builder class, must implement IQueryBuilder&lt;modelType&gt;.</param>
         /// <returns>The GraphQLOptions object.</returns>
         public DapperGraphQLOptions AddQueryBuilder(Type modelType, Type queryBuilderType)
         {

@@ -13,6 +13,7 @@ namespace Dapper.GraphQL.Test.QueryBuilders
         {
             // Always get the ID of the email
             query.Select($"{alias}.Id");
+
             // Tell Dapper where the Email class begins (at the Id we just selected)
             query.SplitOn<Email>("Id");
 

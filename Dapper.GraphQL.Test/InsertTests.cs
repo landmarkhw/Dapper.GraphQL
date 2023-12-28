@@ -1,7 +1,7 @@
-using Dapper.GraphQL.Test.EntityMappers;
-using Dapper.GraphQL.Test.Models;
 using System.Linq;
 using System.Threading.Tasks;
+using Dapper.GraphQL.Test.EntityMappers;
+using Dapper.GraphQL.Test.Models;
 using Xunit;
 
 namespace Dapper.GraphQL.Test
@@ -19,10 +19,11 @@ namespace Dapper.GraphQL.Test
         public void InsertPerson()
         {
             Person person = null;
+
             // Ensure inserting a person works and we get IDs back
-            int emailId = -1;
-            int personId = -1;
-            int phoneId = -1;
+            var emailId = -1;
+            var personId = -1;
+            var phoneId = -1;
 
             try
             {
@@ -169,10 +170,11 @@ namespace Dapper.GraphQL.Test
         public async Task InsertPersonAsync()
         {
             Person person = null;
+
             // Ensure inserting a person works and we get IDs back
-            int emailId = -1;
-            int personId = -1;
-            int phoneId = -1;
+            var emailId = -1;
+            var personId = -1;
+            var phoneId = -1;
 
             try
             {

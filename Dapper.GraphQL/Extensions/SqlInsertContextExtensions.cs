@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Data;
 using System.Linq;
 using System.Linq.Expressions;
@@ -16,6 +16,7 @@ namespace Dapper.GraphQL
             {
                 throw new NotSupportedException("Cannot execute a PostgreSQL identity with an expression of type " + identityNameSelector.Body.NodeType);
             }
+
             var memberExpression = identityNameSelector.Body as MemberExpression;
 
             var sb = BuildPostgreSqlIdentityQuery(context, memberExpression.Member.Name.ToLower());
@@ -32,6 +33,7 @@ namespace Dapper.GraphQL
             {
                 throw new NotSupportedException("Cannot execute a PostgreSQL identity with an expression of type " + identityNameSelector.Body.NodeType);
             }
+
             var memberExpression = identityNameSelector.Body as MemberExpression;
 
             var sb = BuildPostgreSqlIdentityQuery(context, memberExpression.Member.Name.ToLower());
@@ -55,10 +57,10 @@ namespace Dapper.GraphQL
                 .Single();
         }
 
-        public static async Task<TIdentityType> ExecuteWithSqlIdentityAsync<TEntityType, TIdentityType>(this SqlInsertContext context, IDbConnection dbConnection, Func<TEntityType, TIdentityType> identityTypeSelector)
+        public static Task<TIdentityType> ExecuteWithSqlIdentityAsync<TEntityType, TIdentityType>(this SqlInsertContext context, IDbConnection dbConnection, Func<TEntityType, TIdentityType> identityTypeSelector)
             where TEntityType : class
         {
-            return await ExecuteWithSqlIdentityAsync<TIdentityType>(context, dbConnection);
+            return ExecuteWithSqlIdentityAsync<TIdentityType>(context, dbConnection);
         }
 
         public static async Task<TIdentityType> ExecuteWithSqlIdentityAsync<TIdentityType>(this SqlInsertContext context, IDbConnection dbConnection)
@@ -110,7 +112,8 @@ namespace Dapper.GraphQL
                 sb.AppendLine(context.ToString());
                 sb.AppendLine("SELECT CAST(SCOPE_IDENTITY() AS BIGINT)");
             }
-            else throw new InvalidCastException($"Type {typeof(TIdentityType).Name} in not supported this SQL context.");
+            else
+                throw new InvalidCastException($"Type {typeof(TIdentityType).Name} in not supported this SQL context.");
 
             return sb;
         }

@@ -7,7 +7,8 @@ namespace Dapper.GraphQL
     /// These options corresponds to the optional parameters used by
     /// Dapper's SqlMapper class.
     /// </summary>
-    public class SqlMapperOptions {
+    public class SqlMapperOptions
+    {
         /// <summary>
         /// The default options used unless other are specified.
         /// </summary>

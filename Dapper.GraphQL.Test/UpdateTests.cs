@@ -1,6 +1,6 @@
-using Dapper.GraphQL.Test.Models;
 using System.Linq;
 using System.Threading.Tasks;
+using Dapper.GraphQL.Test.Models;
 using Xunit;
 
 namespace Dapper.GraphQL.Test
@@ -17,7 +17,7 @@ namespace Dapper.GraphQL.Test
         [Fact(DisplayName = "UPDATE person succeeds")]
         public void UpdatePerson()
         {
-            Person person = new Person
+            var person = new Person
             {
                 FirstName = "Douglas"
             };
@@ -87,7 +87,7 @@ namespace Dapper.GraphQL.Test
         [Fact(DisplayName = "UPDATE person asynchronously succeeds")]
         public async Task UpdatePersonAsync()
         {
-            Person person = new Person
+            var person = new Person
             {
                 FirstName = "Douglas"
             };
@@ -128,7 +128,7 @@ namespace Dapper.GraphQL.Test
                         .From<Person>()
                         .Select("Id", "FirstName")
                         .Where("Id = @id", new { id = previousPerson.Id })
-                        .ExecuteAsync<Person>(db, selectionSet);                        
+                        .ExecuteAsync<Person>(db, selectionSet);
                     person = people
                         .FirstOrDefault();
                 }

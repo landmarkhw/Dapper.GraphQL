@@ -17,8 +17,12 @@ namespace Dapper.GraphQL.Test.QueryBuilders
             {
                 switch (kvp.Key.StringValue)
                 {
-                    case "number": query.Select($"{alias}.Number"); break;
-                    case "type": query.Select($"{alias}.Type"); break;
+                    case "number":
+                        query.Select($"{alias}.Number");
+                        break;
+                    case "type":
+                        query.Select($"{alias}.Type");
+                        break;
                 }
             }
 

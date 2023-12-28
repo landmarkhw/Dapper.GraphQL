@@ -68,6 +68,7 @@ namespace Dapper.GraphQL
                 // Cache a reference to the entity
                 KeyCache[primaryKey] = entity;
             }
+
             return entity;
         }
     }

@@ -1,13 +1,13 @@
-using GraphQLParser.AST;
 using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
 using System.Threading.Tasks;
+using GraphQLParser.AST;
 
 namespace Dapper.GraphQL
 {
-    public class SqlQueryContext<TEntityType> : 
+    public class SqlQueryContext<TEntityType> :
         SqlQueryContext
         where TEntityType : class
     {
@@ -24,7 +24,9 @@ namespace Dapper.GraphQL
         protected List<Type> _types;
 
         public DynamicParameters Parameters { get; set; }
+
         protected Dapper.SqlBuilder SqlBuilder { get; set; }
+
         protected Dapper.SqlBuilder.Template QueryTemplate { get; set; }
 
         public SqlQueryContext(string from, dynamic parameters = null)
@@ -54,11 +56,11 @@ FROM {from}/**innerjoin**//**leftjoin**//**rightjoin**//**join**/
         ///         "customer.id",
         ///         "customer.name",
         ///     );
-        ///     queryBuilder.SplitOn<Customer>("id");
+        ///     queryBuilder.SplitOn&lt;Customer&gt;("id");
         ///     queryBuilder.Where("customer.id == @id");
         ///     queryBuilder.Parameters.Add("id", 1);
         ///     var customer = queryBuilder
-        ///         .Execute<Customer>(dbConnection, graphQLSelectionSet);
+        ///         .Execute&lt;Customer&gt;(dbConnection, graphQLSelectionSet);
         ///         .FirstOrDefault();
         ///
         ///     // SELECT customer.id, customer.name
@@ -66,8 +68,9 @@ FROM {from}/**innerjoin**//**leftjoin**//**rightjoin**//**join**/
         ///     // WHERE customer.id == @id
         /// </example>
         /// <param name="where">An array of WHERE clauses.</param>
+        /// <param name="parameters">Parameters passed to where.</param>
         /// <returns>The query builder.</returns>
-        public SqlQueryContext AndWhere(string where, dynamic parameters = null)
+        public SqlQueryContext AndWhere(string where, dynamic? parameters = null)
         {
             Parameters.AddDynamicParams(parameters);
             SqlBuilder.Where(where);
@@ -84,11 +87,11 @@ FROM {from}/**innerjoin**//**leftjoin**//**rightjoin**//**join**/
         ///         "customer.id",
         ///         "customer.name",
         ///     );
-        ///     queryBuilder.SplitOn<Customer>("id");
+        ///     queryBuilder.SplitOn&lt;Customer&gt;("id");
         ///     queryBuilder.Where("customer.id == @id");
         ///     queryBuilder.Parameters.Add("id", 1);
         ///     var customer = queryBuilder
-        ///         .Execute<Customer>(dbConnection, graphQLSelectionSet)
+        ///         .Execute&lt;Customer&gt;(dbConnection, graphQLSelectionSet)
         ///         .FirstOrDefault();
         ///
         ///     // SELECT customer.id, customer.name
@@ -110,7 +113,8 @@ FROM {from}/**innerjoin**//**leftjoin**//**rightjoin**//**join**/
             SqlMapperOptions options = null)
             where TEntityType : class
         {
-            if (options == null) {
+            if (options == null)
+            {
                 options = SqlMapperOptions.DefaultOptions;
             }
 
@@ -143,11 +147,9 @@ FROM {from}/**innerjoin**//**leftjoin**//**rightjoin**//**join**/
                 transaction: transaction,
                 commandTimeout: options.CommandTimeout,
                 commandType: options.CommandType,
-                buffered: options.Buffered
-            );
+                buffered: options.Buffered);
             return results.Where(e => e != null);
         }
-
 
         /// <summary>
         /// Executes the query with Dapper asynchronously, using the provided database connection and map function.
@@ -159,11 +161,11 @@ FROM {from}/**innerjoin**//**leftjoin**//**rightjoin**//**join**/
         ///         "customer.id",
         ///         "customer.name",
         ///     );
-        ///     queryBuilder.SplitOn<Customer>("id");
+        ///     queryBuilder.SplitOn&lt;Customer&gt;("id");
         ///     queryBuilder.Where("customer.id == @id");
         ///     queryBuilder.Parameters.Add("id", 1);
         ///     var customer = queryBuilder
-        ///         .Execute<Customer>(dbConnection, graphQLSelectionSet)
+        ///         .Execute&lt;Customer&gt;(dbConnection, graphQLSelectionSet)
         ///         .FirstOrDefault();
         ///
         ///     // SELECT customer.id, customer.name
@@ -185,7 +187,8 @@ FROM {from}/**innerjoin**//**leftjoin**//**rightjoin**//**join**/
             SqlMapperOptions options = null)
             where TEntityType : class
         {
-            if (options == null) {
+            if (options == null)
+            {
                 options = SqlMapperOptions.DefaultOptions;
             }
 
@@ -218,8 +221,7 @@ FROM {from}/**innerjoin**//**leftjoin**//**rightjoin**//**join**/
                 transaction: transaction,
                 commandTimeout: options.CommandTimeout,
                 commandType: options.CommandType,
-                buffered: options.Buffered
-            );
+                buffered: options.Buffered);
             return results.Where(e => e != null);
         }
 
@@ -246,12 +248,12 @@ FROM {from}/**innerjoin**//**leftjoin**//**rightjoin**//**join**/
         ///         "customer.id",
         ///         "account.id",
         ///     );
-        ///     queryBuilder.SplitOn<Customer>("id");
-        ///     queryBuilder.SplitOn<Account>("id");
+        ///     queryBuilder.SplitOn&lt;Customer&gt;("id");
+        ///     queryBuilder.SplitOn&lt;Account&gt;("id");
         ///     queryBuilder.Where("customer.id == @id");
         ///     queryBuilder.Parameters.Add("id", 1);
         ///     var customer = queryBuilder
-        ///         .Execute<Customer>(dbConnection, graphQLSelectionSet);
+        ///         .Execute&lt;Customer&gt;(dbConnection, graphQLSelectionSet);
         ///         .FirstOrDefault();
         ///
         ///     // SELECT customer.id, account.id
@@ -286,12 +288,12 @@ FROM {from}/**innerjoin**//**leftjoin**//**rightjoin**//**join**/
         ///         "customer.id",
         ///         "account.id",
         ///     );
-        ///     queryBuilder.SplitOn<Customer>("id");
-        ///     queryBuilder.SplitOn<Account>("id");
+        ///     queryBuilder.SplitOn&lt;Customer&gt;("id");
+        ///     queryBuilder.SplitOn&lt;Account&gt;("id");
         ///     queryBuilder.Where("customer.id == @id");
         ///     queryBuilder.Parameters.Add("id", 1);
         ///     var customer = queryBuilder
-        ///         .Execute<Customer>(dbConnection, graphQLSelectionSet);
+        ///         .Execute&lt;Customer&gt;(dbConnection, graphQLSelectionSet);
         ///         .FirstOrDefault();
         ///
         ///     // SELECT customer.id, account.id
@@ -325,12 +327,12 @@ FROM {from}/**innerjoin**//**leftjoin**//**rightjoin**//**join**/
         ///         "customer.id",
         ///         "customer.name",
         ///     );
-        ///     queryBuilder.SplitOn<Customer>("id");
+        ///     queryBuilder.SplitOn&lt;Customer&gt;("id");
         ///     queryBuilder.Where("customer.id == @id");
         ///     queryBuilder.Parameters.Add("id", 1);
         ///     queryBuilder.Orderby("customer.name");
         ///     var customer = queryBuilder
-        ///         .Execute<Customer>(dbConnection, graphQLSelectionSet);
+        ///         .Execute&lt;Customer&gt;(dbConnection, graphQLSelectionSet);
         ///         .FirstOrDefault();
         ///
         ///     // SELECT customer.id, customer.name
@@ -378,10 +380,10 @@ FROM {from}/**innerjoin**//**leftjoin**//**rightjoin**//**join**/
         ///            "customer.id",
         ///            "customer.name",
         ///         )
-        ///         .SplitOn<Customer>("id")
+        ///         .SplitOn&lt;Customer&gt;("id")
         ///         .Where("customer.id == @id")
         ///         .WithParameter("id", 1)
-        ///         .Execute<Customer>(dbConnection, graphQLSelectionSet);
+        ///         .Execute&lt;Customer&gt;(dbConnection, graphQLSelectionSet);
         ///         .FirstOrDefault();
         ///
         ///     // SELECT customer.id, customer.name
@@ -404,15 +406,16 @@ FROM {from}/**innerjoin**//**leftjoin**//**rightjoin**//**join**/
             {
                 SqlBuilder.Select(s);
             }
+
             return this;
         }
-        
+
         /// <summary>
         /// Instructs dapper to deserialized data into a different type, beginning with the specified column.
         /// </summary>
         /// <typeparam name="TEntityType">The type to map data into.</typeparam>
         /// <param name="columnName">The name of the column to map into a different type.</param>
-        /// <see cref="http://dapper-tutorial.net/result-multi-mapping" />
+        /// <seealso cref="http://dapper-tutorial.net/result-multi-mapping" />
         /// <returns>The query builder.</returns>
         public SqlQueryContext SplitOn<TEntityType>(string columnName)
         {
@@ -424,7 +427,7 @@ FROM {from}/**innerjoin**//**leftjoin**//**rightjoin**//**join**/
         /// </summary>
         /// <param name="columnName">The name of the column to map into a different type.</param>
         /// <param name="entityType">The type to map data into.</param>
-        /// <see cref="http://dapper-tutorial.net/result-multi-mapping" />
+        /// <seealso cref="http://dapper-tutorial.net/result-multi-mapping" />
         /// <returns>The query builder.</returns>
         public SqlQueryContext SplitOn(string columnName, Type entityType)
         {

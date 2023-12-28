@@ -32,7 +32,7 @@
         {
             return new SqlInsertContext<TEntityType>(typeof(TEntityType).Name, obj);
         }
-        
+
         public static SqlInsertContext Insert(string table, dynamic parameters = null)
         {
             return new SqlInsertContext(table, parameters);

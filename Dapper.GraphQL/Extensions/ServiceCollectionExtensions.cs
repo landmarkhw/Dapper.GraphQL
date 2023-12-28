@@ -1,5 +1,5 @@
-﻿using Microsoft.Extensions.DependencyInjection;
 using System;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace Dapper.GraphQL
 {
@@ -14,7 +14,7 @@ namespace Dapper.GraphQL
         public static IServiceCollection AddDapperGraphQl(this IServiceCollection serviceCollection, Action<DapperGraphQLOptions> setup)
         {
             var options = new DapperGraphQLOptions(serviceCollection);
-            setup(options);
+            setup?.Invoke(options);
 
             return serviceCollection;
         }
